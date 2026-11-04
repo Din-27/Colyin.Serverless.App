@@ -1,0 +1,63 @@
+services:
+  # Traefik v3 Ingress & Reverse Proxy with Let's Encrypt Auto-SSL
+  traefik:
+    image: traefik:v3.2
+    container_name: minipaas-traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik-certificates:/letsencrypt"
+    networks:
+      - minipaas-global
+
+  # MiniPaaS Core Controller Plane & Dashboard
+  controller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minipaas-controller
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=file:/app/data/prod.db
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY:-e5b8719284fa9801c87361abef238914619a87cd5219e8301726a45e90bd67a1}
+      - TRAEFIK_CERT_RESOLVER=letsencrypt
+      - ADMIN_ALERT_EMAIL=${ADMIN_ALERT_EMAIL:-admin@example.com}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "controller-data:/app/data"
+    ports:
+      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minipaas.rule=Host(`${PAAS_DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minipaas.entrypoints=websecure"
+      - "traefik.http.routers.minipaas.tls=true"
+      - "traefik.http.routers.minipaas.tls.certresolver=letsencrypt"
+      - "traefik.http.services.minipaas.loadbalancer.server.port=3000"
+    networks:
+      - minipaas-global
+
+networks:
+  minipaas-global:
+    name: minipaas-global
+    driver: bridge
+
+volumes:
+  traefik-certificates:
+  controller-data:

@@ -1,0 +1,119 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  description  String?
+  networkName  String        @unique // e.g. "net_proj_123"
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
+  addons       Addon[]
+}
+
+model Application {
+  id              String                @id @default(cuid())
+  projectId       String
+  project         Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name            String
+  slug            String
+  repositoryUrl   String
+  branch          String                @default("main")
+  buildPack       String                @default("NIXPACKS") // NIXPACKS | DOCKERFILE
+  dockerfilePath  String?               @default("Dockerfile")
+  installCommand  String?
+  buildCommand    String?
+  startCommand    String?
+  internalPort    Int                   @default(3000)
+  cpuLimit        Float                 @default(1.0)
+  memoryLimitMb   Int                   @default(512)
+  restartPolicy   String                @default("unless-stopped")
+  activeDeployId  String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  deployments     Deployment[]
+  envVariables    EnvironmentVariable[]
+  domains         Domain[]
+  storageVolumes  StorageVolume[]
+}
+
+model Deployment {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  commitHash    String?
+  commitMessage String?
+  branch        String
+  imageTag      String?
+  containerId   String?
+  status        String      @default("QUEUED") // QUEUED, BUILDING, DEPLOYING, ACTIVE, FAILED, TERMINATED
+  buildLogs     String?
+  errorMessage  String?
+  startedAt     DateTime    @default(now())
+  finishedAt    DateTime?
+}
+
+model EnvironmentVariable {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  key           String
+  encryptedVal  String      // Ciphertext Base64 (AES-256-GCM)
+  iv            String      // Initialization Vector Base64
+  authTag       String      // Authentication Tag Base64
+  type          String      @default("RUNTIME") // RUNTIME | BUILD_TIME
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([applicationId, key])
+}
+
+model Domain {
+  id                String      @id @default(cuid())
+  applicationId     String
+  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  host              String      @unique
+  isPrimary         Boolean     @default(false)
+  sslEnabled        Boolean     @default(true)
+  certificateStatus String      @default("PENDING") // PENDING | ISSUED | FAILED
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model StorageVolume {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  name          String      @unique // e.g. "vol_app123_data"
+  mountPath     String      // e.g. "/var/lib/app/data"
+  sizeLimitMb   Int?        @default(1024)
+  createdAt     DateTime    @default(now())
+}
+
+model Addon {
+  id            String      @id @default(cuid())
+  projectId     String
+  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name          String
+  type          String      // POSTGRESQL | MYSQL | REDIS | RABBITMQ | MINIO
+  containerId   String?
+  internalHost  String
+  internalPort  Int
+  publicPort    Int?        // Nullable port mapping
+  volumeName    String
+  encryptedPass String
+  iv            String
+  authTag       String
+  status        String      @default("STOPPED")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
