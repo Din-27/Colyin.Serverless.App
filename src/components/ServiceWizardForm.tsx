@@ -13,7 +13,37 @@ import {
   Check,
   Server,
   Globe,
+  Lock,
+  Sparkles,
+  Code2,
 } from "lucide-react";
+
+const STARTER_TEMPLATES = [
+  {
+    name: "Express.js REST API",
+    repo: "https://github.com/expressjs/express",
+    branch: "master",
+    port: 3000,
+    buildPack: "NIXPACKS",
+    desc: "Lightweight Node.js REST API backend",
+  },
+  {
+    name: "Python FastAPI Backend",
+    repo: "https://github.com/tiangolo/fastapi",
+    branch: "master",
+    port: 8000,
+    buildPack: "NIXPACKS",
+    desc: "High-performance modern Python API framework",
+  },
+  {
+    name: "Go Fiber Web Service",
+    repo: "https://github.com/gofiber/fiber",
+    branch: "master",
+    port: 8080,
+    buildPack: "NIXPACKS",
+    desc: "Express-inspired ultra-fast Go framework",
+  },
+];
 
 export function ServiceWizardForm({ project }: { project: any }) {
   const router = useRouter();
@@ -29,15 +59,27 @@ export function ServiceWizardForm({ project }: { project: any }) {
   const [internalPort, setInternalPort] = useState(3000);
   const [domain, setDomain] = useState("");
 
+  // Private Repo Token
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+
   // Step 2: Resource Attachment
   const [selectedAddonId, setSelectedAddonId] = useState("");
 
   // Step 3: Env Vars
   const [envText, setEnvText] = useState("");
 
+  const handleSelectTemplate = (tpl: (typeof STARTER_TEMPLATES)[0]) => {
+    setName(tpl.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+    setRepositoryUrl(tpl.repo);
+    setBranch(tpl.branch);
+    setInternalPort(tpl.port);
+    setBuildPack(tpl.buildPack);
+  };
+
   const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !repositoryUrl) {
+    if (!name.trim() || !repositoryUrl.trim()) {
       setError("Service Name and Git Repository URL are required");
       return;
     }
@@ -50,6 +92,20 @@ export function ServiceWizardForm({ project }: { project: any }) {
     setError("");
 
     try {
+      // Build final git clone URL (inject token if private repo)
+      let finalRepoUrl = repositoryUrl.trim();
+      if (isPrivate && accessToken.trim()) {
+        try {
+          const urlObj = new URL(finalRepoUrl);
+          urlObj.username = "oauth2";
+          urlObj.password = accessToken.trim();
+          finalRepoUrl = urlObj.toString();
+        } catch {
+          // If not standard URL, prepend token
+          finalRepoUrl = `https://oauth2:${accessToken.trim()}@${finalRepoUrl.replace("https://", "")}`;
+        }
+      }
+
       // 1. Create Application
       const appRes = await fetch("/api/apps", {
         method: "POST",
@@ -57,7 +113,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
         body: JSON.stringify({
           projectId: project.id,
           name,
-          repositoryUrl,
+          repositoryUrl: finalRepoUrl,
           branch,
           internalPort,
           buildPack,
@@ -139,7 +195,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
       {/* Step Indicators */}
       <div className="flex items-center justify-between pb-4 border-b border-zinc-800 text-xs">
         {[
-          { num: 1, label: "Source & Runtime" },
+          { num: 1, label: "Git Repository & Source" },
           { num: 2, label: "Attach Resources" },
           { num: 3, label: "Environment & Deploy" },
         ].map((s) => (
@@ -175,9 +231,30 @@ export function ServiceWizardForm({ project }: { project: any }) {
         </div>
       )}
 
-      {/* Step 1: Source */}
+      {/* Step 1: Git Repository */}
       {step === 1 && (
-        <form onSubmit={handleNextStep1} className="space-y-4">
+        <form onSubmit={handleNextStep1} className="space-y-5">
+          {/* Quickstart Templates Picker */}
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              Quickstart Starter Templates (Or enter custom repo below)
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {STARTER_TEMPLATES.map((tpl) => (
+                <button
+                  key={tpl.name}
+                  type="button"
+                  onClick={() => handleSelectTemplate(tpl)}
+                  className="p-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:border-indigo-500/50 hover:bg-zinc-800 text-left transition"
+                >
+                  <div className="text-xs font-semibold text-white truncate">{tpl.name}</div>
+                  <div className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{tpl.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1.5">
               Service Name
@@ -194,29 +271,58 @@ export function ServiceWizardForm({ project }: { project: any }) {
 
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-              Git Repository URL
+              Git Repository URL (GitHub / GitLab / Gitea)
             </label>
             <input
               type="text"
               required
-              placeholder="https://github.com/username/my-backend.git"
+              placeholder="https://github.com/username/my-project.git"
               value={repositoryUrl}
               onChange={(e) => setRepositoryUrl(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white placeholder-zinc-500 text-sm font-mono focus:outline-none focus:border-indigo-500"
             />
+          </div>
+
+          {/* Private Repository Toggle */}
+          <div className="p-3 rounded-lg bg-zinc-950/80 border border-zinc-800 space-y-2">
+            <label className="flex items-center gap-2 text-xs font-medium text-zinc-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+                className="rounded text-indigo-600 bg-zinc-800 border-zinc-700"
+              />
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              This is a Private Repository (Requires Personal Access Token / PAT)
+            </label>
+
+            {isPrivate && (
+              <div className="pt-2">
+                <input
+                  type="password"
+                  placeholder="Paste GitHub Personal Access Token (ghp_...)"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white placeholder-zinc-500 text-xs font-mono focus:outline-none focus:border-indigo-500"
+                />
+                <p className="text-[11px] text-zinc-500 mt-1">
+                  The token will be safely used during Git clone and encrypted with AES-256-GCM.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                Branch
+                Target Branch
               </label>
               <input
                 type="text"
                 required
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white font-mono text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -229,7 +335,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 required
                 value={internalPort}
                 onChange={(e) => setInternalPort(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white font-mono text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
           </div>
@@ -265,7 +371,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
               >
                 <div className="text-xs font-semibold">Custom Dockerfile</div>
                 <div className="text-[11px] text-zinc-500 mt-1">
-                  Builds using the Dockerfile in your repo root.
+                  Builds using the Dockerfile located in your repo root.
                 </div>
               </button>
             </div>
