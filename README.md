@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/server.svg" width="64" height="64" alt="Colyin Logo" />
+  <img src="./public/logo.png" width="120" height="120" alt="Colyin Logo" />
 </p>
 
 <h1 align="center">Colyin</h1>
