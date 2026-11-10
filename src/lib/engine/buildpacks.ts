@@ -161,7 +161,7 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
 
       const hasPnpm = fs.existsSync(path.join(dir, "pnpm-lock.yaml"));
       const hasYarn = fs.existsSync(path.join(dir, "yarn.lock"));
-      const installCmd = hasPnpm ? "pnpm install" : hasYarn ? "yarn install" : "npm install";
+      const installCmd = hasPnpm ? "pnpm install --config.dangerously-allow-all-builds=true" : hasYarn ? "yarn install" : "npm install";
 
       return {
         language: "Node.js",
@@ -463,11 +463,14 @@ CMD ["/app/server"]
 
       return `FROM node:${nodeTag} AS builder
 WORKDIR /app
-${hasPnpm ? "RUN corepack enable && corepack prepare pnpm@latest --activate" : ""}
+${hasPnpm ? "RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm config set dangerously-allow-all-builds true" : ""}
 COPY package*.json ${hasPnpm ? "pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc*" : hasYarn ? "yarn.lock* .yarnrc*" : ".npmrc*"} ./
-${hasPnpm ? "RUN echo 'strict-dep-builds=false' >> .npmrc && (pnpm install --frozen-lockfile || pnpm install)" : hasYarn ? "RUN yarn install --frozen-lockfile || yarn install" : "RUN npm ci || npm install"}
+${hasPnpm ? `RUN printf "dangerously-allow-all-builds=true\\nstrict-dep-builds=false\\n" >> .npmrc && \\
+    (printf "\\ndangerouslyAllowAllBuilds: true\\n" >> pnpm-workspace.yaml 2>/dev/null || true) && \\
+    (pnpm approve-builds --all 2>/dev/null || true) && \\
+    (pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true || pnpm install --config.dangerously-allow-all-builds=true)` : hasYarn ? "RUN yarn install --frozen-lockfile || yarn install" : "RUN npm ci || npm install"}
 COPY . .
-${hasPrisma ? "RUN npx prisma generate || true" : ""}
+RUN if [ -d "prisma" ] || [ -f "prisma/schema.prisma" ]; then npx prisma generate || true; fi
 ${hasPnpm ? "RUN (pnpm rebuild || true)" : ""}
 RUN ${info.buildCmd || "npm run build --if-present"}
 
