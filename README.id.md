@@ -445,3 +445,4 @@ Colyin adalah perangkat lunak open-source 100% di bawah naungan **Lisensi MIT**.
 
 Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE) &mdash; bebas digunakan, dimodifikasi, di-self-host, dan didistribusikan.
 Colyin dibangun oleh pengembang, untuk pengembang.
+
