@@ -37,19 +37,24 @@ else
 fi
 
 # 4. Port Availability Detection & Firewall (UFW)
-COLYIN_PORT=3000
+DEFAULT_PORT=3050
+COLYIN_PORT=${DEFAULT_PORT}
+
 if [ -f .env ] && grep -q "^PORT=" .env; then
   COLYIN_PORT=$(grep "^PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
 elif [ -f .env ] && grep -q "^COLYIN_PORT=" .env; then
   COLYIN_PORT=$(grep "^COLYIN_PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
-elif (command -v ss &>/dev/null && ss -tuln | grep -q ":3000 ") || (command -v lsof &>/dev/null && lsof -i:3000 &>/dev/null); then
-  echo "[Notice] Port 3000 is already in use by another service on this host!"
-  CANDIDATE=3001
+fi
+
+# If the selected port is currently in use on this server, pick safe port in 3050+ range
+if (command -v ss &>/dev/null && ss -tuln | grep -q ":${COLYIN_PORT} ") || (command -v lsof &>/dev/null && lsof -i:${COLYIN_PORT} &>/dev/null); then
+  echo "[Notice] Port ${COLYIN_PORT} is currently in use on this server."
+  CANDIDATE=3050
   while (command -v ss &>/dev/null && ss -tuln | grep -q ":${CANDIDATE} ") || (command -v lsof &>/dev/null && lsof -i:${CANDIDATE} &>/dev/null); do
     CANDIDATE=$((CANDIDATE + 1))
   done
   COLYIN_PORT=${CANDIDATE}
-  echo "[Info] Automatically assigned available dashboard port: ${COLYIN_PORT}"
+  echo "[Info] Assigned safe non-colliding dashboard port: ${COLYIN_PORT}"
 fi
 
 if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
@@ -97,16 +102,22 @@ EOF
   echo "[Info] Cryptographic secrets auto-generated for AES-256-GCM, JWT & Webhooks."
 else
   echo "[Info] Existing .env configuration detected. Preserving all encryption keys."
-  # Ensure PORT is present in existing .env
-  if ! grep -q "^PORT=" .env && ! grep -q "^COLYIN_PORT=" .env; then
-    echo "PORT=${COLYIN_PORT}" >> .env
-    echo "[Info] Added PORT=${COLYIN_PORT} to .env (since port 3000 was in use or unconfigured)"
-  else
-    # Read configured port from .env
-    CURRENT_ENV_PORT=$(grep -E "^(PORT|COLYIN_PORT)=" .env | head -n1 | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
-    if [ -n "$CURRENT_ENV_PORT" ]; then
-      COLYIN_PORT=$CURRENT_ENV_PORT
+  if grep -q "^PORT=" .env; then
+    # If existing PORT was 3000 and it collided, update to safe port
+    OLD_PORT=$(grep "^PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
+    if [ "$OLD_PORT" = "3000" ] && [ "$COLYIN_PORT" != "3000" ]; then
+      sed -i "s/^PORT=.*/PORT=${COLYIN_PORT}/" .env 2>/dev/null || true
+      echo "[Info] Updated .env PORT from 3000 to ${COLYIN_PORT} to prevent collision."
     fi
+  elif grep -q "^COLYIN_PORT=" .env; then
+    OLD_PORT=$(grep "^COLYIN_PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
+    if [ "$OLD_PORT" = "3000" ] && [ "$COLYIN_PORT" != "3000" ]; then
+      sed -i "s/^COLYIN_PORT=.*/COLYIN_PORT=${COLYIN_PORT}/" .env 2>/dev/null || true
+      echo "[Info] Updated .env COLYIN_PORT from 3000 to ${COLYIN_PORT} to prevent collision."
+    fi
+  else
+    echo "PORT=${COLYIN_PORT}" >> .env
+    echo "[Info] Added PORT=${COLYIN_PORT} to .env"
   fi
 fi
 

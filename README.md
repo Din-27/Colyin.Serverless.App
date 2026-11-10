@@ -120,7 +120,7 @@ flowchart TB
 
 | Service | Protocol | Default Port | Description |
 | :--- | :--- | :--- | :--- |
-| **Colyin Dashboard** | HTTP/HTTPS | `3000` | Web control panel & management UI |
+| **Colyin Dashboard** | HTTP/HTTPS | `3050` | Web control panel & management UI (customizable via `PORT`) |
 | **Ingress HTTP** | HTTP | `80` | Reverse proxy edge router |
 | **Ingress HTTPS** | HTTPS | `443` | SSL/TLS wildcard reverse proxy |
 | **PostgreSQL** | Wire (PGlite / Docker) | `10000` | Dedicated database port (DBeaver / Prisma) |
@@ -140,7 +140,7 @@ This guide is for installing Colyin on a fresh VPS (such as DigitalOcean, AWS EC
 Ensure your server runs **Ubuntu 22.04 LTS or 24.04 LTS**. In your cloud provider's security group / firewall settings, make sure the following ports are open (*Inbound Allow*):
 * `22` (SSH)
 * `80` & `443` (HTTP & HTTPS Ingress Reverse Proxy)
-* `3000` (Colyin Web Dashboard)
+* `3050` (Colyin Web Dashboard — customizable via `PORT`)
 * `10000 - 10020` (Public Range for PostgreSQL & Redis)
 * `15672` (RabbitMQ Web Management Console)
 
@@ -173,7 +173,7 @@ bash install.sh
 #### Step 5: Access the Dashboard & Create Initial Admin Account
 1. Open your browser and navigate to:
    ```text
-   http://<your_vps_ip>:3000
+   http://<your_vps_ip>:3050
    ```
 2. You will be greeted by the initial setup / registration screen.
 3. Register your primary account. **The first registered user is automatically granted full `ADMIN` privileges.**
@@ -357,7 +357,7 @@ sudo rm -rf /opt/colyin
 #### 3. (Optional) Revert Firewall Ports:
 If you no longer need the open firewall ports on UFW:
 ```bash
-sudo ufw delete allow 3000/tcp
+sudo ufw delete allow 3050/tcp
 sudo ufw delete allow 15672/tcp
 sudo ufw delete allow 10000:10020/tcp
 sudo ufw reload
@@ -369,8 +369,8 @@ sudo ufw reload
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `NODE_ENV` | `development` | Set to `production` on live servers |
-| `PORT` | `3000` | Host port for direct dashboard access (auto-selects next free port if 3000 is occupied) |
+| `NODE_ENV` | `production` | Set to `production` on live servers |
+| `PORT` | `3050` | Host port for direct dashboard access (prevents port 3000 conflicts) |
 | `PUBLIC_IP` | `localhost` | Public IP of the VPS for remote database connections |
 | `WILDCARD_DOMAIN` | `127.0.0.1.sslip.io` | Wildcard base domain (e.g. `103.xxx.sslip.io` or `apps.domain.com`) |
 | `ENCRYPTION_MASTER_KEY`| *(auto-generated)* | 64-character hex master key for AES-256-GCM encryption |

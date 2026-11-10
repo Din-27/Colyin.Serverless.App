@@ -43,7 +43,7 @@ services:
       - "./data:/app/data"
       - "./apps-storage:/app/apps-storage"
     ports:
-      - "${PORT:-${COLYIN_PORT:-3000}}:3000"
+      - "${PORT:-${COLYIN_PORT:-3050}}:3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.minipaas.rule=Host(`${PAAS_DOMAIN:-localhost}`)"

@@ -120,12 +120,12 @@ flowchart TB
 
 | Service | Protokol | Port Default | Keterangan |
 | :--- | :--- | :--- | :--- |
-| **Colyin Dashboard** | HTTP/HTTPS | `3000` | Panel kontrol web & antarmuka manajemen |
+| **Colyin Dashboard** | HTTP/HTTPS | `3050` | Panel kontrol web & antarmuka manajemen (dapat diubah via `PORT`) |
 | **Ingress HTTP** | HTTP | `80` | Router edge reverse proxy |
 | **Ingress HTTPS** | HTTPS | `443` | Reverse proxy SSL/TLS wildcard |
 | **PostgreSQL** | Wire (PGlite / Docker) | `10000` | Port database mandiri (DBeaver / Prisma) |
 | **Redis** | RESP Wire | `10001` | Port cache mandiri (ioredis / RedisInsight) |
-| **RabbitMQ AMQP** | AMQP 0-9-1 | `10002` | Protokol worker antrean pesan |
+| **RabbitMQ AMQP** | AMQP 0-9-1 | `10002` | Message queue worker protocol |
 | **RabbitMQ Web UI** | HTTP | `15672` | Konsol Web Manajemen resmi RabbitMQ |
 
 ---
@@ -140,7 +140,7 @@ Panduan ini ditujukan bagi Anda yang ingin memasang Colyin dari nol di server VP
 Pastikan server Anda menggunakan **Ubuntu 22.04 LTS atau 24.04 LTS**. Di panel cloud provider Anda (Security Groups / Firewall), pastikan port-port berikut diizinkan masuk (*Inbound Allow*):
 * `22` (SSH)
 * `80` & `443` (HTTP & HTTPS Ingress Reverse Proxy)
-* `3000` (Web Dashboard Colyin)
+* `3050` (Web Dashboard Colyin — dapat diubah via `PORT`)
 * `10000 - 10020` (Rentang Publik untuk PostgreSQL & Redis)
 * `15672` (Konsol Web Manajemen RabbitMQ)
 
@@ -173,7 +173,7 @@ bash install.sh
 #### Langkah 5: Buka Dashboard & Buat Akun Administrator Pertama
 1. Buka browser di laptop Anda dan akses:
    ```text
-   http://<ip_vps_anda>:3000
+   http://<ip_vps_anda>:3050
    ```
 2. Anda akan disambut oleh halaman registrasi awal / setup.
 3. Daftarkan akun utama Anda. **Pengguna pertama yang mendaftar secara otomatis diberikan hak akses `ADMIN` penuh.**
@@ -357,7 +357,7 @@ sudo rm -rf /opt/colyin
 #### 3. (Opsional) Tutup Kembali Port Firewall UFW:
 Jika Anda tidak lagi membutuhkan port-port yang sebelumnya dibuka:
 ```bash
-sudo ufw delete allow 3000/tcp
+sudo ufw delete allow 3050/tcp
 sudo ufw delete allow 15672/tcp
 sudo ufw delete allow 10000:10020/tcp
 sudo ufw reload
@@ -369,8 +369,8 @@ sudo ufw reload
 
 | Variabel | Nilai Bawaan | Keterangan |
 | :--- | :--- | :--- |
-| `NODE_ENV` | `development` | Set ke `production` pada server aktif |
-| `PORT` | `3000` | Port host untuk akses dashboard langsung (otomatis memilih port kosong berikutnya jika 3000 terpakai) |
+| `NODE_ENV` | `production` | Set ke `production` pada server aktif |
+| `PORT` | `3050` | Port host untuk akses dashboard langsung (mencegah tabrakan dengan port 3000) |
 | `PUBLIC_IP` | `localhost` | IP Publik VPS untuk koneksi remote database |
 | `WILDCARD_DOMAIN` | `127.0.0.1.sslip.io` | Domain dasar wildcard (misal `103.xxx.sslip.io` atau `apps.domain.com`) |
 | `ENCRYPTION_MASTER_KEY`| *(dibuat otomatis)* | Master key heksadesimal 64 karakter untuk enkripsi AES-256-GCM |
