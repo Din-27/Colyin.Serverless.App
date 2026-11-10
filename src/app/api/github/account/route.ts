@@ -60,6 +60,17 @@ export async function GET() {
       orderBy: { updatedAt: "desc" },
     });
 
+    const idSetting = await db.systemSetting.findUnique({
+      where: { key: "GITHUB_CLIENT_ID" },
+    });
+    const secretSetting = await db.systemSetting.findUnique({
+      where: { key: "GITHUB_CLIENT_SECRET" },
+    });
+    const isOauthConfigured = !!(
+      (process.env.GITHUB_CLIENT_ID || idSetting?.value?.trim()) &&
+      (process.env.GITHUB_CLIENT_SECRET || secretSetting?.value?.trim())
+    );
+
     const cliAccounts = getLocalGhCliAccounts().map((a) => ({
       username: a.username,
       active: a.active,
@@ -71,6 +82,7 @@ export async function GET() {
         connected: false,
         account: null,
         cliAccounts,
+        isOauthConfigured,
       });
     }
 
@@ -91,6 +103,7 @@ export async function GET() {
         updatedAt: account.updatedAt,
       },
       cliAccounts,
+      isOauthConfigured,
     });
   } catch (err: any) {
     return NextResponse.json(

@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   Loader2,
   Check,
+  Copy,
+  KeyRound,
   Server,
   Globe,
   Lock,
@@ -73,6 +75,14 @@ export function ServiceWizardForm({ project }: { project: any }) {
   const [inlineToken, setInlineToken] = useState("");
   const [inlineTokenLoading, setInlineTokenLoading] = useState(false);
 
+  // GitHub OAuth States
+  const [isOauthConfigured, setIsOauthConfigured] = useState(false);
+  const [showOauthModal, setShowOauthModal] = useState(false);
+  const [oauthClientId, setOauthClientId] = useState("");
+  const [oauthClientSecret, setOauthClientSecret] = useState("");
+  const [savingOauth, setSavingOauth] = useState(false);
+  const [copiedCallback, setCopiedCallback] = useState(false);
+
   // Step 1: Selected Service Specs
   const [name, setName] = useState("");
   const [repositoryUrl, setRepositoryUrl] = useState("");
@@ -128,6 +138,9 @@ export function ServiceWizardForm({ project }: { project: any }) {
     try {
       const res = await fetch("/api/github/account");
       const data = await res.json();
+      if (typeof data.isOauthConfigured === "boolean") {
+        setIsOauthConfigured(data.isOauthConfigured);
+      }
       if (data.cliAccounts && data.cliAccounts.length > 0) {
         setCliAccounts(data.cliAccounts);
         const active = data.cliAccounts.find((a: any) => a.active) || data.cliAccounts[0];
@@ -174,9 +187,68 @@ export function ServiceWizardForm({ project }: { project: any }) {
         if (data.settings?.WILDCARD_DOMAIN) {
           setWildcardDomain(data.settings.WILDCARD_DOMAIN);
         }
+        if (data.settings?.GITHUB_CLIENT_ID) {
+          setOauthClientId(data.settings.GITHUB_CLIENT_ID);
+        }
+        if (data.settings?.GITHUB_CLIENT_SECRET) {
+          setOauthClientSecret(data.settings.GITHUB_CLIENT_SECRET);
+        }
       })
       .catch(() => {});
+
+    // Check query params for OAuth errors or callbacks
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const oauthError = params.get("error");
+      if (oauthError) {
+        if (oauthError === "github_oauth_not_configured" || oauthError === "oauth_credentials_missing") {
+          setShowOauthModal(true);
+          setError("GitHub OAuth belum dikonfigurasi. Silakan lengkapi Client ID & Client Secret di bawah.");
+        } else {
+          setError(`GitHub OAuth Error: ${oauthError}`);
+        }
+      }
+    }
   }, []);
+
+  const handleLoginWithGithub = () => {
+    if (!isOauthConfigured) {
+      setShowOauthModal(true);
+      return;
+    }
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(currentPath)}`;
+  };
+
+  const handleSaveAndLoginOauth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!oauthClientId.trim() || !oauthClientSecret.trim()) {
+      setError("Client ID dan Client Secret wajib diisi");
+      return;
+    }
+
+    setSavingOauth(true);
+    setError("");
+    try {
+      await fetch("/api/system/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "GITHUB_CLIENT_ID", value: oauthClientId.trim() }),
+      });
+      await fetch("/api/system/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "GITHUB_CLIENT_SECRET", value: oauthClientSecret.trim() }),
+      });
+
+      setIsOauthConfigured(true);
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(currentPath)}`;
+    } catch (err: any) {
+      setError(err.message || "Gagal menyimpan konfigurasi GitHub OAuth");
+      setSavingOauth(false);
+    }
+  };
 
   const handleConnectGithub = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -677,102 +749,87 @@ export function ServiceWizardForm({ project }: { project: any }) {
               Checking GitHub integration...
             </div>
           ) : !githubAccount ? (
-            /* Connect GitHub State with 1-Click Private Repo Support */
+            /* Connect GitHub State with 1-Click Login ke GitHub */
             <div className="space-y-4">
-              {cliAccounts.length > 0 ? (
-                /* Primary 1-Click Connect Button (Fetches Private Repos Automatically) */
-                <div className="p-6 rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-950/40 via-zinc-950 to-zinc-950 space-y-5 shadow-2xl">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-inner">
-                        <GithubIcon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-white">Connect GitHub Account</h3>
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-medium">
-                            <Shield className="w-3 h-3 text-emerald-400" />
-                            Private Repositories Included
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-400 mt-0.5">
-                          Detected authenticated session with active <code className="text-amber-300 font-mono">repo</code> scope.
-                        </p>
-                      </div>
+              {/* Primary 1-Click Login Card (OAuth Flow) */}
+              <div className="p-6 sm:p-7 rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-950/40 via-zinc-950 to-zinc-950 space-y-5 shadow-2xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-inner shrink-0">
+                      <GithubIcon className="w-6 h-6" />
                     </div>
-                  </div>
-
-                  {cliAccounts.length > 1 && (
-                    <div className="flex items-center gap-2 pt-1 text-xs">
-                      <span className="text-zinc-400 text-[11px] font-medium">Available Accounts:</span>
-                      <div className="flex items-center gap-1.5">
-                        {cliAccounts.map((acc: any) => (
-                          <button
-                            key={acc.username}
-                            type="button"
-                            onClick={() => setSelectedCliAccount(acc.username)}
-                            className={`px-2.5 py-1 rounded text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
-                              selectedCliAccount === acc.username
-                                ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30"
-                                : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
-                            }`}
-                          >
-                            <span>@{acc.username}</span>
-                            {acc.active && (
-                              <span className="text-[9px] px-1 py-0.2 rounded bg-indigo-900/80 text-indigo-200">
-                                Active
-                              </span>
-                            )}
-                          </button>
-                        ))}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm sm:text-base font-bold text-white">Login ke GitHub</h3>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] sm:text-[11px] text-emerald-400 font-medium">
+                          <Shield className="w-3 h-3 text-emerald-400" />
+                          Repositori Publik &amp; Private
+                        </span>
                       </div>
+                      <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                        Hubungkan akun GitHub Anda secara instan untuk mendeploy seluruh repositori tanpa perlu repot membuat token manual.
+                      </p>
                     </div>
-                  )}
-
-                  {/* INITIAL PRIMARY BUTTON */}
-                  <button
-                    type="button"
-                    onClick={() => handleConnectWithCli(selectedCliAccount)}
-                    disabled={loading}
-                    className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-50 text-zinc-950 text-xs font-bold transition shadow-lg hover:shadow-indigo-500/20 cursor-pointer"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
-                    ) : (
-                      <GithubIcon className="w-4 h-4" />
-                    )}
-                    <span>
-                      Connect as @{selectedCliAccount || cliAccounts[0]?.username} &amp; Load All Private Repositories
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-zinc-600 ml-1" />
-                  </button>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setShowManualForm(!showManualForm)}
-                      className="text-[11px] text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono transition"
-                    >
-                      <span>{showManualForm ? "- Hide custom token form" : "+ Use custom token or another username"}</span>
-                    </button>
-
-                    <a
-                      href="/api/github/oauth?redirect=/projects"
-                      className="text-[11px] text-zinc-500 hover:text-indigo-400 flex items-center gap-1 transition"
-                      title="Connect using GitHub OAuth App"
-                    >
-                      <Shield className="w-3 h-3 text-indigo-400" />
-                      <span>OAuth App Flow</span>
-                    </a>
                   </div>
                 </div>
-              ) : null}
 
-              {/* Manual Form (Shown if no CLI accounts detected, or if toggled) */}
-              {(cliAccounts.length === 0 || showManualForm) && (
+                {/* Main 1-Click Login Button */}
+                <button
+                  type="button"
+                  onClick={handleLoginWithGithub}
+                  disabled={loading}
+                  className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-50 text-zinc-950 text-xs sm:text-sm font-bold transition shadow-lg hover:shadow-indigo-500/20 cursor-pointer"
+                >
+                  <GithubIcon className="w-5 h-5 text-zinc-950" />
+                  <span>Login ke GitHub (1-Click OAuth)</span>
+                  <ArrowRight className="w-4 h-4 text-zinc-600 ml-1" />
+                </button>
+
+                {/* If local CLI accounts detected (e.g. dev environment) */}
+                {cliAccounts.length > 0 && (
+                  <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="text-zinc-400 text-[11px]">Akun GitHub CLI Lokal Terdeteksi:</span>
+                    <div className="flex items-center gap-2">
+                      {cliAccounts.map((acc: any) => (
+                        <button
+                          key={acc.username}
+                          type="button"
+                          onClick={() => handleConnectWithCli(acc.username)}
+                          className="px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono transition"
+                        >
+                          Hubungkan @{acc.username}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom Toggle for Manual Fallback */}
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowManualForm(!showManualForm)}
+                    className="text-[11px] text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono transition"
+                  >
+                    <span>{showManualForm ? "- Sembunyikan form manual" : "+ Alternatif: Hubungkan via Personal Access Token manual"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOauthModal(true)}
+                    className="text-[11px] text-zinc-500 hover:text-indigo-400 flex items-center gap-1 transition"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Konfigurasi OAuth App</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Optional Manual Token Form (Hidden by default, expandable as fallback) */}
+              {showManualForm && (
                 <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
                   <div className="text-xs font-semibold text-zinc-300">
-                    Connect via Personal Access Token or Username
+                    Hubungkan via Personal Access Token (Alternatif Manual)
                   </div>
 
                   <form onSubmit={handleConnectGithub} className="space-y-4">
@@ -1461,6 +1518,124 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 </>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* GitHub OAuth Configuration Modal */}
+      {showOauthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 space-y-5 shadow-2xl relative">
+            <button
+              type="button"
+              onClick={() => setShowOauthModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg transition"
+            >
+              ✕
+            </button>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
+                <GithubIcon className="w-5 h-5 text-indigo-400" />
+                <span>Setup GitHub OAuth (1-Click Login)</span>
+              </div>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Agar tombol <strong>Login ke GitHub</strong> dapat bekerja di server Anda, daftarkan OAuth App gratis di GitHub (hanya 1 menit, berlaku untuk seluruh server).
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-400 text-[11px] font-medium">Authorization callback URL:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cbUrl = `${window.location.origin}/api/github/callback`;
+                    navigator.clipboard.writeText(cbUrl);
+                    setCopiedCallback(true);
+                    setTimeout(() => setCopiedCallback(false), 2000);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-indigo-300 font-mono text-[11px] transition cursor-pointer"
+                >
+                  {copiedCallback ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Tersalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Salin URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="p-2.5 rounded bg-black/60 border border-zinc-800 font-mono text-zinc-300 text-[11px] break-all select-all">
+                {typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "/api/github/callback"}
+              </div>
+
+              <a
+                href={`https://github.com/settings/applications/new?oauth_application[name]=Colyin+PaaS&oauth_application[url]=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}&oauth_application[callback_url]=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-300 text-xs font-semibold transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Buka Form Buat OAuth App di GitHub</span>
+              </a>
+            </div>
+
+            <form onSubmit={handleSaveAndLoginOauth} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1">
+                  Client ID
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ov23li..."
+                  value={oauthClientId}
+                  onChange={(e) => setOauthClientId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1">
+                  Client Secret
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••••••••••••••••••"
+                  value={oauthClientSecret}
+                  onChange={(e) => setOauthClientSecret(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOauthModal(false)}
+                  className="px-4 py-2 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingOauth}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow disabled:opacity-50"
+                >
+                  {savingOauth ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <GithubIcon className="w-4 h-4" />
+                  )}
+                  <span>Simpan &amp; Login ke GitHub</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

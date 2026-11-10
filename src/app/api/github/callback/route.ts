@@ -7,12 +7,14 @@ export async function GET(req: Request) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state") || "/";
 
+  const separator = state.includes("?") ? "&" : "?";
+
   if (!code) {
-    return NextResponse.redirect(new URL(`${state}?error=missing_code`, req.url));
+    return NextResponse.redirect(new URL(`${state}${separator}error=missing_code`, req.url));
   }
 
-  let clientId = process.env.GITHUB_CLIENT_ID;
-  let clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  let clientId = (process.env.GITHUB_CLIENT_ID || "").trim();
+  let clientSecret = (process.env.GITHUB_CLIENT_SECRET || "").trim();
 
   if (!clientId || !clientSecret) {
     const idSetting = await db.systemSetting.findUnique({
@@ -21,12 +23,12 @@ export async function GET(req: Request) {
     const secretSetting = await db.systemSetting.findUnique({
       where: { key: "GITHUB_CLIENT_SECRET" },
     });
-    clientId = idSetting?.value || clientId;
-    clientSecret = secretSetting?.value || clientSecret;
+    clientId = (idSetting?.value || clientId).trim();
+    clientSecret = (secretSetting?.value || clientSecret).trim();
   }
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL(`${state}?error=oauth_credentials_missing`, req.url));
+    return NextResponse.redirect(new URL(`${state}${separator}error=oauth_credentials_missing`, req.url));
   }
 
   try {
@@ -90,6 +92,6 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL(state, req.url));
   } catch (err: any) {
     console.error("GitHub OAuth Callback error:", err);
-    return NextResponse.redirect(new URL(`${state}?error=${encodeURIComponent(err.message)}`, req.url));
+    return NextResponse.redirect(new URL(`${state}${separator}error=${encodeURIComponent(err.message)}`, req.url));
   }
 }

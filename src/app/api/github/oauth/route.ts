@@ -6,17 +6,18 @@ export async function GET(req: Request) {
   const redirectTarget = url.searchParams.get("redirect") || "/projects";
 
   // Check env or database for GitHub OAuth Client ID
-  let clientId = process.env.GITHUB_CLIENT_ID;
+  let clientId = (process.env.GITHUB_CLIENT_ID || "").trim();
   if (!clientId) {
     const setting = await db.systemSetting.findUnique({
       where: { key: "GITHUB_CLIENT_ID" },
     });
-    clientId = setting?.value;
+    clientId = (setting?.value || "").trim();
   }
 
   if (!clientId) {
+    const separator = redirectTarget.includes("?") ? "&" : "?";
     return NextResponse.redirect(
-      new URL(`${redirectTarget}?error=github_oauth_not_configured`, req.url)
+      new URL(`${redirectTarget}${separator}error=github_oauth_not_configured`, req.url)
     );
   }
 
