@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getPublicRedirectUrl } from "@/lib/auth";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -15,10 +16,9 @@ export async function GET(req: Request) {
   }
 
   if (!clientId) {
-    const separator = redirectTarget.includes("?") ? "&" : "?";
-    return NextResponse.redirect(
-      new URL(`${redirectTarget}${separator}error=github_oauth_not_configured`, req.url)
-    );
+    const redirectUrl = getPublicRedirectUrl(redirectTarget, req);
+    redirectUrl.searchParams.set("error", "github_oauth_not_configured");
+    return NextResponse.redirect(redirectUrl);
   }
 
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");

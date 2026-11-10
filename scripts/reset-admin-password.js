@@ -62,7 +62,7 @@ Email    : ${admin.email}
 Password : ${targetPassword}
 Role     : ADMIN (Full Cluster Authority)
 
-Web Console: http://localhost:3000/login
+Web Console: http://localhost:3050/login
 ================================================================================
 `;
   try {

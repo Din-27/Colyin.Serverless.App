@@ -249,7 +249,7 @@ Anda dapat menjalankan Colyin secara lokal di Windows, macOS, atau Linux tanpa h
    npm run ingress
    ```
 
-4. Buka **`http://localhost:3000`** di browser Anda.
+4. Buka **`http://localhost:3050`** di browser Anda.
 
 ---
 

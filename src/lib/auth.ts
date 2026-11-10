@@ -57,6 +57,26 @@ export function getSessionCookieOptions(req?: Request) {
   };
 }
 
+export function getPublicRedirectUrl(target: string, req: Request): URL {
+  // If target is already a full absolute URL (e.g. http://103.xxx:3050/projects/...), use it directly
+  try {
+    if (target.startsWith("http://") || target.startsWith("https://")) {
+      return new URL(target);
+    }
+  } catch {}
+
+  // Determine public host from headers
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const host = (forwardedHost || req.headers.get("host") || "localhost").split(",")[0].trim();
+
+  // Determine protocol
+  const isSecure = isRequestSecure(req);
+  const proto = isSecure ? "https" : "http";
+
+  const baseUrl = `${proto}://${host}`;
+  return new URL(target, baseUrl);
+}
+
 export function hashPassword(password: string): { hash: string; salt: string } {
   const salt = crypto.randomBytes(16).toString("hex");
   const hash = crypto.scryptSync(password, salt, 64).toString("hex");

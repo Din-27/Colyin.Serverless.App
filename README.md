@@ -249,7 +249,7 @@ You can run Colyin locally on Windows, macOS, or Linux without installing Docker
    npm run ingress
    ```
 
-4. Open **`http://localhost:3000`** in your browser.
+4. Open **`http://localhost:3050`** in your browser.
 
 ---
 

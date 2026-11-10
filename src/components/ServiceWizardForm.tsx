@@ -216,8 +216,8 @@ export function ServiceWizardForm({ project }: { project: any }) {
       setShowOauthModal(true);
       return;
     }
-    const currentPath = window.location.pathname + window.location.search;
-    window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(currentPath)}`;
+    const redirectUrl = window.location.href;
+    window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   const handleSaveAndLoginOauth = async (e: React.FormEvent) => {
@@ -242,8 +242,8 @@ export function ServiceWizardForm({ project }: { project: any }) {
       });
 
       setIsOauthConfigured(true);
-      const currentPath = window.location.pathname + window.location.search;
-      window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(currentPath)}`;
+      const redirectUrl = window.location.href;
+      window.location.href = `/api/github/oauth?redirect=${encodeURIComponent(redirectUrl)}`;
     } catch (err: any) {
       setError(err.message || "Gagal menyimpan konfigurasi GitHub OAuth");
       setSavingOauth(false);

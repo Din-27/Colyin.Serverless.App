@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { encryptSecret } from "@/lib/engine/crypto";
+import { getPublicRedirectUrl } from "@/lib/auth";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state") || "/";
 
-  const separator = state.includes("?") ? "&" : "?";
-
   if (!code) {
-    return NextResponse.redirect(new URL(`${state}${separator}error=missing_code`, req.url));
+    const redirectUrl = getPublicRedirectUrl(state, req);
+    redirectUrl.searchParams.set("error", "missing_code");
+    return NextResponse.redirect(redirectUrl);
   }
 
   let clientId = (process.env.GITHUB_CLIENT_ID || "").trim();
@@ -28,7 +29,9 @@ export async function GET(req: Request) {
   }
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL(`${state}${separator}error=oauth_credentials_missing`, req.url));
+    const redirectUrl = getPublicRedirectUrl(state, req);
+    redirectUrl.searchParams.set("error", "oauth_credentials_missing");
+    return NextResponse.redirect(redirectUrl);
   }
 
   try {
@@ -50,7 +53,9 @@ export async function GET(req: Request) {
     const accessToken = tokenData.access_token;
 
     if (!accessToken) {
-      return NextResponse.redirect(new URL(`${state}?error=token_exchange_failed`, req.url));
+      const redirectUrl = getPublicRedirectUrl(state, req);
+      redirectUrl.searchParams.set("error", "token_exchange_failed");
+      return NextResponse.redirect(redirectUrl);
     }
 
     // Fetch verified profile from GitHub API
@@ -63,7 +68,9 @@ export async function GET(req: Request) {
     });
 
     if (!userRes.ok) {
-      return NextResponse.redirect(new URL(`${state}?error=fetch_user_failed`, req.url));
+      const redirectUrl = getPublicRedirectUrl(state, req);
+      redirectUrl.searchParams.set("error", "fetch_user_failed");
+      return NextResponse.redirect(redirectUrl);
     }
 
     const ghUser = await userRes.json();
@@ -89,9 +96,12 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.redirect(new URL(state, req.url));
+    const redirectUrl = getPublicRedirectUrl(state, req);
+    return NextResponse.redirect(redirectUrl);
   } catch (err: any) {
     console.error("GitHub OAuth Callback error:", err);
-    return NextResponse.redirect(new URL(`${state}${separator}error=${encodeURIComponent(err.message)}`, req.url));
+    const redirectUrl = getPublicRedirectUrl(state, req);
+    redirectUrl.searchParams.set("error", err.message || "oauth_failed");
+    return NextResponse.redirect(redirectUrl);
   }
 }
