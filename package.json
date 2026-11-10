@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "prisma db push && next start",
-    "postinstall": "node scripts/generate-env.js",
+    "postinstall": "node -e \"const fs = require('fs'); if (fs.existsSync('scripts/generate-env.js')) require('./scripts/generate-env.js');\"",
     "ingress": "node scripts/ingress-daemon.js",
     "addons": "node scripts/addons-daemon.js",
     "lint": "eslint"
