@@ -167,3 +167,4 @@ export async function getServicesTelemetry() {
     totalAddons: addons.length,
   };
 }
+
