@@ -97,6 +97,17 @@ EOF
   echo "[Info] Cryptographic secrets auto-generated for AES-256-GCM, JWT & Webhooks."
 else
   echo "[Info] Existing .env configuration detected. Preserving all encryption keys."
+  # Ensure PORT is present in existing .env
+  if ! grep -q "^PORT=" .env && ! grep -q "^COLYIN_PORT=" .env; then
+    echo "PORT=${COLYIN_PORT}" >> .env
+    echo "[Info] Added PORT=${COLYIN_PORT} to .env (since port 3000 was in use or unconfigured)"
+  else
+    # Read configured port from .env
+    CURRENT_ENV_PORT=$(grep -E "^(PORT|COLYIN_PORT)=" .env | head -n1 | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
+    if [ -n "$CURRENT_ENV_PORT" ]; then
+      COLYIN_PORT=$CURRENT_ENV_PORT
+    fi
+  fi
 fi
 
 # 6. Launch via Docker Compose
