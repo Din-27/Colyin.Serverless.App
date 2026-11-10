@@ -18,11 +18,15 @@
   <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" alt="Prisma" />
 </p>
 
+<p align="center">
+  <a href="./README.md"><strong>English</strong></a> | <a href="./README.id.md">Bahasa Indonesia</a>
+</p>
+
 ---
 
 ## 🌟 Overview
 
-**Colyin** is an all-in-one, self-hosted Platform-as-a-Service (PaaS) designed to give developers the effortless deployment experience of modern cloud platforms (like Vercel and Railway) on their own VPS or bare-metal server, without the complexity of Kubernetes.
+**Colyin** is an all-in-one, self-hosted Platform-as-a-Service (PaaS) designed to give developers the effortless deployment experience of modern cloud platforms (like Vercel and Railway) on their own VPS or bare-metal server, without the operational complexity of Kubernetes.
 
 Connect your Git repository, and Colyin handles source code cloning, stack detection, container compilation, SSL certificate provisioning, internal mesh networking, and reverse proxy routing automatically.
 
@@ -32,23 +36,28 @@ Connect your Git repository, and Colyin handles source code cloning, stack detec
 
 ### 🚀 Automated Git CI/CD
 - **One-Click Deployments:** Deploy directly from GitHub repositories (Public and Private).
-- **Git Push Webhooks:** Automatic deployments whenever you push code to your target branch.
+- **Git Push Webhooks:** Trigger automated builds and deployments on every push to your target branch.
 - **Real-Time Telemetry:** Stream live build logs and runtime health checks via SSE.
 
 ### 🧠 Smart Stack Detection & Auto-Buildpack
 - Automatic language & framework detection for **Node.js (Next.js, Vite, Express, NestJS)**, **Python (FastAPI, Django, Flask)**, **Go**, **PHP**, and **Static Sites**.
-- **Universal Dockerfile Synthesis:** Automatically generates multi-stage production Dockerfiles if your repository doesn't have one.
+- **Universal Dockerfile Synthesis:** Automatically generates multi-stage production Dockerfiles if your repository does not include one.
 
 ### 🗄️ Dedicated Addons & Managed Databases
 All addons run as **fully dedicated, isolated instances** (no shared data, dedicated ports, unique persistent volumes, and encrypted passwords):
 - 🐘 **PostgreSQL:** Dedicated database instance with built-in **Web SQL Studio** in the browser (execute queries without installing DBeaver or JDBC drivers).
 - ⚡ **Redis:** Ultra-fast in-memory cache with built-in **Web Redis Studio & Cache Inspector** (Key-Value explorer, real-time memory metrics, and live RESP CLI console).
 - 🐰 **RabbitMQ:** AMQP message broker on port `10002` + official **Web Management Console** on port `15672` (`http://localhost:15672`).
-- 🪣 **MinIO:** High-performance S3-compatible object storage with web console.
+- 🪣 **MinIO:** High-performance S3-compatible object storage with web management console.
 
 ### ⚡ Smart Dual-Engine Architecture
 - **Production Mode (Docker Online):** Deploys official OCI Docker containers (`postgres:16-alpine`, `redis:7-alpine`, `rabbitmq:3-management-alpine`), isolated bridge networks, and CPU/RAM cgroups v2 quotas.
 - **Development Mode (Local Standalone):** Seamless bare-metal fallback when Docker is offline, enabling full development on laptops without the memory overhead of Docker Desktop.
+
+### 📈 Real-Time System & Service Telemetry (Overview)
+- Built-in **Task Manager / Activity Monitor** at `/overview`.
+- Real-time SVG waveform charts for Host CPU utilization, RAM consumption, and HDD disk space.
+- Interactive live process table for all running Colyin applications and database addons with port indicators, memory limits, and direct management shortcuts.
 
 ### 🌐 Automated Ingress & Reverse Proxy
 - Integrated reverse proxy listening on **Ports 80 (HTTP) and 443 (HTTPS)**.
@@ -68,7 +77,7 @@ flowchart TB
     User([🌐 Users / Web Browsers])
     Dev([💻 Developer / Laptop])
 
-    subgraph Server ["🖥️ Server VPS / Host"]
+    subgraph Server ["🖥️ VPS Server / Host"]
         subgraph Edge ["Edge Layer (Ports 80 & 443)"]
             Ingress["Traefik v3 / Colyin Ingress Proxy\n(Auto HTTPS / Let's Encrypt)"]
         end
@@ -123,144 +132,82 @@ flowchart TB
 
 ## 🚀 Installation & Quick Start
 
-### 📖 Tutorial Pemasangan Lengkap di Server VPS (Step-by-Step)
+### 📖 Step-by-Step VPS Installation Guide
 
-Panduan ini ditujukan untuk Anda yang ingin memasang Colyin dari nol di server VPS baru (misal: DigitalOcean, AWS EC2, IDCloudHost, Contabo, Hetzner, atau Linode).
+This guide is for installing Colyin on a fresh VPS (such as DigitalOcean, AWS EC2, Hetzner, Linode, Contabo, or Vultr).
 
-#### Langkah 1: Persiapan VPS & Buka Port Firewall
-Pastikan server Anda menggunakan **Ubuntu 22.04 LTS atau 24.04 LTS**. Di panel cloud provider Anda (Security Groups / Firewall), pastikan port-port berikut diizinkan (*Inbound Allow*):
+#### Step 1: VPS Prerequisites & Firewall Setup
+Ensure your server runs **Ubuntu 22.04 LTS or 24.04 LTS**. In your cloud provider's security group / firewall settings, make sure the following ports are open (*Inbound Allow*):
 * `22` (SSH)
 * `80` & `443` (HTTP & HTTPS Ingress Reverse Proxy)
 * `3000` (Colyin Web Dashboard)
-* `10000 - 10020` (Public Range untuk PostgreSQL & Redis)
+* `10000 - 10020` (Public Range for PostgreSQL & Redis)
 * `15672` (RabbitMQ Web Management Console)
 
-#### Langkah 2: Login ke VPS via SSH
-Buka terminal di komputer/laptop Anda, lalu hubungkan ke VPS:
+#### Step 2: Connect via SSH
+Open your terminal and connect to your VPS:
 ```bash
-ssh root@ip_vps_anda
+ssh root@your_vps_ip
 ```
 
-#### Langkah 3: Download Colyin dari GitHub
-Download source code Colyin ke direktori `/opt/colyin`:
+#### Step 3: Clone Colyin Repository
+Clone the Colyin source code into `/opt/colyin`:
 ```bash
-git clone https://github.com/your-username/colyin.git /opt/colyin
+git clone https://github.com/Din-27/Colyin.Serverless.App.git /opt/colyin
 cd /opt/colyin
 ```
 
-#### Langkah 4: Jalankan Script Pemasangan Otomatis (1 Command)
-Jalankan script installer bawaan Colyin:
+#### Step 4: Run the Automated Installer (Single Command)
+Execute the built-in installer script:
 ```bash
 bash install.sh
 ```
 
-**Proses yang berjalan otomatis:**
-1. Mengupdate package apt server dan menginstall curl & git.
-2. Menginstall Docker Engine & Docker Compose resmi terbaru (jika belum ada).
-3. Mengatur rule firewall UFW server.
-4. Mendeteksi IP Public VPS Anda secara otomatis dan membuat file `.env` dengan encryption master key acak.
-5. Membangun container dan menjalankan Colyin di latar belakang via Docker Compose.
+**What the installer does automatically:**
+1. Updates package repositories and installs curl, git, and prerequisites.
+2. Installs the latest official Docker Engine & Docker Compose (if not already installed).
+3. Configures UFW firewall rules.
+4. Auto-detects your VPS public IP and creates a production `.env` file with an encrypted AES-256 master key.
+5. Builds containers and starts Colyin in the background via Docker Compose.
 
-#### Langkah 5: Buka Dashboard & Buat Akun Administrator Pertama
-1. Buka browser di laptop Anda dan akses:
+#### Step 5: Access the Dashboard & Create Initial Admin Account
+1. Open your browser and navigate to:
+   ```text
+   http://<your_vps_ip>:3000
    ```
-   http://<ip_vps_anda>:3000
-   ```
-2. Anda akan diarahkan ke halaman login/register.
-3. Daftarkan akun pertama Anda. **User pertama yang mendaftar secara otomatis diberikan hak akses `ADMIN` penuh.**
+2. You will be greeted by the initial setup / registration screen.
+3. Register your primary account. **The first registered user is automatically granted full `ADMIN` privileges.**
 
-#### Langkah 6: Konfigurasi Domain Publik (Settings)
-1. Di dashboard Colyin, buka menu **Settings & Team** di navbar atas.
-2. Periksa kolom **Wildcard Domain**:
-   * Jika tidak punya nama domain: Cukup biarkan terisi `<ip_vps_anda>.sslip.io`. Setiap aplikasi Anda otomatis dapat diakses publik dari internet!
-   * Jika punya nama domain sendiri (misal `apps.domainanda.com`):
-     * Di DNS provider domain Anda (Cloudflare, Niagahoster, dll), tambahkan **DNS A Record**: `*.apps` mengarah ke IP VPS Anda.
-     * Masukkan `apps.domainanda.com` pada kolom Wildcard Domain di dashboard Colyin, lalu klik **Save Settings**.
+#### Step 6: Configure Public Wildcard Domain
+1. In the Colyin dashboard, navigate to **Settings** in the top navigation bar.
+2. Review the **Wildcard Domain** field:
+   * **If you do not have a custom domain:** Keep the default `<your_vps_ip>.sslip.io`. Every app deployed will be instantly reachable over the internet.
+   * **If you own a custom domain (e.g. `apps.yourdomain.com`):**
+     * In your DNS provider (Cloudflare, Namecheap, etc.), add an **A Record**: `*.apps` pointing to your VPS public IP.
+     * Enter `apps.yourdomain.com` into the Wildcard Domain field in Colyin Settings, then click **Save Settings**.
 
-#### Langkah 7: Deploy Service Pertama & Database Addons
-1. Di halaman **Projects**, buat project baru (misal: `production`).
-2. **Deploy Aplikasi:**
-   * Klik **"New Service"** &rarr; masukkan URL Git repository Anda (Public atau Private).
-   * Klik **"Deploy"**. Sistem akan otomatis mendeteksi stack, compile OCI container, dan memberikan URL HTTPS aktif.
-3. **Tambah Database / Message Broker:**
-   * Klik **"New Addon"** &rarr; pilih **PostgreSQL**, **Redis**, atau **RabbitMQ**.
-   * Buka halaman addon untuk melihat connection string dan mengakses **Web SQL Studio** (Postgres), **Web Redis Studio**, atau **RabbitMQ Web Management Console** (`http://<ip_vps>:15672`).
+#### Step 7: Deploy Your First Service & Database Addon
+1. On the **Projects** page, create a new project (e.g. `production`).
+2. **Deploy an Application:**
+   * Click **"New Service"** &rarr; enter your Git repository URL (Public or Private).
+   * Click **"Deploy"**. Colyin automatically detects your framework, compiles the container, and provisions a live URL.
+3. **Provision a Database / Message Broker:**
+   * Click **"New Addon"** &rarr; select **PostgreSQL**, **Redis**, or **RabbitMQ**.
+   * Open the addon card to view connection details, or use **Web SQL Studio**, **Web Redis Studio**, or the **RabbitMQ Management Console** (`http://<your_vps_ip>:15672`).
 
 ---
-
----
-
-## 🔄 Panduan Memperbarui (Upgrade / Update) Colyin di Server VPS
-
-Ketika ada pembaruan fitur, rilis versi baru, atau patch keamanan pada Colyin, Anda dapat memperbarui instalasi Colyin di server VPS Anda dengan sangat mudah dan aman.
-
-> [!NOTE]
-> **Jaminan Keamanan Data (Zero Data Loss):**
-> Database Colyin disimpan secara persisten di folder host `./data/prod.db` dan kredensial enkripsi tersimpan di file `.env`. Menjalankan proses update **TIDAK AKAN MENGHAPUS** project, aplikasi, database addons (PostgreSQL, Redis, RabbitMQ), domain SSL, maupun akun pengguna Anda.
-
-### Cara 1: Update Cepat via Git & Docker Compose (Rekomendasi)
-Buka terminal dan hubungkan ke VPS Anda via SSH, lalu jalankan:
-
-```bash
-# 1. Pindah ke direktori Colyin
-cd /opt/colyin
-
-# 2. Ambil update kode terbaru dari repository Git
-git pull
-
-# 3. Rebuild dan restart container Colyin di latar belakang
-docker compose up -d --build
-```
-
-Proses ini hanya memakan waktu 30–60 detik. Setelah container baru aktif, Anda dapat langsung me-refresh browser Anda.
-
----
-
-### Cara 2: Update via One-Line Script Installer
-Anda juga bisa menjalankan ulang script installer bawaan Colyin:
-
-```bash
-cd /opt/colyin
-bash install.sh
-```
-
-Script installer Colyin secara otomatis mendeteksi database `./data/prod.db` dan file `.env` yang sudah ada, sehingga sistem akan menjaga konfigurasi lama dan hanya memperbarui container ke versi terbaru.
-
----
-
-### 🔧 Perintah Perawatan & Maintenance Server
-
-Berikut perintah terminal yang berguna saat mengelola server Colyin di `/opt/colyin`:
-
-```bash
-# 1. Melihat status seluruh container Colyin
-docker compose ps
-
-# 2. Melihat realtime log Colyin controller & Traefik
-docker compose logs -f
-
-# 3. Restart seluruh service Colyin
-docker compose restart
-
-# 4. Memperbarui Colyin ke versi kode terbaru dari Git
-git pull
-docker compose up -d --build
-
-# 5. Menghentikan Colyin sementara
-docker compose down
-```
 
 ### Option 2: Docker Compose Deployment
 
-If you already have Docker installed on your server:
+If you already have Docker and Docker Compose installed:
 
 1. Clone repository:
    ```bash
-   git clone https://github.com/your-username/colyin.git
+   git clone https://github.com/Din-27/Colyin.Serverless.App.git colyin
    cd colyin
    ```
 
-2. Create your `.env` configuration:
+2. Configure environment:
    ```bash
    cp .env.example .env
    ```
@@ -279,7 +226,7 @@ You can run Colyin locally on Windows, macOS, or Linux without installing Docker
 
 1. Clone and install dependencies:
    ```bash
-   git clone https://github.com/your-username/colyin.git
+   git clone https://github.com/Din-27/Colyin.Serverless.App.git colyin
    cd colyin
    npm install
    ```
@@ -306,6 +253,64 @@ You can run Colyin locally on Windows, macOS, or Linux without installing Docker
 
 ---
 
+## 🔄 Updating Colyin on Your VPS
+
+When new features, releases, or security patches are published, you can update your Colyin server seamlessly with zero data loss.
+
+> [!NOTE]
+> **Zero Data Loss Guarantee:**
+> Colyin data is persistently stored on the host filesystem under `./data/prod.db` and encryption keys are preserved in `.env`. Updating **WILL NEVER DELETE** your projects, applications, database addons (PostgreSQL, Redis, RabbitMQ), SSL certificates, or user accounts.
+
+### Method 1: Fast Update via Git & Docker Compose (Recommended)
+Connect to your VPS via SSH and run:
+
+```bash
+# 1. Navigate to the Colyin directory
+cd /opt/colyin
+
+# 2. Pull the latest code updates
+git pull
+
+# 3. Rebuild and restart containers in the background
+docker compose up -d --build
+```
+
+The update process typically completes in 30–60 seconds. Once completed, refresh your browser.
+
+---
+
+### Method 2: Update via Installer Script
+You can also rerun the installer script:
+
+```bash
+cd /opt/colyin
+bash install.sh
+```
+
+The script automatically detects existing `./data/prod.db` and `.env` files, preserving all existing configurations while updating container images.
+
+---
+
+### 🔧 Useful Server Maintenance Commands
+
+Common administrative commands when working in `/opt/colyin`:
+
+```bash
+# View status of all Colyin containers
+docker compose ps
+
+# View live logs for Colyin controller & reverse proxy
+docker compose logs -f
+
+# Restart all Colyin services
+docker compose restart
+
+# Stop Colyin services temporarily
+docker compose down
+```
+
+---
+
 ## ⚙️ Environment Configuration (`.env`)
 
 | Variable | Default | Description |
@@ -314,8 +319,8 @@ You can run Colyin locally on Windows, macOS, or Linux without installing Docker
 | `PUBLIC_IP` | `localhost` | Public IP of the VPS for remote database connections |
 | `WILDCARD_DOMAIN` | `127.0.0.1.sslip.io` | Wildcard base domain (e.g. `103.xxx.sslip.io` or `apps.domain.com`) |
 | `ENCRYPTION_MASTER_KEY`| *(auto-generated)* | 64-character hex master key for AES-256-GCM encryption |
-| `DATABASE_URL` | `file:./dev.db` | SQLite storage file path |
-| `ADMIN_ALERT_EMAIL` | `admin@example.com` | Email recipient for system alerts & notifications |
+| `DATABASE_URL` | `file:./dev.db` | SQLite database storage path |
+| `ADMIN_ALERT_EMAIL` | `admin@example.com` | Notification recipient for system alerts |
 | `GITHUB_CLIENT_ID` | *(optional)* | GitHub OAuth App client ID for private repos |
 | `GITHUB_CLIENT_SECRET`| *(optional)* | GitHub OAuth App client secret |
 
@@ -323,71 +328,71 @@ You can run Colyin locally on Windows, macOS, or Linux without installing Docker
 
 ## 🔐 Credentials, Security & Default Admin Setup
 
-Colyin menerapkan standar keamanan enterprise untuk instalasi mandiri:
+Colyin implements enterprise security standards for self-hosted environments:
 
 ### 1. Unique Master Credentials (Auto-Generated)
-Ketika Colyin pertama kali di-deploy di VPS baru:
-- Sistem secara otomatis membuat akun Administrator pertama dengan email dan **password unik acak berkekuatan tinggi** (16 karakter alfanumerik & simbol).
-- Password unik ini otomatis dicatat ke dalam file:
+When Colyin is initialized on a new VPS:
+- An initial Administrator account is provisioned with a **cryptographically secure random password** (16 alphanumeric and symbolic characters).
+- These credentials are recorded locally in:
   ```bash
   cat /opt/colyin/colyin-credentials.txt
   ```
-- File ini aman dan hanya dapat dibaca oleh pengguna dengan akses root/sudo di server Anda.
-- Saat `NODE_ENV=production`, **tidak ada akun dummy atau sample credentials yang bocor** ke publik.
+- This file is strictly restricted to root/sudo system access.
+- In `production` mode, no default or sample credentials are ever exposed publicly.
 
-### 2. Cara Reset / Mengubah Password Admin
-Jika Anda lupa password administrator atau ingin menggantinya langsung dari terminal server:
+### 2. Resetting / Changing Admin Password via CLI
+If you need to reset the administrator password directly from the server terminal:
 ```bash
-node scripts/reset-admin-password.js admin@colyin.local PasswordBaru123!
+node scripts/reset-admin-password.js admin@colyin.local NewPassword123!
 ```
-Password baru akan langsung di-hash menggunakan BCrypt dan file `colyin-credentials.txt` akan diperbarui secara otomatis.
+The new password is immediately hashed with BCrypt and synchronized to `colyin-credentials.txt`.
 
-### 3. Role-Based Access Control (RBAC) & Collaborator
-Sebagai Administrator, Anda dapat membuat akun kolaborator untuk tim Anda di menu **Settings -> Team & Users**:
-- **ADMIN:** Hak penuh untuk mengelola pengguna, menghapus project, mengubah domain global, dan mengonfigurasi alert.
-- **DEVELOPER:** Dapat membuat, mendeploy, dan mengonfigurasi aplikasi serta database addons.
-- **VIEWER:** Akses *read-only* untuk memantau status aplikasi, metriks, dan build logs tanpa izin mengubah konfigurasi.
-
----
-
-## ⚡ Panduan Setup Auto-Deploy GitHub Webhook
-
-Colyin mendukung continuous deployment (CI/CD) otomatis langsung dari GitHub tanpa menghabiskan kuota menit GitHub Actions Anda:
-
-### Langkah-langkah:
-1. Buka repository Anda di GitHub, lalu klik tab **Settings** &rarr; **Webhooks** &rarr; **Add webhook**.
-2. Masukkan konfigurasi berikut:
-   - **Payload URL:** `https://<domain-colyin-anda>/api/webhooks/github` (atau `http://<ip-vps>:3000/api/webhooks/github`)
-   - **Content type:** Pilih `application/json`
-   - **Secret:** *(Opsional)* Jika Anda mengisi `GITHUB_WEBHOOK_SECRET` di `.env`, masukkan string yang sama di sini.
-   - **Which events would you like to trigger this webhook?:** Pilih **Just the push event**.
-   - **Active:** Pastikan dicentang.
-3. Klik **Add webhook**.
-4. **Selesai!** Setiap kali Anda menjalankan `git push` ke branch utama (atau branch target yang dipilih), GitHub akan mengirim notifikasi ke Colyin, dan server Colyin akan langsung men-clone kode terbaru, menjalankan build Nixpacks/Docker, dan merestart aplikasi tanpa downtime.
+### 3. Role-Based Access Control (RBAC)
+Administrators can invite collaborators in **Settings -> Team & Users**:
+- **ADMIN:** Full authority to manage users, delete projects, modify global domains, and configure system alerts.
+- **DEVELOPER:** Can create, deploy, and manage applications and database addons.
+- **VIEWER:** Read-only access to monitor application status, telemetry metrics, and build logs without modification permissions.
 
 ---
 
-## 🔑 Deploy Private Git Repository
+## ⚡ GitHub Webhook Auto-Deploy Setup
 
-Untuk men-deploy repositori privat dari GitHub / GitLab:
-1. **Menggunakan Personal Access Token (PAT):**
-   - Buat Fine-Grained atau Classic PAT di GitHub (`Settings -> Developer settings -> Personal access tokens`) dengan izin `repo:read`.
-   - Di Colyin saat menambahkan Service, masukkan Git URL dalam format:
+Colyin supports continuous deployment directly from GitHub without consuming your GitHub Actions minutes:
+
+### Setup Steps:
+1. Open your repository on GitHub, navigate to **Settings** &rarr; **Webhooks** &rarr; **Add webhook**.
+2. Configure the following:
+   - **Payload URL:** `https://<your-colyin-domain>/api/webhooks/github` (or `http://<vps-ip>:3000/api/webhooks/github`)
+   - **Content type:** Select `application/json`
+   - **Secret:** *(Optional)* If `GITHUB_WEBHOOK_SECRET` is set in your `.env`, enter the matching secret.
+   - **Which events would you like to trigger this webhook?:** Select **Just the push event**.
+   - **Active:** Ensure the checkbox is checked.
+3. Click **Add webhook**.
+4. Every push to your target branch will now automatically trigger a clone, container build, and zero-downtime deployment on your Colyin server.
+
+---
+
+## 🔑 Deploying Private Git Repositories
+
+To deploy private repositories from GitHub or GitLab:
+1. **Using a Personal Access Token (PAT):**
+   - Create a Fine-Grained or Classic PAT on GitHub (`Settings -> Developer settings -> Personal access tokens`) with `repo:read` scope.
+   - When creating a service in Colyin, supply the Git URL formatted as:
      ```text
      https://<TOKEN>@github.com/username/private-repo.git
      ```
-   - Atau simpan sebagai environment variable aplikasi dengan nama `GIT_AUTH_TOKEN`. Colyin mengenkripsi token ini menggunakan **AES-256-GCM** sebelum disimpan ke database.
-2. **Menggunakan GitHub OAuth App:**
-   - Masukkan `GITHUB_CLIENT_ID` dan `GITHUB_CLIENT_SECRET` Anda di menu **Settings -> GitHub OAuth**.
-   - Colyin akan mengautentikasi akun Anda secara native.
+   - Alternatively, store the token as an environment variable named `GIT_AUTH_TOKEN`. Colyin encrypts this value with **AES-256-GCM** before database storage.
+2. **Using GitHub OAuth:**
+   - Configure `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in **Settings -> GitHub OAuth**.
+   - Colyin authenticates repository access natively.
 
 ---
 
-## 📚 Edisi Platform: Core vs Cloud
+## 📚 Platform Editions: Core vs Cloud
 
-Colyin hadir dalam dua edisi yang saling melengkapi:
-- **Colyin Core (Repository ini):** Edisi murni self-hosted open-source tanpa beban landing page promosi. Langsung masuk ke console inti setelah login untuk mengelola server dan cluster Anda sendiri.
-- **Colyin Cloud (`colyin-cloud`):** Layanan managed cloud computing (SaaS) siap pakai bagi mereka yang ingin mendeploy tanpa harus menyewa atau merawat server VPS sendiri. Dilengkapi landing page modern, dokumentasi interaktif, dan multi-region cluster.
+Colyin is available in two complementary editions:
+- **Colyin Core (This Repository):** Pure self-hosted open-source edition. Boots directly into the control panel without promotional landing pages or external SaaS dependencies.
+- **Colyin Cloud (`colyin-cloud`):** Fully managed serverless PaaS platform for teams seeking instant deployments without procuring or maintaining VPS servers. Includes a cyberpunk landing page, interactive documentation, and multi-region clusters.
 
 ---
 
@@ -408,8 +413,9 @@ Colyin hadir dalam dua edisi yang saling melengkapi:
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/system/status` | Docker daemon online status and resource telemetry |
+| `GET` | `/api/system/metrics` | Real-time CPU, RAM, and Disk metrics |
 | `GET` | `/api/auth/me` | Current authenticated session payload and RBAC role |
-| `POST` | `/api/auth/login` | Authenticate with work email and password |
+| `POST` | `/api/auth/login` | Authenticate with email and password |
 | `POST` | `/api/projects` | Provision a new isolated project virtual network |
 | `POST` | `/api/applications` | Create and bind application to a project canvas |
 | `POST` | `/api/deployments/trigger` | Trigger asynchronous container build and deployment |
