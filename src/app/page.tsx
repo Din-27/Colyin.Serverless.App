@@ -3,6 +3,8 @@ import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ProjectsCanvas } from "@/components/ProjectsCanvas";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const user = await getSessionUser();
 
@@ -30,8 +32,17 @@ export default async function Page() {
 
   // 2. Unauthenticated visitor:
   // If zero users exist on this server, take them to the Initial Setup Wizard
-  const userCount = await db.user.count();
-  if (userCount === 0) {
+  try {
+    const userCount = await db.user.count();
+    if (userCount === 0) {
+      redirect("/setup");
+    }
+  } catch (err: any) {
+    // If NEXT_REDIRECT was thrown by redirect(), let it bubble up
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
+    // If the database table does not exist yet (fresh install / first run), go to /setup
     redirect("/setup");
   }
 

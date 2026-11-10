@@ -14,8 +14,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma Client
+# Generate Prisma Client and prepare build schema
 RUN npx prisma generate
+RUN DATABASE_URL="file:./build.db" npx prisma db push --skip-generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build

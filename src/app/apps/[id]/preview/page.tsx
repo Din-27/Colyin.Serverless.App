@@ -23,6 +23,8 @@ import { CopyButton } from "@/components/CopyButton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LiveEndpointTester } from "@/components/LiveEndpointTester";
 
+export const dynamic = "force-dynamic";
+
 export default async function AppPreviewPage({
   params,
 }: {

@@ -21,6 +21,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { CreateAddonModal } from "@/components/CreateAddonModal";
 import { DeleteProjectButton } from "@/components/DeleteProjectButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProjectDetailPage({
   params,
 }: {

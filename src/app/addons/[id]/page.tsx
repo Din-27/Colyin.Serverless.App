@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ChevronRight, Database, Layers, Network, HardDrive, ShieldCheck } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 
+export const dynamic = "force-dynamic";
+
 export default async function AddonDetailPage({
   params,
 }: {
