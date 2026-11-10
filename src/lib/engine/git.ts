@@ -12,12 +12,14 @@ export interface DetectedStack {
 
 /**
  * Executes real Git shallow clone with live streaming of output chunks.
+ * Supports private repositories via authToken with full credential masking in logs.
  */
 export async function cloneRepository(
   repoUrl: string,
   branch: string,
   targetDir: string,
-  onLog: (chunk: string, stream: "stdout" | "stderr") => Promise<void>
+  onLog: (chunk: string, stream: "stdout" | "stderr") => Promise<void>,
+  authToken?: string
 ): Promise<void> {
   // Ensure target parent directory exists and clean targetDir if it already exists
   if (fs.existsSync(targetDir)) {
@@ -25,141 +27,95 @@ export async function cloneRepository(
   }
   fs.mkdirSync(targetDir, { recursive: true });
 
-  await onLog(`$ git clone --depth 1 -b ${branch} ${repoUrl} ...`, "stdout");
+  // Format authenticated clone URL if authToken is provided
+  let cloneTargetUrl = repoUrl.trim();
+  if (authToken && cloneTargetUrl.startsWith("http")) {
+    try {
+      const parsed = new URL(cloneTargetUrl);
+      if (parsed.hostname.includes("github.com")) {
+        parsed.username = "x-access-token";
+        parsed.password = authToken;
+      } else {
+        parsed.username = "oauth2";
+        parsed.password = authToken;
+      }
+      cloneTargetUrl = parsed.toString();
+    } catch {
+      cloneTargetUrl = cloneTargetUrl.replace(
+        "https://",
+        `https://x-access-token:${encodeURIComponent(authToken)}@`
+      );
+    }
+  }
+
+  // Helper to sanitize token from any log message
+  const sanitize = (text: string): string => {
+    if (!authToken) return text;
+    return text
+      .split(authToken)
+      .join("***")
+      .replace(/https:\/\/[^@\s]+@/g, "https://***@");
+  };
+
+  const safeLog = async (chunk: string, stream: "stdout" | "stderr" = "stdout") => {
+    await onLog(sanitize(chunk), stream);
+  };
+
+  const maskedDisplayUrl = sanitize(cloneTargetUrl);
+  await safeLog(`$ git clone --depth 1 -b ${branch} ${maskedDisplayUrl} ...`, "stdout");
 
   return new Promise((resolve, reject) => {
-    // Clone with depth 1
-    const child = spawn("git", ["clone", "--depth", "1", "-b", branch, repoUrl, targetDir]);
+    // Clone with depth 1, non-interactive mode
+    const child = spawn(
+      "git",
+      ["clone", "--depth", "1", "-b", branch, cloneTargetUrl, targetDir],
+      {
+        env: {
+          ...process.env,
+          GIT_TERMINAL_PROMPT: "0",
+          GIT_ASKPASS: "echo",
+        },
+      }
+    );
 
     child.stdout.on("data", (data) => {
       const text = data.toString().trim();
-      if (text) onLog(text, "stdout");
+      if (text) safeLog(text, "stdout");
     });
 
     child.stderr.on("data", (data) => {
       const text = data.toString().trim();
-      if (text) onLog(text, "stdout"); // Git often outputs progress to stderr
+      if (text) safeLog(text, "stdout"); // Git often outputs progress info to stderr
     });
 
     child.on("close", (code) => {
       if (code === 0) {
-        onLog(`Git clone completed successfully (exit code 0).`, "stdout");
+        safeLog(`Git clone completed successfully (exit code 0).`, "stdout");
         resolve();
       } else {
-        const errMsg = `Git clone failed with exit code ${code}. Check repository URL and branch name.`;
-        onLog(errMsg, "stderr");
+        const errMsg = authToken
+          ? `Git clone failed (exit code ${code}). Check if the repository URL, branch, and token 'repo' permissions are valid.`
+          : `Git clone failed (exit code ${code}). If this is a private repository, please connect your GitHub account with a Personal Access Token ('repo' scope).`;
+        safeLog(errMsg, "stderr");
         reject(new Error(errMsg));
       }
     });
 
     child.on("error", (err) => {
-      onLog(`Git command error: ${err.message}`, "stderr");
+      safeLog(`Git command error: ${err.message}`, "stderr");
       reject(err);
     });
   });
 }
 
+import { detectUniversalStack, UniversalStackInfo } from "./buildpacks";
+
 /**
  * Automatically inspects the cloned directory to detect runtime framework,
- * buildpack requirement, and default port.
+ * buildpack requirement, and default port across all languages (C to latest frameworks).
  */
-export function detectRepositoryStack(dir: string): DetectedStack {
-  // 1. Check for custom Dockerfile
-  if (fs.existsSync(path.join(dir, "Dockerfile"))) {
-    return {
-      buildPack: "DOCKERFILE",
-      framework: "Docker (Custom Dockerfile)",
-      defaultPort: 3000,
-      entryFile: "Dockerfile",
-    };
-  }
-
-  // 2. Check for Node.js
-  if (fs.existsSync(path.join(dir, "package.json"))) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
-      let framework = "Node.js Application";
-      let defaultPort = 3000;
-
-      if (pkg.dependencies?.next || pkg.devDependencies?.next) {
-        framework = "Next.js Fullstack";
-        defaultPort = 3000;
-      } else if (pkg.dependencies?.express) {
-        framework = "Express.js API";
-        defaultPort = 3000;
-      } else if (pkg.dependencies?.nest || pkg.dependencies?.["@nestjs/core"]) {
-        framework = "NestJS Application";
-        defaultPort = 3000;
-      } else if (pkg.dependencies?.fastify) {
-        framework = "Fastify API";
-        defaultPort = 3000;
-      }
-
-      return {
-        buildPack: "NIXPACKS",
-        framework,
-        defaultPort,
-        entryFile: "package.json",
-      };
-    } catch {
-      return {
-        buildPack: "NIXPACKS",
-        framework: "Node.js",
-        defaultPort: 3000,
-      };
-    }
-  }
-
-  // 3. Check for Python
-  if (
-    fs.existsSync(path.join(dir, "requirements.txt")) ||
-    fs.existsSync(path.join(dir, "Pipfile")) ||
-    fs.existsSync(path.join(dir, "pyproject.toml"))
-  ) {
-    return {
-      buildPack: "NIXPACKS",
-      framework: "Python (FastAPI / Flask / Django)",
-      defaultPort: 8000,
-      entryFile: "requirements.txt",
-    };
-  }
-
-  // 4. Check for Go
-  if (fs.existsSync(path.join(dir, "go.mod"))) {
-    return {
-      buildPack: "NIXPACKS",
-      framework: "Go Application",
-      defaultPort: 8080,
-      entryFile: "go.mod",
-    };
-  }
-
-  // 5. Check for Rust
-  if (fs.existsSync(path.join(dir, "Cargo.toml"))) {
-    return {
-      buildPack: "NIXPACKS",
-      framework: "Rust Application",
-      defaultPort: 8080,
-      entryFile: "Cargo.toml",
-    };
-  }
-
-  // 6. Check for PHP
-  if (fs.existsSync(path.join(dir, "composer.json"))) {
-    return {
-      buildPack: "NIXPACKS",
-      framework: "PHP (Laravel / Symfony)",
-      defaultPort: 8000,
-      entryFile: "composer.json",
-    };
-  }
-
-  // Default fallback
-  return {
-    buildPack: "NIXPACKS",
-    framework: "Generic Runtime",
-    defaultPort: 3000,
-  };
+export function detectRepositoryStack(dir: string): UniversalStackInfo {
+  return detectUniversalStack(dir);
 }
 
 /**

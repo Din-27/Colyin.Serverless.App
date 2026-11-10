@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getDockerDaemonStatus } from "@/lib/engine/docker";
 import {
   Server,
   Database,
@@ -13,32 +15,42 @@ import {
   ExternalLink,
   ShieldCheck,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CreateAddonModal } from "@/components/CreateAddonModal";
+import { DeleteProjectButton } from "@/components/DeleteProjectButton";
 
 export default async function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/login");
+  }
+
   const { id: projectId } = await params;
 
-  const project = await db.project.findUnique({
-    where: { id: projectId },
-    include: {
-      applications: {
-        include: {
-          domains: true,
-          deployments: {
-            take: 1,
-            orderBy: { startedAt: "desc" },
+  const [project, dockerStatus] = await Promise.all([
+    db.project.findUnique({
+      where: { id: projectId },
+      include: {
+        applications: {
+          include: {
+            domains: true,
+            deployments: {
+              take: 1,
+              orderBy: { startedAt: "desc" },
+            },
           },
         },
+        addons: true,
       },
-      addons: true,
-    },
-  });
+    }),
+    getDockerDaemonStatus(),
+  ]);
 
   if (!project) notFound();
 
@@ -67,6 +79,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <div className="flex items-center gap-3">
+          <DeleteProjectButton projectId={project.id} projectName={project.name} />
           <CreateAddonModal projectId={project.id} />
           <Link
             href={`/projects/${project.id}/new`}
@@ -105,47 +118,81 @@ export default async function ProjectDetailPage({
               const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
 
               return (
-                <Link
+                <div
                   key={app.id}
-                  href={`/apps/${app.id}`}
-                  className="group block rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 hover:border-indigo-500/50 hover:bg-zinc-900/80 transition"
+                  className="group rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 hover:border-indigo-500/50 hover:bg-zinc-900/80 transition flex flex-col justify-between"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-white group-hover:text-indigo-400 transition flex items-center gap-2">
-                        {app.name}
-                      </h3>
-                      <p className="text-xs text-zinc-500 font-mono mt-0.5">
-                        Port {app.internalPort} &bull; {app.buildPack}
-                      </p>
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <Link
+                          href={`/apps/${app.id}`}
+                          className="font-semibold text-white hover:text-indigo-400 transition flex items-center gap-2"
+                        >
+                          {app.name}
+                        </Link>
+                        <p className="text-xs text-zinc-500 font-mono mt-0.5">
+                          Port {app.internalPort} &bull; {app.buildPack}
+                        </p>
+                      </div>
+                      <StatusBadge status={latestDeploy?.status || "STOPPED"} />
                     </div>
-                    <StatusBadge status={latestDeploy?.status || "STOPPED"} />
+
+                    {/* Domain / Route Access Link */}
+                    {(() => {
+                      const appAccessUrl = primaryDomain
+                        ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `https://${primaryDomain.host}`)
+                        : `http://localhost:${app.internalPort}`;
+                      const displayLabel = primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`;
+
+                      return (
+                        <div className="mt-4 flex items-center justify-between text-xs font-mono">
+                          <a
+                            href={appAccessUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 hover:underline truncate max-w-[210px]"
+                            title={`Open ${appAccessUrl} in new tab`}
+                          >
+                            <Globe className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{displayLabel}</span>
+                            <ExternalLink className="w-3 h-3 opacity-60 shrink-0" />
+                          </a>
+                          <span className="text-[10px] font-sans font-medium">
+                            {primaryDomain ? (
+                              <span className="text-emerald-400 flex items-center gap-1 font-semibold">
+                                <Lock className="w-2.5 h-2.5" />
+                                HTTPS
+                              </span>
+                            ) : (
+                              <span className="text-zinc-500">Port {app.internalPort}</span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
-                  {/* Domain / Route */}
-                  {primaryDomain && (
-                    <div className="mt-4 flex items-center gap-1.5 text-xs text-indigo-400 font-mono">
-                      <Globe className="w-3.5 h-3.5" />
-                      <span className="truncate">{primaryDomain.host}</span>
-                      <ExternalLink className="w-3 h-3 opacity-60" />
-                    </div>
-                  )}
-
-                  {/* Resource Badges */}
+                  {/* Resource Badges and Manage link */}
                   <div className="mt-5 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
-                    <span className="flex items-center gap-1">
-                      <Cpu className="w-3.5 h-3.5 text-zinc-500" />
-                      {app.cpuLimit} CPU
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <HardDrive className="w-3.5 h-3.5 text-zinc-500" />
-                      {app.memoryLimitMb}MB RAM
-                    </span>
-                    <span className="text-zinc-500 text-[11px] font-mono">
-                      {latestDeploy?.commitHash || "no commit"}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Cpu className="w-3.5 h-3.5 text-zinc-500" />
+                        {app.cpuLimit} CPU
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <HardDrive className="w-3.5 h-3.5 text-zinc-500" />
+                        {app.memoryLimitMb}MB
+                      </span>
+                    </div>
+                    <Link
+                      href={`/apps/${app.id}`}
+                      className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition"
+                    >
+                      Manage &rarr;
+                    </Link>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
@@ -196,14 +243,21 @@ export default async function ProjectDetailPage({
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
-                  <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-zinc-500" />
-                    {addon.publicPort ? (
-                      <span className="text-amber-400">Public: :{addon.publicPort}</span>
-                    ) : (
-                      <span className="text-zinc-500">Private Only</span>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-zinc-500" />
+                      {addon.publicPort ? (
+                        <span className="text-amber-400">Public: :{addon.publicPort}</span>
+                      ) : (
+                        <span className="text-zinc-500">Private Only</span>
+                      )}
+                    </span>
+                    {addon.type === "RABBITMQ" && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-950/60 border border-orange-800/80 text-orange-400">
+                        Web UI :15672
+                      </span>
                     )}
-                  </span>
+                  </div>
                   <span className="text-indigo-400 font-medium text-[11px]">
                     View Credentials &rarr;
                   </span>

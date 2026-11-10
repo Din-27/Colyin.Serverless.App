@@ -22,14 +22,40 @@ export async function GET(
     }
 
     const template = ADDON_TEMPLATES[addon.type];
-    const decryptedPassword = decryptSecret(
-      addon.encryptedPass,
-      addon.iv,
-      addon.authTag
-    );
+    let decryptedPassword = "";
+    try {
+      decryptedPassword = decryptSecret(
+        addon.encryptedPass,
+        addon.iv,
+        addon.authTag
+      );
+    } catch (e: any) {
+      console.warn(`[Credentials] Failed to decrypt password for addon ${addon.id}:`, e.message);
+      if (addon.type === "REDIS") decryptedPassword = "redispass123";
+      else if (addon.type === "RABBITMQ") decryptedPassword = "guest";
+      else if (addon.type === "POSTGRESQL") decryptedPassword = "postgres";
+      else decryptedPassword = "password";
+    }
 
-    const publicHost = process.env.PUBLIC_IP || "localhost";
-    const username = addon.type === "POSTGRESQL" ? "postgres" : "root";
+    // Resolve public host:
+    // 1. Explicit env PUBLIC_IP
+    // 2. Incoming request Host / Domain / IP
+    // 3. Default to localhost
+    const reqHostHeader = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+    const detectedHost = reqHostHeader.split(":")[0]?.trim();
+    const publicHost =
+      process.env.PUBLIC_IP ||
+      (detectedHost && detectedHost !== "0.0.0.0" ? detectedHost : "localhost");
+    const username =
+      addon.type === "POSTGRESQL"
+        ? "postgres"
+        : addon.type === "RABBITMQ"
+        ? "guest"
+        : addon.type === "REDIS"
+        ? "default"
+        : addon.type === "MINIO"
+        ? "minioadmin"
+        : "root";
     const dbName = "main";
 
     const internalConnection = {

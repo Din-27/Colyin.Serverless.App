@@ -14,10 +14,20 @@ import {
   Server,
   Globe,
   Lock,
-  Sparkles,
   Search,
   ExternalLink,
+  Star,
+  Link as LinkIcon,
+  User,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  AlertCircle,
+  CheckCircle2,
+  Cpu,
 } from "lucide-react";
+import { RuntimeSelector } from "@/components/RuntimeSelector";
+import { ResourceAllocationSelector } from "@/components/ResourceAllocationSelector";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -37,21 +47,74 @@ export function ServiceWizardForm({ project }: { project: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Source Mode: "github" or "direct"
+  const [sourceMode, setSourceMode] = useState<"github" | "direct">("github");
+
   // GitHub Connection State
   const [githubAccount, setGithubAccount] = useState<any>(null);
   const [checkingGithub, setCheckingGithub] = useState(true);
+  const [cliAccounts, setCliAccounts] = useState<any[]>([]);
+  const [selectedCliAccount, setSelectedCliAccount] = useState<string>("");
+  const [showManualForm, setShowManualForm] = useState<boolean>(false);
   const [repos, setRepos] = useState<any[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(false);
   const [repoSearch, setRepoSearch] = useState("");
   const [selectedRepoFullName, setSelectedRepoFullName] = useState("");
+  const [repoFilter, setRepoFilter] = useState<"all" | "private" | "public">("all");
+
+  // Connect Inputs
+  const [inputUsername, setInputUsername] = useState("");
+  const [inputToken, setInputToken] = useState("");
+  const [showTokenInput, setShowTokenInput] = useState(true);
+  const [directGitToken, setDirectGitToken] = useState("");
+
+  // Inline Add Token state when connected without token
+  const [showAddTokenForm, setShowAddTokenForm] = useState(false);
+  const [inlineToken, setInlineToken] = useState("");
+  const [inlineTokenLoading, setInlineTokenLoading] = useState(false);
 
   // Step 1: Selected Service Specs
   const [name, setName] = useState("");
   const [repositoryUrl, setRepositoryUrl] = useState("");
   const [branch, setBranch] = useState("main");
   const [buildPack, setBuildPack] = useState("NIXPACKS");
-  const [internalPort, setInternalPort] = useState(3000);
+  const [runtimeVersion, setRuntimeVersion] = useState("AUTO");
+  const [internalPort, setInternalPort] = useState(3001);
+  const [portStatus, setPortStatus] = useState<{
+    checking: boolean;
+    available: boolean;
+    reason?: string;
+    suggestedPort?: number;
+  }>({ checking: false, available: true });
   const [domain, setDomain] = useState("");
+  const [wildcardDomain, setWildcardDomain] = useState("127.0.0.1.sslip.io");
+  const [domainMode, setDomainMode] = useState<"auto" | "custom">("auto");
+  const [cpuLimit, setCpuLimit] = useState(1.0);
+  const [memoryLimitMb, setMemoryLimitMb] = useState(512);
+  const [resourceMode, setResourceMode] = useState<"AUTO" | "ECO" | "STANDARD" | "HIGH" | "CUSTOM">("AUTO");
+  const [autoSlugSuffix] = useState(() => Math.random().toString(36).substring(2, 8));
+
+  const checkPortAvailability = async (portToTest: number, autoApply = false) => {
+    if (!portToTest || isNaN(portToTest)) return;
+    setPortStatus((prev) => ({ ...prev, checking: true }));
+    try {
+      const res = await fetch(`/api/system/ports/check?port=${portToTest}`);
+      const data = await res.json();
+      if (data.success) {
+        setPortStatus({
+          checking: false,
+          available: data.available,
+          reason: data.reason,
+          suggestedPort: data.suggestedPort,
+        });
+        if (autoApply && !data.available && data.suggestedPort) {
+          setInternalPort(data.suggestedPort);
+        }
+      }
+    } catch {
+      setPortStatus((prev) => ({ ...prev, checking: false }));
+    }
+  };
 
   // Step 2: Resource Attachment
   const [selectedAddonId, setSelectedAddonId] = useState("");
@@ -65,6 +128,11 @@ export function ServiceWizardForm({ project }: { project: any }) {
     try {
       const res = await fetch("/api/github/account");
       const data = await res.json();
+      if (data.cliAccounts && data.cliAccounts.length > 0) {
+        setCliAccounts(data.cliAccounts);
+        const active = data.cliAccounts.find((a: any) => a.active) || data.cliAccounts[0];
+        if (active) setSelectedCliAccount(active.username);
+      }
       if (data.connected && data.account) {
         setGithubAccount(data.account);
         loadRepos();
@@ -82,33 +150,115 @@ export function ServiceWizardForm({ project }: { project: any }) {
       const data = await res.json();
       if (data.success && data.repos) {
         setRepos(data.repos);
+        if (typeof data.hasToken === "boolean") {
+          setGithubAccount((prev: any) =>
+            prev ? { ...prev, hasToken: data.hasToken } : prev
+          );
+        }
+      } else {
+        setRepos([]);
+        if (data.error) setError(data.error);
       }
-    } catch {}
+    } catch (err: any) {
+      setError(err.message || "Failed to load repositories from GitHub");
+    }
     setLoadingRepos(false);
   };
 
   useEffect(() => {
     checkGithubStatus();
+    checkPortAvailability(3001, true);
+    fetch("/api/system/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.settings?.WILDCARD_DOMAIN) {
+          setWildcardDomain(data.settings.WILDCARD_DOMAIN);
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const handleConnectGithub = async () => {
+  const handleConnectGithub = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputUsername.trim() && !inputToken.trim()) {
+      setError("Please enter your GitHub Personal Access Token or username");
+      return;
+    }
+
     setLoading(true);
+    setError("");
     try {
-      // Connects account in one-click
       const res = await fetch("/api/github/account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "developer" }),
+        body: JSON.stringify({
+          username: inputUsername.trim() || undefined,
+          token: inputToken.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGithubAccount(data.account);
+        setInputUsername("");
+        setInputToken("");
+        await loadRepos();
+      } else {
+        setError(data.error || "Failed to connect to GitHub");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to connect to GitHub");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnectWithCli = async (accountName?: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/github/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ useCliAccount: accountName || undefined }),
       });
       const data = await res.json();
       if (data.success) {
         setGithubAccount(data.account);
         await loadRepos();
+      } else {
+        setError(data.error || "Failed to connect to GitHub");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to connect GitHub");
+      setError(err.message || "Failed to connect to GitHub");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateToken = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inlineToken.trim()) return;
+    setInlineTokenLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/github/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: inlineToken.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGithubAccount(data.account);
+        setInlineToken("");
+        setShowAddTokenForm(false);
+        await loadRepos();
+      } else {
+        setError(data.error || "Failed to update GitHub token");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to update GitHub token");
+    } finally {
+      setInlineTokenLoading(false);
     }
   };
 
@@ -125,16 +275,22 @@ export function ServiceWizardForm({ project }: { project: any }) {
     setRepositoryUrl(repo.cloneUrl);
     setBranch(repo.defaultBranch || "main");
 
-    // Suggest default port based on language
-    if (repo.language === "Python") setInternalPort(8000);
-    else if (repo.language === "Go") setInternalPort(8080);
-    else setInternalPort(3000);
+    // Suggest default port based on language and auto-check availability
+    let basePort = 3000;
+    if (repo.language === "Python") basePort = 8000;
+    else if (repo.language === "Go") basePort = 8080;
+    setInternalPort(basePort);
+    checkPortAvailability(basePort, true);
   };
 
   const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !repositoryUrl.trim()) {
-      setError("Please select a repository to continue");
+      setError("Please provide service name and repository URL to continue");
+      return;
+    }
+    if (!portStatus.available) {
+      setError(portStatus.reason || `Port ${internalPort} is already in use. Please select a unique, unoccupied port.`);
       return;
     }
     setError("");
@@ -142,10 +298,25 @@ export function ServiceWizardForm({ project }: { project: any }) {
   };
 
   const handleFinishDeploy = async () => {
+    if (!portStatus.available) {
+      setError(portStatus.reason || `Port ${internalPort} is already in use. Please select a unique, unoccupied port.`);
+      return;
+    }
     setLoading(true);
     setError("");
 
     try {
+      const cleanSlug = (name || "app")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const generatedAutoDomain = `${cleanSlug || "app"}-${autoSlugSuffix}.${wildcardDomain}`;
+      const finalDomain =
+        domainMode === "custom" && domain.trim()
+          ? domain.trim()
+          : generatedAutoDomain;
+
       // 1. Create Application
       const appRes = await fetch("/api/apps", {
         method: "POST",
@@ -157,7 +328,10 @@ export function ServiceWizardForm({ project }: { project: any }) {
           branch,
           internalPort,
           buildPack,
-          domain: domain.trim() || undefined,
+          runtimeVersion,
+          cpuLimit,
+          memoryLimitMb,
+          domain: finalDomain,
         }),
       });
 
@@ -206,6 +380,13 @@ export function ServiceWizardForm({ project }: { project: any }) {
         }
       }
 
+      if (sourceMode === "direct" && directGitToken.trim()) {
+        parsedEnvs.push({
+          key: "GIT_AUTH_TOKEN",
+          value: directGitToken.trim(),
+        });
+      }
+
       if (parsedEnvs.length > 0) {
         await fetch(`/api/apps/${appId}/env`, {
           method: "PUT",
@@ -228,18 +409,26 @@ export function ServiceWizardForm({ project }: { project: any }) {
     }
   };
 
-  const filteredRepos = repos.filter(
-    (r) =>
+  const privateCount = repos.filter((r) => r.isPrivate).length;
+  const publicCount = repos.filter((r) => !r.isPrivate).length;
+
+  const filteredRepos = repos.filter((r) => {
+    const matchesSearch =
       r.name.toLowerCase().includes(repoSearch.toLowerCase()) ||
-      r.fullName.toLowerCase().includes(repoSearch.toLowerCase())
-  );
+      r.fullName.toLowerCase().includes(repoSearch.toLowerCase()) ||
+      (r.description && r.description.toLowerCase().includes(repoSearch.toLowerCase()));
+    if (!matchesSearch) return false;
+    if (repoFilter === "private") return r.isPrivate;
+    if (repoFilter === "public") return !r.isPrivate;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
       {/* Step Indicators */}
       <div className="flex items-center justify-between pb-4 border-b border-zinc-800 text-xs">
         {[
-          { num: 1, label: "GitHub Repository" },
+          { num: 1, label: "Repository Source" },
           { num: 2, label: "Attach Resources" },
           { num: 3, label: "Environment & Deploy" },
         ].map((s) => (
@@ -275,79 +464,554 @@ export function ServiceWizardForm({ project }: { project: any }) {
         </div>
       )}
 
-      {/* Step 1: GitHub Repository Picker */}
+      {/* Step 1: Repository Selection */}
       {step === 1 && (
         <div className="space-y-6">
-          {checkingGithub ? (
+          {/* Source Tabs: GitHub Account vs Direct Git URL */}
+          <div className="flex items-center gap-2 p-1 rounded-lg bg-zinc-950 border border-zinc-800 max-w-sm">
+            <button
+              type="button"
+              onClick={() => setSourceMode("github")}
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition ${
+                sourceMode === "github"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GitHub Account</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSourceMode("direct")}
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition ${
+                sourceMode === "direct"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+              <span>Direct Git URL</span>
+            </button>
+          </div>
+
+          {sourceMode === "direct" ? (
+            /* Direct Git URL Form */
+            <form onSubmit={handleNextStep1} className="space-y-4">
+              <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/70 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                    <span>Git Repository URL</span>
+                    <span className="text-[10px] text-zinc-500 font-normal">Public or Private (.git)</span>
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://github.com/owner/repository.git"
+                    value={repositoryUrl}
+                    onChange={(e) => {
+                      setRepositoryUrl(e.target.value);
+                      if (!name) {
+                        const parts = e.target.value.split("/");
+                        const last = parts[parts.length - 1]?.replace(".git", "");
+                        if (last) setName(last);
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  />
+                  <p className="text-[11px] text-zinc-500 mt-1">
+                    Supports any Git repository URL (GitHub, GitLab, Bitbucket, self-hosted).
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>Git Access Token / PAT (Optional for Private Repos)</span>
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-normal">Encrypted at rest</span>
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="ghp_xxxx or personal access token (leave blank if public or connected via GitHub)"
+                    value={directGitToken}
+                    onChange={(e) => setDirectGitToken(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  />
+                  <p className="text-[11px] text-zinc-500 mt-1">
+                    If this repository is on GitHub and your GitHub account has an active token, it will authenticate automatically even if left blank.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      Service Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="my-backend-api"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      Branch
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                      placeholder="main"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                      <span>Internal Port</span>
+                      <span className="text-[10px] text-zinc-500 font-normal">Must be unique &amp; unoccupied</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={internalPort}
+                      onChange={(e) => {
+                        const p = parseInt(e.target.value, 10) || 3000;
+                        setInternalPort(p);
+                        checkPortAvailability(p);
+                      }}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                    {portStatus.checking ? (
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                        <span>Verifying port availability...</span>
+                      </div>
+                    ) : !portStatus.available ? (
+                      <div className="mt-1.5 p-2 rounded bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-300">
+                        <div className="flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                          <span>{portStatus.reason || `Port ${internalPort} is already in use`}</span>
+                        </div>
+                        {portStatus.suggestedPort && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setInternalPort(portStatus.suggestedPort!);
+                              checkPortAvailability(portStatus.suggestedPort!);
+                            }}
+                            className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition"
+                          >
+                            Use free port :{portStatus.suggestedPort}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                        <span>Port {internalPort} is free and unique</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      Buildpack Strategy
+                    </label>
+                    <select
+                      value={buildPack}
+                      onChange={(e) => setBuildPack(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="NIXPACKS">Auto Detect (C, C++, Rust, Zig, Go, Node, Python, PHP, Java, .NET, Ruby, Bun, Deno, Static)</option>
+                      <option value="DOCKERFILE">Dockerfile in Repository Root</option>
+                    </select>
+                  </div>
+                </div>
+
+                {buildPack === "NIXPACKS" && (
+                  <div className="pt-2 border-t border-zinc-800/80">
+                    <RuntimeSelector
+                      value={runtimeVersion}
+                      onChange={setRuntimeVersion}
+                    />
+                  </div>
+                )}
+
+                {/* Core & Memory Resource Quota */}
+                <div className="pt-3 border-t border-zinc-800/80">
+                  <ResourceAllocationSelector
+                    cpuLimit={cpuLimit}
+                    memoryLimitMb={memoryLimitMb}
+                    onChange={(newCpu, newMem, newMode) => {
+                      setCpuLimit(newCpu);
+                      setMemoryLimitMb(newMem);
+                      setResourceMode(newMode as any);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition"
+                >
+                  <span>Continue to Resources</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          ) : checkingGithub ? (
             <div className="p-12 text-center text-xs text-zinc-500">
               <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" />
               Checking GitHub integration...
             </div>
           ) : !githubAccount ? (
-            /* Connect GitHub State */
-            <div className="p-8 rounded-xl border border-dashed border-zinc-800 bg-zinc-950 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-white">
-                <GithubIcon className="w-6 h-6" />
-              </div>
-              <div className="max-w-sm mx-auto">
-                <h3 className="text-base font-semibold text-white">
-                  Connect your GitHub Account
-                </h3>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Connect your GitHub account once to import and deploy your repositories directly with zero configuration. No manual token or PAT needed.
-                </p>
-              </div>
+            /* Connect GitHub State with 1-Click Private Repo Support */
+            <div className="space-y-4">
+              {cliAccounts.length > 0 ? (
+                /* Primary 1-Click Connect Button (Fetches Private Repos Automatically) */
+                <div className="p-6 rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-950/40 via-zinc-950 to-zinc-950 space-y-5 shadow-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-inner">
+                        <GithubIcon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-white">Connect GitHub Account</h3>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-medium">
+                            <Shield className="w-3 h-3 text-emerald-400" />
+                            Private Repositories Included
+                          </span>
+                        </div>
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          Detected authenticated session with active <code className="text-amber-300 font-mono">repo</code> scope.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleConnectGithub}
-                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold shadow transition"
-              >
-                {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <GithubIcon className="w-4 h-4" />
-                )}
-                Connect GitHub Account
-              </button>
+                  {cliAccounts.length > 1 && (
+                    <div className="flex items-center gap-2 pt-1 text-xs">
+                      <span className="text-zinc-400 text-[11px] font-medium">Available Accounts:</span>
+                      <div className="flex items-center gap-1.5">
+                        {cliAccounts.map((acc: any) => (
+                          <button
+                            key={acc.username}
+                            type="button"
+                            onClick={() => setSelectedCliAccount(acc.username)}
+                            className={`px-2.5 py-1 rounded text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                              selectedCliAccount === acc.username
+                                ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30"
+                                : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
+                            }`}
+                          >
+                            <span>@{acc.username}</span>
+                            {acc.active && (
+                              <span className="text-[9px] px-1 py-0.2 rounded bg-indigo-900/80 text-indigo-200">
+                                Active
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* INITIAL PRIMARY BUTTON */}
+                  <button
+                    type="button"
+                    onClick={() => handleConnectWithCli(selectedCliAccount)}
+                    disabled={loading}
+                    className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-50 text-zinc-950 text-xs font-bold transition shadow-lg hover:shadow-indigo-500/20 cursor-pointer"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                    ) : (
+                      <GithubIcon className="w-4 h-4" />
+                    )}
+                    <span>
+                      Connect as @{selectedCliAccount || cliAccounts[0]?.username} &amp; Load All Private Repositories
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-zinc-600 ml-1" />
+                  </button>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setShowManualForm(!showManualForm)}
+                      className="text-[11px] text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono transition"
+                    >
+                      <span>{showManualForm ? "- Hide custom token form" : "+ Use custom token or another username"}</span>
+                    </button>
+
+                    <a
+                      href="/api/github/oauth?redirect=/projects"
+                      className="text-[11px] text-zinc-500 hover:text-indigo-400 flex items-center gap-1 transition"
+                      title="Connect using GitHub OAuth App"
+                    >
+                      <Shield className="w-3 h-3 text-indigo-400" />
+                      <span>OAuth App Flow</span>
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Manual Form (Shown if no CLI accounts detected, or if toggled) */}
+              {(cliAccounts.length === 0 || showManualForm) && (
+                <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+                  <div className="text-xs font-semibold text-zinc-300">
+                    Connect via Personal Access Token or Username
+                  </div>
+
+                  <form onSubmit={handleConnectGithub} className="space-y-4">
+                    <div className="p-3.5 rounded-lg bg-indigo-950/20 border border-indigo-500/30 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-semibold text-indigo-300">
+                        <span className="flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-amber-400" />
+                          Personal Access Token (with 'repo' scope)
+                        </span>
+                        <a
+                          href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Deployment"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-normal"
+                        >
+                          <span>Generate Token</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <input
+                        type="password"
+                        placeholder="ghp_xxxxxxxxxxxx or github_pat_xxxxxxxxxxxx"
+                        value={inputToken}
+                        onChange={(e) => setInputToken(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                        Or GitHub Username (Public Repositories Only)
+                      </label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+                        <input
+                          type="text"
+                          placeholder="e.g. your-github-username"
+                          value={inputUsername}
+                          onChange={(e) => setInputUsername(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <button
+                        type="submit"
+                        disabled={loading || (!inputUsername.trim() && !inputToken.trim())}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <GithubIcon className="w-4 h-4" />
+                        )}
+                        <span>Connect &amp; Load Repositories</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           ) : (
-            /* Connected GitHub Repository Selector */
+            /* Connected GitHub Repository Selector (Real Data with Private Repo Support) */
             <form onSubmit={handleNextStep1} className="space-y-5">
               {/* Account Header */}
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-6 h-6 rounded-full bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-300">
-                    <GithubIcon className="w-3.5 h-3.5" />
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3 text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {githubAccount.avatarUrl ? (
+                      <img
+                        src={githubAccount.avatarUrl}
+                        alt={githubAccount.username}
+                        className="w-8 h-8 rounded-full border border-zinc-700"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-300">
+                        <GithubIcon className="w-4 h-4" />
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <strong className="text-white text-xs font-mono">@{githubAccount.username}</strong>
+                        {githubAccount.hasToken ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-medium">
+                            <Shield className="w-3 h-3 text-emerald-400" />
+                            Private &amp; Public Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-800 text-[10px] text-amber-400 font-medium">
+                            <Lock className="w-3 h-3 text-amber-400" />
+                            Public Repos Only
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-zinc-500 text-[11px] block mt-0.5">
+                        {githubAccount.hasToken
+                          ? "Connected via Personal Access Token. Private repositories are accessible."
+                          : "Connected without token. Add a Personal Access Token with 'repo' scope to load private repositories."}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-zinc-300 font-medium">
-                    Connected as <strong className="text-white">@{githubAccount.username}</strong>
-                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {!githubAccount.hasToken && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAddTokenForm(!showAddTokenForm)}
+                        className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1"
+                      >
+                        <Lock className="w-3 h-3" />
+                        <span>{showAddTokenForm ? "Cancel" : "Enable Private Repos"}</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={loadRepos}
+                      disabled={loadingRepos}
+                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-medium transition"
+                    >
+                      Refresh
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDisconnectGithub}
+                      className="text-zinc-500 hover:text-rose-400 text-[11px] px-2 py-1 transition"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleDisconnectGithub}
-                  className="text-zinc-500 hover:text-rose-400 text-[11px]"
-                >
-                  Disconnect
-                </button>
+
+                {/* Inline Add Token Form */}
+                {showAddTokenForm && !githubAccount.hasToken && (
+                  <div className="pt-3 border-t border-zinc-800/80 mt-2">
+                    <div className="p-3 rounded-lg bg-zinc-900 border border-indigo-500/40 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-indigo-300">
+                          Add Personal Access Token for Private Repositories
+                        </span>
+                        <a
+                          href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Private-Repos"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] text-indigo-400 hover:underline flex items-center gap-1"
+                        >
+                          <span>Generate Token on GitHub</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        Paste a classic or fine-grained GitHub token with the <code className="text-amber-300 font-mono">repo</code> scope enabled. It will be encrypted with AES-256-GCM.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="password"
+                          placeholder="ghp_xxxxxxxxxxxx or github_pat_xxxxxxxxxxxx"
+                          value={inlineToken}
+                          onChange={(e) => setInlineToken(e.target.value)}
+                          className="flex-1 px-3 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleUpdateToken}
+                          disabled={inlineTokenLoading || !inlineToken.trim()}
+                          className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center gap-1.5"
+                        >
+                          {inlineTokenLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                          Save &amp; Unlock
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Repositories Search & List */}
+              {/* Repositories Search & Filters */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-medium text-zinc-300">
-                    Select Repository to Deploy
-                  </label>
-                  <span className="text-[11px] text-zinc-500">{repos.length} repositories available</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-zinc-200">
+                      Select Repository to Deploy
+                    </label>
+                    <span className="text-[11px] text-zinc-500">
+                      ({repos.length} total fetched)
+                    </span>
+                  </div>
+
+                  {/* Filter Tabs: All, Private, Public */}
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setRepoFilter("all")}
+                      className={`px-2.5 py-1 rounded transition font-medium ${
+                        repoFilter === "all"
+                          ? "bg-zinc-800 text-white"
+                          : "text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      All ({repos.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRepoFilter("private")}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium ${
+                        repoFilter === "private"
+                          ? "bg-amber-950/70 border border-amber-800 text-amber-300"
+                          : "text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <Lock className="w-3 h-3 text-amber-400" />
+                      <span>Private ({privateCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRepoFilter("public")}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium ${
+                        repoFilter === "public"
+                          ? "bg-zinc-800 text-white"
+                          : "text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <Globe className="w-3 h-3 text-zinc-400" />
+                      <span>Public ({publicCount})</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="relative">
                   <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
                   <input
                     type="text"
-                    placeholder="Search your GitHub repositories..."
+                    placeholder={
+                      repoFilter === "private"
+                        ? "Search in private repositories..."
+                        : repoFilter === "public"
+                        ? "Search in public repositories..."
+                        : "Filter repositories by name or description..."
+                    }
                     value={repoSearch}
                     onChange={(e) => setRepoSearch(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-indigo-500"
@@ -357,13 +1021,31 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 {loadingRepos ? (
                   <div className="p-8 text-center text-xs text-zinc-500">
                     <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-400" />
-                    Fetching your repositories...
+                    Fetching repositories from GitHub API...
                   </div>
                 ) : (
                   <div className="max-h-64 overflow-y-auto space-y-2 rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-2">
                     {filteredRepos.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-zinc-500">
-                        No repositories matching "{repoSearch}"
+                      <div className="p-6 text-center text-xs text-zinc-500 space-y-2">
+                        <div>
+                          {repoFilter === "private" && !githubAccount.hasToken
+                            ? "No private repositories visible because your account is connected without a token."
+                            : repoFilter === "private"
+                            ? "No private repositories found in this GitHub account."
+                            : repos.length === 0
+                            ? "No repositories found for this account. You can switch to 'Direct Git URL' tab above to deploy any repository."
+                            : `No repositories matching "${repoSearch}"`}
+                        </div>
+                        {repoFilter === "private" && !githubAccount.hasToken && (
+                          <button
+                            type="button"
+                            onClick={() => setShowAddTokenForm(true)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                          >
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Add Personal Access Token</span>
+                          </button>
+                        )}
                       </div>
                     ) : (
                       filteredRepos.map((repo) => {
@@ -376,15 +1058,18 @@ export function ServiceWizardForm({ project }: { project: any }) {
                             className={`w-full p-3 rounded-lg border text-left transition flex items-center justify-between ${
                               isSelected
                                 ? "bg-indigo-950/50 border-indigo-500 text-white"
+                                : repo.isPrivate
+                                ? "bg-amber-950/10 border-amber-900/40 text-zinc-300 hover:bg-amber-950/20 hover:border-amber-700"
                                 : "bg-zinc-900/40 border-zinc-800/80 text-zinc-300 hover:bg-zinc-900 hover:border-zinc-700"
                             }`}
                           >
-                            <div>
+                            <div className="pr-4">
                               <div className="text-xs font-semibold flex items-center gap-2">
                                 <span>{repo.fullName}</span>
                                 {repo.isPrivate && (
-                                  <span className="px-1.5 py-0.2 rounded bg-zinc-800 text-[10px] text-amber-400 font-mono">
-                                    Private
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950/70 border border-amber-800/80 text-[10px] text-amber-300 font-mono">
+                                    <Lock className="w-2.5 h-2.5" />
+                                    <span>Private</span>
                                   </span>
                                 )}
                               </div>
@@ -393,21 +1078,19 @@ export function ServiceWizardForm({ project }: { project: any }) {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3 text-right">
+                            <div className="flex items-center gap-3 text-right shrink-0">
+                              {repo.stars > 0 && (
+                                <span className="flex items-center gap-1 text-[11px] text-amber-400 font-mono">
+                                  <Star className="w-3 h-3 fill-amber-400" />
+                                  {repo.stars}
+                                </span>
+                              )}
                               {repo.language && (
                                 <span className="text-[11px] text-zinc-400 font-mono">
                                   {repo.language}
                                 </span>
                               )}
-                              <span
-                                className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                  isSelected
-                                    ? "border-indigo-500 bg-indigo-600 text-white"
-                                    : "border-zinc-700 bg-zinc-800"
-                                }`}
-                              >
-                                {isSelected && <Check className="w-3 h-3" />}
-                              </span>
+                              {isSelected && <Check className="w-4 h-4 text-indigo-400" />}
                             </div>
                           </button>
                         );
@@ -417,12 +1100,15 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 )}
               </div>
 
-              {/* Service Config Preview */}
               {selectedRepoFullName && (
-                <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 space-y-4">
+                <div className="p-4 rounded-xl border border-indigo-500/40 bg-indigo-950/20 space-y-4">
+                  <div className="text-xs font-semibold text-indigo-300">
+                    Selected Service Configuration
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+                      <label className="block text-xs font-medium text-zinc-400 mb-1">
                         Service Name
                       </label>
                       <input
@@ -430,61 +1116,117 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
                       />
                     </div>
-
                     <div>
-                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                        Branch
+                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                        Deploy Branch
                       </label>
                       <input
                         type="text"
                         required
                         value={branch}
                         onChange={(e) => setBranch(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                        Internal Port
+                      <label className="block text-xs font-medium text-zinc-400 mb-1 flex items-center justify-between">
+                        <span>Internal Port</span>
+                        <span className="text-[10px] text-zinc-500 font-normal">Must be unique</span>
                       </label>
                       <input
                         type="number"
                         required
                         value={internalPort}
-                        onChange={(e) => setInternalPort(Number(e.target.value))}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                        onChange={(e) => {
+                          const p = parseInt(e.target.value, 10) || 3000;
+                          setInternalPort(p);
+                          checkPortAvailability(p);
+                        }}
+                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
                       />
+                      {portStatus.checking ? (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-1">
+                          <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                          <span>Verifying port availability...</span>
+                        </div>
+                      ) : !portStatus.available ? (
+                        <div className="mt-1.5 p-2 rounded bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-300">
+                          <div className="flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                            <span>{portStatus.reason || `Port ${internalPort} is in use`}</span>
+                          </div>
+                          {portStatus.suggestedPort && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInternalPort(portStatus.suggestedPort!);
+                                checkPortAvailability(portStatus.suggestedPort!);
+                              }}
+                              className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition"
+                            >
+                              Use free port :{portStatus.suggestedPort}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                          <span>Port {internalPort} is free and unique</span>
+                        </div>
+                      )}
                     </div>
-
                     <div>
-                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                        Public Domain (Optional)
+                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                        Buildpack Protocol
                       </label>
-                      <input
-                        type="text"
-                        placeholder="api.domain.com"
-                        value={domain}
-                        onChange={(e) => setDomain(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                      <select
+                        value={buildPack}
+                        onChange={(e) => setBuildPack(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                      >
+                        <option value="NIXPACKS">Auto Detect (C, C++, Rust, Zig, Go, Node, Python, PHP, Java, .NET, Ruby, Bun, Deno, Static)</option>
+                        <option value="DOCKERFILE">Dockerfile in Root</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {buildPack === "NIXPACKS" && (
+                    <div className="pt-2 border-t border-indigo-500/30">
+                      <RuntimeSelector
+                        value={runtimeVersion}
+                        onChange={setRuntimeVersion}
                       />
                     </div>
+                  )}
+
+                  {/* Core & Memory Resource Quota */}
+                  <div className="pt-3 border-t border-indigo-500/30">
+                    <ResourceAllocationSelector
+                      cpuLimit={cpuLimit}
+                      memoryLimitMb={memoryLimitMb}
+                      onChange={(newCpu, newMem, newMode) => {
+                        setCpuLimit(newCpu);
+                        setMemoryLimitMb(newMem);
+                        setResourceMode(newMode as any);
+                      }}
+                    />
                   </div>
                 </div>
               )}
 
-              <div className="pt-2 flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={!selectedRepoFullName}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition"
                 >
-                  Continue to Resources
+                  <span>Continue to Resources</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -493,37 +1235,32 @@ export function ServiceWizardForm({ project }: { project: any }) {
         </div>
       )}
 
-      {/* Step 2: Resource Attachment */}
+      {/* Step 2: Attach Project Resources / Addons */}
       {step === 2 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <h4 className="text-sm font-semibold text-white">
-              Attach to Existing Project Resource
-            </h4>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Select an existing database or cache service in this project to automatically inject connection credentials.
+            <h3 className="text-base font-semibold text-white">Attach Project Addons</h3>
+            <p className="text-xs text-zinc-400 mt-1">
+              Select existing database or queue addons in project '{project.name}' to auto-inject connection credentials.
             </p>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <label
-              className={`flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition ${
+              onClick={() => setSelectedAddonId("")}
+              className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
                 selectedAddonId === ""
                   ? "bg-indigo-950/40 border-indigo-500 text-white"
-                  : "bg-zinc-800/30 border-zinc-700/60 text-zinc-300 hover:bg-zinc-800/60"
+                  : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:bg-zinc-900"
               }`}
             >
-              <input
-                type="radio"
-                name="addon"
-                checked={selectedAddonId === ""}
-                onChange={() => setSelectedAddonId("")}
-                className="mt-0.5 text-indigo-600"
-              />
-              <div>
-                <div className="text-xs font-semibold">None (Stateless Service)</div>
-                <div className="text-[11px] text-zinc-500">
-                  Do not link any managed database or cache to this service.
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border flex items-center justify-center">
+                  {selectedAddonId === "" && <div className="w-2 h-2 rounded-full bg-indigo-400" />}
+                </div>
+                <div>
+                  <div className="text-xs font-semibold">Standalone Service (No Addons)</div>
+                  <div className="text-[11px] text-zinc-500">Do not bind any internal project database</div>
                 </div>
               </div>
             </label>
@@ -531,102 +1268,198 @@ export function ServiceWizardForm({ project }: { project: any }) {
             {project.addons.map((addon: any) => (
               <label
                 key={addon.id}
-                className={`flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition ${
+                onClick={() => setSelectedAddonId(addon.id)}
+                className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
                   selectedAddonId === addon.id
                     ? "bg-indigo-950/40 border-indigo-500 text-white"
-                    : "bg-zinc-800/30 border-zinc-700/60 text-zinc-300 hover:bg-zinc-800/60"
+                    : "bg-zinc-950 border-zinc-800 text-zinc-300 hover:bg-zinc-900"
                 }`}
               >
-                <input
-                  type="radio"
-                  name="addon"
-                  checked={selectedAddonId === addon.id}
-                  onChange={() => setSelectedAddonId(addon.id)}
-                  className="mt-0.5 text-indigo-600"
-                />
-                <div>
-                  <div className="text-xs font-semibold flex items-center gap-2">
-                    {addon.name}
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">
-                      {addon.type}
-                    </span>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full border flex items-center justify-center">
+                    {selectedAddonId === addon.id && <div className="w-2 h-2 rounded-full bg-indigo-400" />}
                   </div>
-                  <div className="text-[11px] text-zinc-500 font-mono mt-0.5">
-                    Internal: {addon.internalHost}:{addon.internalPort}
+                  <div>
+                    <div className="text-xs font-semibold flex items-center gap-2">
+                      <span>{addon.name}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-indigo-300">
+                        {addon.type}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-zinc-500 mt-0.5 font-mono">
+                      Host: {addon.internalHost}:{addon.internalPort}
+                    </div>
                   </div>
                 </div>
               </label>
             ))}
           </div>
 
-          <div className="pt-4 flex items-center justify-between">
+          <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              <span>Back</span>
             </button>
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold"
             >
-              Continue to Environment
+              <span>Continue to Environment</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 3: Env Vars & Final Deploy */}
+      {/* Step 3: Environment Variables & Launch */}
       {step === 3 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <h4 className="text-sm font-semibold text-white">Environment Variables</h4>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Paste your .env key-value pairs (one per line). All values are encrypted at-rest with AES-256-GCM.
+            <h3 className="text-base font-semibold text-white">Environment Variables &amp; Launch</h3>
+            <p className="text-xs text-zinc-400 mt-1">
+              Add custom environment variables (.env format). All values are encrypted at rest using AES-256-GCM.
             </p>
           </div>
 
-          <textarea
-            rows={6}
-            placeholder={"JWT_SECRET=super-secret-key\nNODE_ENV=production"}
-            value={envText}
-            onChange={(e) => setEnvText(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg bg-zinc-950 font-mono border border-zinc-700 text-white placeholder-zinc-600 text-xs focus:outline-none focus:border-indigo-500"
-          />
+          {/* Domain & Automatic HTTPS Provisioning */}
+          <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/70 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white">Domain &amp; Automatic HTTPS</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    SSL Active
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Every deployment automatically receives a production HTTPS domain managed by Traefik.
+                </p>
+              </div>
 
-          <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 space-y-2 text-xs text-zinc-300">
-            <div className="font-semibold text-white">Deployment Summary:</div>
-            <div className="grid grid-cols-2 gap-2 text-zinc-400 text-[11px]">
-              <div>Repository: {selectedRepoFullName}</div>
-              <div>Service: {name}</div>
-              <div>Branch: {branch}</div>
-              <div>Port: {internalPort}</div>
-              <div>Resource Attachment: {selectedAddonId ? "Connected" : "None"}</div>
-              <div>Routing Domain: {domain || "Internal only"}</div>
+              {/* Mode Toggle Buttons */}
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 self-start sm:self-auto text-xs">
+                <button
+                  type="button"
+                  onClick={() => setDomainMode("auto")}
+                  className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+                    domainMode === "auto"
+                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  Automatic (Vercel Style)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDomainMode("custom")}
+                  className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+                    domainMode === "custom"
+                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  Custom Domain
+                </button>
+              </div>
             </div>
+
+            {domainMode === "auto" ? (
+              <div className="p-3.5 rounded-lg border border-emerald-500/30 bg-emerald-950/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
+                    <Lock className="w-3 h-3 text-emerald-400" />
+                    Assigned Public HTTPS Domain:
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">
+                    Wildcard: *.{wildcardDomain}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-md bg-zinc-900 border border-emerald-500/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-mono text-xs font-bold text-emerald-400">
+                    <Lock className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                    <span className="truncate">
+                      https://{(name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "app")}-{autoSlugSuffix}.{wildcardDomain}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 font-sans font-medium">
+                    Auto-Provisioned
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-400">
+                  Ready immediately upon launch. Traefik automatically routes traffic and terminates TLS encryption without DNS configuration.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-zinc-300">
+                  Your Custom Domain FQDN
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. app.mycompany.com"
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                />
+                <div className="p-2.5 rounded-md bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 flex items-center justify-between font-mono">
+                  <span>
+                    Endpoint:{" "}
+                    <span className="text-emerald-400 font-bold">
+                      https://{domain.trim().replace(/^https?:\/\//, "") || `app-${autoSlugSuffix}.${wildcardDomain}`}
+                    </span>
+                  </span>
+                  <span className="text-zinc-500 text-[10px] font-sans">Point CNAME to server IP</span>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="pt-4 flex items-center justify-between">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              Environment Variables (.env format)
+            </label>
+            <textarea
+              rows={5}
+              placeholder={`NODE_ENV=production\nAPI_KEY=secret_key_12345\nPORT=3000`}
+              value={envText}
+              onChange={(e) => setEnvText(e.target.value)}
+              className="w-full p-3 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              <span>Back</span>
             </button>
             <button
               type="button"
               disabled={loading}
               onClick={handleFinishDeploy}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold shadow-md transition"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow transition"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Deploy Service Now
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Launching Service...</span>
+                </>
+              ) : (
+                <>
+                  <Server className="w-4 h-4" />
+                  <span>Deploy Service Now</span>
+                </>
+              )}
             </button>
           </div>
         </div>

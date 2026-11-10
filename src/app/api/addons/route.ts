@@ -87,21 +87,30 @@ export async function POST(req: Request) {
       },
     });
 
-    // Attempt to provision container in Docker
-    try {
-      const res = await provisionDedicatedAddon({
-        addonId: addon.id,
-        type: type.toUpperCase(),
-        networkName: project.networkName,
-        password: generatedPassword,
-      });
+    // Provision addon using real native runner or Docker container
+    if (type.toUpperCase() === "POSTGRESQL") {
+      try {
+        const { startNativePostgres } = await import("@/lib/engine/nativeAddonRunner");
+        await startNativePostgres(addon);
+      } catch (nativeErr: any) {
+        console.error("Failed to start native postgres instance:", nativeErr);
+      }
+    } else {
+      try {
+        const res = await provisionDedicatedAddon({
+          addonId: addon.id,
+          type: type.toUpperCase(),
+          networkName: project.networkName,
+          password: generatedPassword,
+        });
 
-      await db.addon.update({
-        where: { id: addon.id },
-        data: { containerId: res.containerId },
-      });
-    } catch (dockerErr) {
-      console.warn("Docker is offline. Addon simulated for development:", dockerErr);
+        await db.addon.update({
+          where: { id: addon.id },
+          data: { containerId: res.containerId },
+        });
+      } catch (dockerErr) {
+        console.warn("Docker is offline. Addon simulated for development:", dockerErr);
+      }
     }
 
     return NextResponse.json({ success: true, addon }, { status: 201 });

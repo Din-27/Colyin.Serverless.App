@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+*credentials.txt
+/apps-storage
+/addons-storage
 
 # debug
 npm-debug.log*

@@ -40,7 +40,8 @@ services:
       - SMTP_PASS=${SMTP_PASS:-}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "controller-data:/app/data"
+      - "./data:/app/data"
+      - "./apps-storage:/app/apps-storage"
     ports:
       - "3000:3000"
     labels:
@@ -60,4 +61,3 @@ networks:
 
 volumes:
   traefik-certificates:
-  controller-data:

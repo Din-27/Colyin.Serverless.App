@@ -109,3 +109,95 @@ export async function ensureImage(imageTag: string): Promise<void> {
     });
   }
 }
+
+/**
+ * Starts an existing stopped container.
+ */
+export async function startContainer(containerId: string): Promise<boolean> {
+  try {
+    const container = docker.getContainer(containerId);
+    await container.start();
+    return true;
+  } catch (err: any) {
+    console.error(`Error starting container ${containerId}:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Stops a running container.
+ */
+export async function stopContainer(containerId: string): Promise<boolean> {
+  try {
+    const container = docker.getContainer(containerId);
+    await container.stop({ t: 10 });
+    return true;
+  } catch (err: any) {
+    console.error(`Error stopping container ${containerId}:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Restarts a running container.
+ */
+export async function restartContainer(containerId: string): Promise<boolean> {
+  try {
+    const container = docker.getContainer(containerId);
+    await container.restart({ t: 10 });
+    return true;
+  } catch (err: any) {
+    console.error(`Error restarting container ${containerId}:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Inspects container runtime status.
+ */
+export async function inspectContainer(containerId: string): Promise<any> {
+  try {
+    const container = docker.getContainer(containerId);
+    return await container.inspect();
+  } catch (err: any) {
+    return null;
+  }
+}
+
+/**
+ * Force stops and removes a container.
+ */
+export async function removeContainer(containerId: string): Promise<boolean> {
+  try {
+    const container = docker.getContainer(containerId);
+    try {
+      await container.stop({ t: 2 });
+    } catch {}
+    await container.remove({ force: true, v: true });
+    return true;
+  } catch (err: any) {
+    console.warn(`Could not remove container ${containerId}:`, err?.message);
+    return false;
+  }
+}
+
+/**
+ * Removes an isolated Docker network.
+ */
+export async function removeNetwork(networkName: string): Promise<boolean> {
+  try {
+    const networks = await docker.listNetworks();
+    const existing = networks.find((n) => n.Name === networkName);
+    if (existing) {
+      const net = docker.getNetwork(existing.Id);
+      await net.remove();
+      return true;
+    }
+    return false;
+  } catch (err: any) {
+    console.warn(`Could not remove network ${networkName}:`, err?.message);
+    return false;
+  }
+}
+
+

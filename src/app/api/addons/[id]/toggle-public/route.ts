@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { allocateUniqueAddonPublicPort } from "@/lib/engine/ports";
 
 export async function POST(
   req: Request,
@@ -23,14 +24,19 @@ export async function POST(
 
     let publicPort: number | null = null;
     if (enable) {
-      // Allocate an unallocated high port between 10000 and 20000
-      publicPort = Math.floor(10000 + Math.random() * 9000);
+      publicPort = await allocateUniqueAddonPublicPort(addon.id);
     }
 
     const updated = await db.addon.update({
       where: { id: addonId },
       data: { publicPort },
     });
+
+    // Start or re-bind native database server instance
+    if (updated.type === "POSTGRESQL") {
+      const { startNativePostgres } = await import("@/lib/engine/nativeAddonRunner");
+      await startNativePostgres(updated);
+    }
 
     return NextResponse.json({
       success: true,

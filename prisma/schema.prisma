@@ -7,6 +7,23 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashed with crypto.scryptSync
+  salt      String
+  role      String   @default("DEVELOPER") // ADMIN | DEVELOPER | VIEWER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model GithubAccount {
   id             String   @id @default(cuid())
   username       String   @unique
@@ -39,6 +56,7 @@ model Application {
   repositoryUrl   String
   branch          String                @default("main")
   buildPack       String                @default("NIXPACKS") // NIXPACKS | DOCKERFILE
+  runtimeVersion  String?               @default("AUTO") // AUTO, or specific version (e.g. 20, 3.12, 1.23, 8.0, 21)
   dockerfilePath  String?               @default("Dockerfile")
   installCommand  String?
   buildCommand    String?

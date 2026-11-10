@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AddonConnectClient } from "@/components/AddonConnectClient";
 import Link from "next/link";
@@ -10,6 +11,11 @@ export default async function AddonDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/login");
+  }
+
   const { id: addonId } = await params;
 
   const addon = await db.addon.findUnique({

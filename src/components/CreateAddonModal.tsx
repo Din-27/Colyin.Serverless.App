@@ -49,7 +49,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
   return (
     <>
       <button
-        onClick={() => handleOpen("POSTGRESQL", "production-db")}
+        onClick={() => handleOpen("POSTGRESQL", "")}
         className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium border border-zinc-700 transition"
       >
         <Plus className="w-4 h-4" />
@@ -89,7 +89,6 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                 <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                   {[
                     { id: "POSTGRESQL", label: "PostgreSQL", icon: Database },
-                    { id: "MYSQL", label: "MySQL", icon: Database },
                     { id: "REDIS", label: "Redis", icon: Layers },
                     { id: "RABBITMQ", label: "RabbitMQ", icon: Network },
                     { id: "MINIO", label: "MinIO S3", icon: HardDrive },
@@ -125,6 +124,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                 <input
                   type="text"
                   required
+                  placeholder="e.g. main-db, redis-cache, or rabbitmq-queue"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500"

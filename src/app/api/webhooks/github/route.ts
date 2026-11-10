@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyGitHubSignature } from "@/lib/engine/crypto";
+import { runBuildPipeline } from "@/app/api/apps/[id]/deploy/route";
 
 export async function POST(req: Request) {
   try {
@@ -44,6 +45,11 @@ export async function POST(req: Request) {
         repositoryUrl: { contains: payload.repository?.name },
         branch,
       },
+      include: {
+        project: true,
+        domains: true,
+        envVariables: true,
+      },
     });
 
     if (!app) {
@@ -60,8 +66,13 @@ export async function POST(req: Request) {
         branch,
         commitHash: payload.after?.slice(0, 7) || "webhook",
         commitMessage: payload.head_commit?.message || "Triggered via GitHub webhook",
-        status: "QUEUED",
+        status: "BUILDING",
       },
+    });
+
+    // Execute build & deploy pipeline asynchronously in background
+    runBuildPipeline(app, deployment.id).catch((err) => {
+      console.error("[Webhook Auto-Deploy Error]:", err);
     });
 
     return NextResponse.json(

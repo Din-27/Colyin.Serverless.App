@@ -15,81 +15,97 @@ export async function GET() {
       );
     }
 
-    const token = decryptSecret(account.encryptedToken, account.iv, account.authTag);
+    let token = "";
+    try {
+      token = decryptSecret(account.encryptedToken, account.iv, account.authTag);
+    } catch (e: any) {
+      return NextResponse.json(
+        { success: false, error: `Failed to decrypt token: ${e.message}` },
+        { status: 500 }
+      );
+    }
 
-    // If real GitHub token
-    if (token.startsWith("gh")) {
-      try {
-        const ghRes = await fetch("https://api.github.com/user/repos?per_page=100&sort=updated", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-            "User-Agent": "MiniPaaS-Engine",
-          },
-        });
+    const hasToken = !!token && !token.startsWith("public_user_");
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github+json",
+      "User-Agent": "MiniPaaS-Engine",
+    };
 
-        if (ghRes.ok) {
-          const rawRepos = await ghRes.json();
-          const repos = rawRepos.map((r: any) => ({
-            id: r.id,
-            name: r.name,
-            fullName: r.full_name,
-            cloneUrl: r.clone_url,
-            defaultBranch: r.default_branch || "main",
-            isPrivate: r.private,
-            description: r.description,
-            language: r.language,
-            updatedAt: r.updated_at,
-          }));
+    if (hasToken) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
-          return NextResponse.json({ success: true, repos, source: "live" });
+    let rawRepos: any[] = [];
+    const maxPages = 3; // Fetch up to 300 repositories to ensure all private & public repos are captured
+
+    for (let page = 1; page <= maxPages; page++) {
+      let apiUrl = "";
+      if (hasToken) {
+        // Authenticated user: fetch all repositories (public, private, internal, organization member)
+        apiUrl = `https://api.github.com/user/repos?visibility=all&affiliation=owner,collaborator,organization_member&per_page=100&page=${page}&sort=updated`;
+      } else {
+        // Public user without token: fetch public repositories of the user
+        apiUrl = `https://api.github.com/users/${encodeURIComponent(account.username)}/repos?per_page=100&page=${page}&sort=updated`;
+      }
+
+      const ghRes = await fetch(apiUrl, { headers });
+
+      if (!ghRes.ok) {
+        // If first page fails, return error
+        if (page === 1) {
+          const errText = await ghRes.text();
+          return NextResponse.json(
+            {
+              success: false,
+              error: `GitHub API error (${ghRes.status}): ${errText}`,
+              repos: [],
+              hasToken,
+            },
+            { status: ghRes.status }
+          );
         }
-      } catch (apiErr) {
-        console.warn("GitHub API error, falling back to cached/preset:", apiErr);
+        break;
+      }
+
+      const pageData = await ghRes.json();
+      if (!Array.isArray(pageData) || pageData.length === 0) {
+        break;
+      }
+
+      rawRepos = rawRepos.concat(pageData);
+      if (pageData.length < 100) {
+        break; // Reached end of repositories
       }
     }
 
-    // Default sample / simulated repositories for testing & local development
-    const repos = [
-      {
-        id: 1,
-        name: "task-management",
-        fullName: `${account.username}/task-management`,
-        cloneUrl: "https://github.com/expressjs/express.git",
-        defaultBranch: "main",
-        isPrivate: true,
-        description: "Fullstack enterprise task management & whiteboard collaboration API",
-        language: "TypeScript",
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        name: "ecommerce-backend-api",
-        fullName: `${account.username}/ecommerce-backend-api`,
-        cloneUrl: "https://github.com/tiangolo/fastapi.git",
-        defaultBranch: "main",
-        isPrivate: true,
-        description: "High performance microservices backend with PostgreSQL & Redis",
-        language: "Python",
-        updatedAt: new Date(Date.now() - 3600000).toISOString(),
-      },
-      {
-        id: 3,
-        name: "auth-gateway-service",
-        fullName: `${account.username}/auth-gateway-service`,
-        cloneUrl: "https://github.com/gofiber/fiber.git",
-        defaultBranch: "master",
-        isPrivate: false,
-        description: "Zero-trust authentication & JWT authorization gateway service",
-        language: "Go",
-        updatedAt: new Date(Date.now() - 7200000).toISOString(),
-      },
-    ];
+    const repos = rawRepos.map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      fullName: r.full_name,
+      cloneUrl: r.clone_url,
+      defaultBranch: r.default_branch || "main",
+      isPrivate: !!r.private,
+      description: r.description,
+      language: r.language,
+      stars: r.stargazers_count || 0,
+      updatedAt: r.updated_at,
+    }));
 
-    return NextResponse.json({ success: true, repos, source: "account" });
+    const privateCount = repos.filter((r) => r.isPrivate).length;
+    const publicCount = repos.filter((r) => !r.isPrivate).length;
+
+    return NextResponse.json({
+      success: true,
+      repos,
+      count: repos.length,
+      privateCount,
+      publicCount,
+      hasToken,
+      account: account.username,
+    });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err.message },
+      { success: false, error: err.message, repos: [] },
       { status: 500 }
     );
   }

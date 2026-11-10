@@ -1,20 +1,27 @@
 {
-  "name": "coolify-serverless",
+  "name": "colyin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "prisma db push && next start",
+    "postinstall": "node scripts/generate-env.js",
+    "ingress": "node scripts/ingress-daemon.js",
+    "addons": "node scripts/addons-daemon.js",
     "lint": "eslint"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.15",
     "@prisma/client": "^6.4.0",
     "clsx": "^2.1.1",
     "dockerode": "^5.0.1",
     "lucide-react": "^1.67.0",
+    "mysql2": "^3.24.6",
     "next": "16.4.5",
     "nodemailer": "^10.3.1",
+    "pg": "^8.23.1",
+    "pglite-server": "^0.1.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0"
@@ -24,6 +31,7 @@
     "@types/dockerode": "^4.0.2",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

@@ -46,23 +46,6 @@ export const ADDON_TEMPLATES: Record<string, AddonTemplate> = {
     externalUriBuilder: ({ host, port, user, password, dbName }) =>
       `postgresql://${user}:${password}@${host}:${port}/${dbName}`,
   },
-  MYSQL: {
-    type: "MYSQL",
-    name: "MySQL Database",
-    image: "mysql:8.4",
-    defaultInternalPort: 3306,
-    defaultVolumePath: "/var/lib/mysql",
-    envBuilder: ({ password, dbName, username }) => [
-      `MYSQL_ROOT_PASSWORD=${password}`,
-      `MYSQL_USER=${username}`,
-      `MYSQL_PASSWORD=${password}`,
-      `MYSQL_DATABASE=${dbName}`,
-    ],
-    internalUriBuilder: ({ host, port, user, password, dbName }) =>
-      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
-    externalUriBuilder: ({ host, port, user, password, dbName }) =>
-      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
-  },
   REDIS: {
     type: "REDIS",
     name: "Redis In-Memory Cache",
@@ -141,6 +124,11 @@ export async function provisionDedicatedAddon(params: {
   if (params.publicPort) {
     portBindings[`${template.defaultInternalPort}/tcp`] = [
       { HostPort: params.publicPort.toString() },
+    ];
+  }
+  if (template.uiPort) {
+    portBindings[`${template.uiPort}/tcp`] = [
+      { HostPort: template.uiPort.toString() },
     ];
   }
 

@@ -2,19 +2,83 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { encryptSecret, decryptSecret } from "@/lib/engine/crypto";
 
+function getLocalGhCliAccounts(): Array<{ username: string; token: string; active: boolean }> {
+  try {
+    const { execSync } = require("child_process");
+    const statusOutput = execSync("gh auth status", {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const accounts: Array<{ username: string; token: string; active: boolean }> = [];
+    const lines = statusOutput.split("\n");
+    let currentAccount = "";
+    let isActive = false;
+
+    for (const line of lines) {
+      const match = line.match(/Logged in to github\.com account ([^\s(]+)/);
+      if (match) {
+        currentAccount = match[1];
+        isActive = false;
+      }
+      if (line.includes("Active account: true")) {
+        isActive = true;
+      }
+      if (currentAccount && (line.includes("Token:") || line.includes("Token scopes:"))) {
+        try {
+          const token = execSync(`gh auth token -u "${currentAccount}"`, {
+            encoding: "utf8",
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim();
+          if (token && !accounts.some((a) => a.username === currentAccount)) {
+            accounts.push({ username: currentAccount, token, active: isActive });
+          }
+        } catch {}
+      }
+    }
+
+    if (accounts.length === 0) {
+      try {
+        const token = execSync("gh auth token", {
+          encoding: "utf8",
+          stdio: ["pipe", "pipe", "pipe"],
+        }).trim();
+        if (token) {
+          accounts.push({ username: "active-user", token, active: true });
+        }
+      } catch {}
+    }
+
+    return accounts;
+  } catch {
+    return [];
+  }
+}
+
 export async function GET() {
   try {
     const account = await db.githubAccount.findFirst({
       orderBy: { updatedAt: "desc" },
     });
 
+    const cliAccounts = getLocalGhCliAccounts().map((a) => ({
+      username: a.username,
+      active: a.active,
+    }));
+
     if (!account) {
       return NextResponse.json({
         success: true,
         connected: false,
         account: null,
+        cliAccounts,
       });
     }
+
+    let hasToken = false;
+    try {
+      const decrypted = decryptSecret(account.encryptedToken, account.iv, account.authTag);
+      hasToken = !!decrypted && !decrypted.startsWith("public_user_");
+    } catch {}
 
     return NextResponse.json({
       success: true,
@@ -23,8 +87,10 @@ export async function GET() {
         id: account.id,
         username: account.username,
         avatarUrl: account.avatarUrl,
+        hasToken,
         updatedAt: account.updatedAt,
       },
+      cliAccounts,
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -37,32 +103,98 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { token, username: customUsername } = body;
+    let { token, username: inputUsername, useCliAccount } = body;
 
-    let username = customUsername || "github-developer";
+    let username = inputUsername?.trim();
     let avatarUrl = "https://github.com/github.png";
-    const rawToken = token || "gho_sample_token_minipaas_developer";
+    let validToken = token?.trim() || "";
+    let hasPrivateAccess = false;
 
-    // If real token provided, fetch actual user profile from GitHub API
-    if (token && token.startsWith("gh")) {
-      try {
-        const ghRes = await fetch("https://api.github.com/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "User-Agent": "MiniPaaS-Engine",
-          },
-        });
-        if (ghRes.ok) {
-          const ghUser = await ghRes.json();
-          username = ghUser.login || username;
-          avatarUrl = ghUser.avatar_url || avatarUrl;
+    const localCliAccounts = getLocalGhCliAccounts();
+
+    // Auto-detect token from local authenticated GitHub CLI if no explicit token provided
+    if (!validToken) {
+      if (useCliAccount) {
+        const found = localCliAccounts.find(
+          (a) => a.username.toLowerCase() === String(useCliAccount).toLowerCase()
+        );
+        if (found) {
+          validToken = found.token;
+          username = found.username;
         }
-      } catch (err) {
-        console.warn("Could not fetch user profile from GitHub API:", err);
+      } else if (username) {
+        // If user typed a username that matches a local CLI account, use its authenticated token
+        const found = localCliAccounts.find(
+          (a) => a.username.toLowerCase() === username.toLowerCase()
+        );
+        if (found) {
+          validToken = found.token;
+        }
+      } else if (localCliAccounts.length > 0) {
+        // User clicked the initial connect button without inputs: auto-connect active CLI account
+        const active = localCliAccounts.find((a) => a.active) || localCliAccounts[0];
+        validToken = active.token;
+        username = active.username;
       }
     }
 
-    const encrypted = encryptSecret(rawToken);
+    // 1. If GitHub token is available (either provided or auto-detected from CLI session), verify via GitHub API
+    if (validToken) {
+      const ghRes = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `Bearer ${validToken}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "MiniPaaS-Engine",
+        },
+      });
+
+      if (!ghRes.ok) {
+        const errText = await ghRes.text();
+        return NextResponse.json(
+          {
+            success: false,
+            error: `GitHub token verification failed (${ghRes.status}): ${errText}`,
+          },
+          { status: 400 }
+        );
+      }
+
+      const ghUser = await ghRes.json();
+      username = ghUser.login;
+      avatarUrl = ghUser.avatar_url;
+      hasPrivateAccess = true;
+    } else if (username) {
+      // 2. Fetch real GitHub public profile without PAT (public repos only)
+      const ghRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "User-Agent": "MiniPaaS-Engine",
+        },
+      });
+
+      if (!ghRes.ok) {
+        return NextResponse.json(
+          { success: false, error: `GitHub user '${username}' not found on GitHub` },
+          { status: 404 }
+        );
+      }
+
+      const ghUser = await ghRes.json();
+      username = ghUser.login;
+      avatarUrl = ghUser.avatar_url;
+      validToken = `public_user_${username}`;
+      hasPrivateAccess = false;
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Please enter your GitHub token, select a local account, or enter a username.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const encrypted = encryptSecret(validToken);
 
     // Save or update account in DB
     const account = await db.githubAccount.upsert({
@@ -89,6 +221,7 @@ export async function POST(req: Request) {
         id: account.id,
         username: account.username,
         avatarUrl: account.avatarUrl,
+        hasToken: hasPrivateAccess,
       },
     });
   } catch (err: any) {

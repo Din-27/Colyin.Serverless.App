@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import {
+  getWildcardBaseDomain,
+  generateAutoDomain,
+  sanitizeDomain,
+} from "@/lib/engine/domains";
+import { validatePort, findNextAvailablePort } from "@/lib/engine/ports";
 
 export async function GET(req: Request) {
   try {
@@ -37,6 +43,7 @@ export async function POST(req: Request) {
       branch = "main",
       internalPort = 3000,
       buildPack = "NIXPACKS",
+      runtimeVersion = "AUTO",
       dockerfilePath = "Dockerfile",
       cpuLimit = 1.0,
       memoryLimitMb = 512,
@@ -56,6 +63,24 @@ export async function POST(req: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
+    const baseDomain = await getWildcardBaseDomain();
+    const cleanCustomDomain = domain ? sanitizeDomain(domain) : null;
+    const finalHost = cleanCustomDomain || generateAutoDomain(slug, baseDomain);
+
+    const parsedPort = Number(internalPort) || 3001;
+    const portCheck = await validatePort(parsedPort);
+    if (!portCheck.available) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: portCheck.reason || `Port ${parsedPort} is currently in use. Please choose a unique, free port.`,
+          suggestedPort: portCheck.suggestedPort,
+        },
+        { status: 400 }
+      );
+    }
+    const verifiedPort = parsedPort;
+
     const app = await db.application.create({
       data: {
         projectId,
@@ -63,19 +88,20 @@ export async function POST(req: Request) {
         slug,
         repositoryUrl,
         branch,
-        internalPort: Number(internalPort),
+        internalPort: verifiedPort,
         buildPack,
+        runtimeVersion: runtimeVersion?.trim() || "AUTO",
         dockerfilePath,
         cpuLimit: Number(cpuLimit),
         memoryLimitMb: Number(memoryLimitMb),
-        domains: domain
-          ? {
-              create: {
-                host: domain,
-                isPrimary: true,
-              },
-            }
-          : undefined,
+        domains: {
+          create: {
+            host: finalHost,
+            isPrimary: true,
+            sslEnabled: true,
+            certificateStatus: "ISSUED",
+          },
+        },
       },
       include: {
         domains: true,
