@@ -1,5 +1,6 @@
 import Docker from "dockerode";
 import os from "os";
+import { spawn } from "child_process";
 
 // Detect system socket path: Windows named pipe or Linux/Unix socket
 function getDockerSocketOptions(): Docker.DockerOptions {
@@ -64,13 +65,43 @@ export async function ensureProjectNetwork(networkName: string, projectId: strin
 }
 
 /**
+ * Ensures the global Traefik ingress network exists.
+ */
+export async function ensureGlobalNetwork(networkName = "minipaas-global"): Promise<string> {
+  try {
+    const networks = await docker.listNetworks();
+    const existing = networks.find((n) => n.Name === networkName);
+    if (existing) {
+      return existing.Id;
+    }
+
+    const created = await docker.createNetwork({
+      Name: networkName,
+      Driver: "bridge",
+      CheckDuplicate: true,
+      Internal: false,
+      Attachable: true,
+      Labels: {
+        "managed-by": "minipaas",
+      },
+    });
+
+    return created.id;
+  } catch (err: any) {
+    console.error(`Error ensuring global network ${networkName}:`, err);
+    return networkName;
+  }
+}
+
+/**
  * Calculates CPU and Memory quota settings for cgroups v2.
  */
 export function buildHostConfig(
   cpuLimit: number = 1.0,
   memoryLimitMb: number = 512,
   volumeBinds: string[] = [],
-  portBindings: Record<string, Array<{ HostPort: string }>> = {}
+  portBindings: Record<string, Array<{ HostPort: string }>> = {},
+  networkMode: string = "minipaas-global"
 ): Docker.HostConfig {
   const NanoCpus = Math.floor(cpuLimit * 1e9);
   const Memory = memoryLimitMb * 1024 * 1024;
@@ -84,11 +115,73 @@ export function buildHostConfig(
     RestartPolicy: {
       Name: "unless-stopped",
     },
+    NetworkMode: networkMode,
     Binds: volumeBinds,
     PortBindings: portBindings,
     CapDrop: ["ALL"],
     CapAdd: ["CHOWN", "SETUID", "SETGID", "NET_BIND_SERVICE"],
   };
+}
+
+/**
+ * Compiles a Docker image from a local build directory using a tar stream.
+ * Live streams all build steps and compiler logs to the build pipeline logger.
+ */
+export async function buildImageFromDirectory(
+  buildDir: string,
+  imageTag: string,
+  onLog: (chunk: string, stream?: "stdout" | "stderr") => Promise<void>
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const tarProcess = spawn("tar", ["-c", "-C", buildDir, "."], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stderrOutput = "";
+    tarProcess.stderr.on("data", (chunk) => {
+      stderrOutput += chunk.toString();
+    });
+
+    tarProcess.on("error", (err) => {
+      reject(new Error(`Failed to create build archive: ${err.message}`));
+    });
+
+    docker.buildImage(
+      tarProcess.stdout,
+      { t: imageTag },
+      (err, outputStream) => {
+        if (err) return reject(err);
+        if (!outputStream) return reject(new Error("No build output stream from Docker daemon"));
+
+        docker.modem.followProgress(
+          outputStream,
+          (buildErr, res) => {
+            if (buildErr) return reject(buildErr);
+            if (Array.isArray(res)) {
+              for (const entry of res) {
+                if (entry.error || entry.errorDetail) {
+                  const msg = entry.error || entry.errorDetail?.message || "Docker build failed";
+                  return reject(new Error(msg));
+                }
+              }
+            }
+            resolve();
+          },
+          (progressEvent: any) => {
+            if (progressEvent.stream) {
+              const text = progressEvent.stream.trimEnd();
+              if (text) onLog(text);
+            } else if (progressEvent.status) {
+              const text = `${progressEvent.status} ${progressEvent.progress || ""}`.trim();
+              if (text) onLog(text);
+            } else if (progressEvent.error) {
+              onLog(`[Build Error] ${progressEvent.error}`, "stderr");
+            }
+          }
+        );
+      }
+    );
+  });
 }
 
 /**

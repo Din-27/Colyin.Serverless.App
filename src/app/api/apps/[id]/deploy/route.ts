@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { docker, buildHostConfig, getDockerDaemonStatus } from "@/lib/engine/docker";
+import {
+  docker,
+  buildHostConfig,
+  getDockerDaemonStatus,
+  buildImageFromDirectory,
+  ensureGlobalNetwork,
+} from "@/lib/engine/docker";
 import { buildTraefikLabels } from "@/lib/engine/traefik";
 import { dispatchSystemAlert } from "@/lib/engine/alerting";
 import {
@@ -297,12 +303,32 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
 
     usedDocker = true;
 
-    // Docker is online: execute build
-    await log(`[Step 3/4] Docker Engine connected. Building OCI image '${imageTag}'...`);
+    // Docker is online: execute real OCI image build from workspace
+    await log(`[Step 3/4] Docker Engine connected. Building OCI image '${imageTag}' from repository...`);
     await db.deployment.update({
       where: { id: deploymentId },
       data: { status: "DEPLOYING", imageTag },
     });
+
+    // 1. Build real OCI image from build workspace with live logs
+    await buildImageFromDirectory(buildDir, imageTag, log);
+    await log(`[Build] Image '${imageTag}' compiled successfully.`);
+
+    // 2. Prepare environment variables
+    const envList: string[] = [
+      `PORT=${app.internalPort}`,
+      `NODE_ENV=production`,
+    ];
+    if (app.envVariables && Array.isArray(app.envVariables)) {
+      for (const ev of app.envVariables) {
+        try {
+          const val = decryptSecret(ev.encryptedVal, ev.iv, ev.authTag);
+          envList.push(`${ev.key}=${val}`);
+        } catch {
+          envList.push(`${ev.key}=`);
+        }
+      }
+    }
 
     const traefikLabels = buildTraefikLabels({
       routerName: `router_${app.slug}`,
@@ -314,15 +340,31 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     const containerName = `app_${app.slug}_${deploymentId.slice(-6)}`;
     const hostConfig = buildHostConfig(app.cpuLimit, app.memoryLimitMb);
 
+    // 3. Stop and clean up any previously running containers for this app
+    try {
+      const existingContainers = await docker.listContainers({
+        all: true,
+        filters: { label: [`app-id=${app.id}`] },
+      });
+      for (const c of existingContainers) {
+        try {
+          const old = docker.getContainer(c.Id);
+          await old.stop({ t: 2 }).catch(() => {});
+          await old.remove({ force: true }).catch(() => {});
+        } catch {}
+      }
+    } catch {}
+
+    // 4. Ensure Traefik mesh network is ready
+    await ensureGlobalNetwork("minipaas-global");
+
+    // 5. Create and start real application container
+    await log(`[Step 4/4] Spawning container '${containerName}' from image '${imageTag}'...`);
     const container = await docker.createContainer({
       name: containerName,
-      Image: "alpine:latest",
-      Cmd: [
-        "sh",
-        "-c",
-        `echo 'Service ${app.name} running on port ${app.internalPort}' && sleep 86400`,
-      ],
+      Image: imageTag,
       HostConfig: hostConfig,
+      Env: envList,
       Labels: {
         "managed-by": "minipaas",
         "app-id": app.id,
