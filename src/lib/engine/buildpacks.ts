@@ -123,7 +123,7 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
 
   // 8. Node.js / TypeScript
   if (fs.existsSync(path.join(dir, "package.json"))) {
-    const nodeVer = detectNodeVersion(dir) || "24.22.1";
+    const nodeVer = detectNodeVersion(dir) || "20";
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
       let framework = "Node.js Application";
@@ -459,21 +459,25 @@ CMD ["/app/server"]
       const nodeTag = version.includes("alpine") ? version : `${version}-alpine`;
       const hasPnpm = fs.existsSync(path.join(dir, "pnpm-lock.yaml"));
       const hasYarn = fs.existsSync(path.join(dir, "yarn.lock"));
+      const hasPrisma = fs.existsSync(path.join(dir, "prisma")) || fs.existsSync(path.join(dir, "prisma/schema.prisma"));
 
       return `FROM node:${nodeTag} AS builder
 WORKDIR /app
 ${hasPnpm ? "RUN corepack enable && corepack prepare pnpm@latest --activate" : ""}
-COPY package*.json ${hasPnpm ? "pnpm-lock.yaml*" : hasYarn ? "yarn.lock*" : ""} ./
-RUN ${hasPnpm ? "pnpm install --frozen-lockfile || pnpm install" : hasYarn ? "yarn install --frozen-lockfile || yarn install" : "npm ci || npm install"}
+COPY package*.json ${hasPnpm ? "pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc*" : hasYarn ? "yarn.lock* .yarnrc*" : ".npmrc*"} ./
+${hasPnpm ? "RUN echo 'strict-dep-builds=false' >> .npmrc && (pnpm install --frozen-lockfile || pnpm install)" : hasYarn ? "RUN yarn install --frozen-lockfile || yarn install" : "RUN npm ci || npm install"}
 COPY . .
+${hasPrisma ? "RUN npx prisma generate || true" : ""}
+${hasPnpm ? "RUN (pnpm rebuild || true)" : ""}
 RUN ${info.buildCmd || "npm run build --if-present"}
 
 FROM node:${nodeTag} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+${hasPnpm ? "RUN corepack enable && corepack prepare pnpm@latest --activate" : ""}
 COPY --from=builder /app ./
 EXPOSE ${port}
-CMD ["npm", "start"]
+CMD ["/bin/sh", "-c", "${info.startCmd || "npm start"}"]
 `;
     }
 
