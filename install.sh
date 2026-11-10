@@ -36,13 +36,28 @@ else
   echo "[2/5] Docker Engine is already installed."
 fi
 
-# 4. Configure Firewall (UFW)
+# 4. Port Availability Detection & Firewall (UFW)
+COLYIN_PORT=3000
+if [ -f .env ] && grep -q "^PORT=" .env; then
+  COLYIN_PORT=$(grep "^PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
+elif [ -f .env ] && grep -q "^COLYIN_PORT=" .env; then
+  COLYIN_PORT=$(grep "^COLYIN_PORT=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d ' ')
+elif (command -v ss &>/dev/null && ss -tuln | grep -q ":3000 ") || (command -v lsof &>/dev/null && lsof -i:3000 &>/dev/null); then
+  echo "[Notice] Port 3000 is already in use by another service on this host!"
+  CANDIDATE=3001
+  while (command -v ss &>/dev/null && ss -tuln | grep -q ":${CANDIDATE} ") || (command -v lsof &>/dev/null && lsof -i:${CANDIDATE} &>/dev/null); do
+    CANDIDATE=$((CANDIDATE + 1))
+  done
+  COLYIN_PORT=${CANDIDATE}
+  echo "[Info] Automatically assigned available dashboard port: ${COLYIN_PORT}"
+fi
+
 if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
-  echo "[3/5] Configuring firewall rules (Ports 22, 80, 443, 3000, 10000-10020, 15672)..."
+  echo "[3/5] Configuring firewall rules (Ports 22, 80, 443, ${COLYIN_PORT}, 10000-10020, 15672)..."
   ufw allow 22/tcp
   ufw allow 80/tcp
   ufw allow 443/tcp
-  ufw allow 3000/tcp
+  ufw allow ${COLYIN_PORT}/tcp
   ufw allow 15672/tcp
   ufw allow 10000:10020/tcp
   ufw reload
@@ -67,6 +82,7 @@ if [ ! -f .env ]; then
   
   cat <<EOF > .env
 NODE_ENV=production
+PORT=${COLYIN_PORT}
 ENCRYPTION_MASTER_KEY=${RANDOM_MASTER_KEY}
 AUTH_SECRET=${RANDOM_AUTH_SECRET}
 GITHUB_WEBHOOK_SECRET=${RANDOM_WEBHOOK_SECRET}
@@ -77,6 +93,7 @@ ACME_EMAIL=admin@example.com
 DATABASE_URL=file:/app/data/prod.db
 EOF
   echo "[Info] Detected Public IP: ${SERVER_IP}"
+  echo "[Info] Dashboard mapped to port: ${COLYIN_PORT}"
   echo "[Info] Cryptographic secrets auto-generated for AES-256-GCM, JWT & Webhooks."
 else
   echo "[Info] Existing .env configuration detected. Preserving all encryption keys."
@@ -90,6 +107,6 @@ docker compose up -d --build
 echo ""
 echo "=========================================================="
 echo "    Colyin is successfully deployed and running!          "
-echo "    Dashboard: http://${SERVER_IP:-localhost}:3000        "
+echo "    Dashboard: http://${SERVER_IP:-localhost}:${COLYIN_PORT}        "
 echo "    Ingress  : Ports 80 and 443 (Traefik v3)              "
 echo "=========================================================="

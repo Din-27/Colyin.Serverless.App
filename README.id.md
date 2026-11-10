@@ -370,6 +370,7 @@ sudo ufw reload
 | Variabel | Nilai Bawaan | Keterangan |
 | :--- | :--- | :--- |
 | `NODE_ENV` | `development` | Set ke `production` pada server aktif |
+| `PORT` | `3000` | Port host untuk akses dashboard langsung (otomatis memilih port kosong berikutnya jika 3000 terpakai) |
 | `PUBLIC_IP` | `localhost` | IP Publik VPS untuk koneksi remote database |
 | `WILDCARD_DOMAIN` | `127.0.0.1.sslip.io` | Domain dasar wildcard (misal `103.xxx.sslip.io` atau `apps.domain.com`) |
 | `ENCRYPTION_MASTER_KEY`| *(dibuat otomatis)* | Master key heksadesimal 64 karakter untuk enkripsi AES-256-GCM |

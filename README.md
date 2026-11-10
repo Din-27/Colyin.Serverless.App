@@ -370,6 +370,7 @@ sudo ufw reload
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `NODE_ENV` | `development` | Set to `production` on live servers |
+| `PORT` | `3000` | Host port for direct dashboard access (auto-selects next free port if 3000 is occupied) |
 | `PUBLIC_IP` | `localhost` | Public IP of the VPS for remote database connections |
 | `WILDCARD_DOMAIN` | `127.0.0.1.sslip.io` | Wildcard base domain (e.g. `103.xxx.sslip.io` or `apps.domain.com`) |
 | `ENCRYPTION_MASTER_KEY`| *(auto-generated)* | 64-character hex master key for AES-256-GCM encryption |
