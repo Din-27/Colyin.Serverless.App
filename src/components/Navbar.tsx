@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Server, Layers, Settings, LogOut, LogIn, Shield, User, BookOpen } from "lucide-react";
+import { Server, Layers, Settings, LogOut, LogIn, Shield, User, BookOpen, Activity } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ColyinLogo } from "@/components/ColyinLogo";
 
@@ -72,19 +72,38 @@ export function Navbar() {
             <ColyinLogo size={36} showText={true} />
           </Link>
 
-          {/* Navigation links: Projects & Settings for logged in user */}
+          {/* Navigation links: Projects, Overview & Settings for logged in user */}
           {user && (
             <nav className="hidden md:flex items-center gap-1">
               <Link
                 href="/"
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-md transition"
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition ${
+                  pathname === "/"
+                    ? "text-[#00F0FF] bg-cyan-950/40 border border-cyan-800/40"
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+                }`}
               >
                 <Layers className="w-4 h-4 text-zinc-400" />
                 Projects
               </Link>
               <Link
+                href="/overview"
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition ${
+                  pathname === "/overview"
+                    ? "text-[#00F0FF] bg-cyan-950/40 border border-cyan-800/40"
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+                }`}
+              >
+                <Activity className="w-4 h-4 text-cyan-400" />
+                Overview
+              </Link>
+              <Link
                 href="/settings"
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-md transition"
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition ${
+                  pathname === "/settings"
+                    ? "text-[#00F0FF] bg-cyan-950/40 border border-cyan-800/40"
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+                }`}
               >
                 <Settings className="w-4 h-4 text-zinc-400" />
                 Settings
