@@ -200,4 +200,41 @@ export async function removeNetwork(networkName: string): Promise<boolean> {
   }
 }
 
+/**
+ * Parses Docker demultiplexed log chunks (removes 8-byte frame header if present).
+ */
+export function parseDockerLogChunk(
+  chunk: Buffer | string
+): Array<{ text: string; stream: "stdout" | "stderr" }> {
+  if (typeof chunk === "string") {
+    return [{ text: chunk, stream: "stdout" }];
+  }
+  const results: Array<{ text: string; stream: "stdout" | "stderr" }> = [];
+  let offset = 0;
+  while (offset < chunk.length) {
+    // Docker multiplex header: byte 0 is 1 (stdout) or 2 (stderr), bytes 1-3 are 0x00
+    if (
+      chunk.length - offset >= 8 &&
+      (chunk[offset] === 1 || chunk[offset] === 2) &&
+      chunk[offset + 1] === 0 &&
+      chunk[offset + 2] === 0 &&
+      chunk[offset + 3] === 0
+    ) {
+      const streamType = chunk[offset] === 2 ? "stderr" : "stdout";
+      const frameLen = chunk.readUInt32BE(offset + 4);
+      const text = chunk.subarray(offset + 8, offset + 8 + frameLen).toString("utf-8");
+      results.push({ text, stream: streamType });
+      offset += 8 + frameLen;
+    } else {
+      results.push({
+        text: chunk.subarray(offset).toString("utf-8"),
+        stream: "stdout",
+      });
+      break;
+    }
+  }
+  return results;
+}
+
+
 

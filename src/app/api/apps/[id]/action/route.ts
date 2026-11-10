@@ -45,33 +45,66 @@ export async function POST(
     }
 
     const activeDeployment = app.deployments[0];
-    const containerId = activeDeployment?.containerId;
+    let containerId = activeDeployment?.containerId;
 
     const dockerStatus = await getDockerDaemonStatus();
+
+    // Auto-discover container if containerId is missing from deployment record
+    if (!containerId && dockerStatus.online) {
+      try {
+        const { docker } = await import("@/lib/engine/docker");
+        const list = await docker.listContainers({ all: true });
+        const match = list.find((c) =>
+          c.Names?.some((n) => n.includes(app.slug) || n.includes(app.id)) ||
+          c.Labels?.["app-id"] === app.id
+        );
+        if (match) {
+          containerId = match.Id;
+          if (activeDeployment) {
+            await db.deployment.update({
+              where: { id: activeDeployment.id },
+              data: { containerId: match.Id },
+            });
+          }
+        }
+      } catch (discErr) {
+        console.warn("Could not auto-discover container for action:", discErr);
+      }
+    }
 
     if (dockerStatus.online && containerId) {
       try {
         if (action === "start") {
           await startContainer(containerId);
-          await db.deployment.update({
-            where: { id: activeDeployment.id },
-            data: { status: "ACTIVE" },
-          });
+          if (activeDeployment) {
+            await db.deployment.update({
+              where: { id: activeDeployment.id },
+              data: { status: "ACTIVE" },
+            });
+          }
         } else if (action === "stop") {
           await stopContainer(containerId);
-          await db.deployment.update({
-            where: { id: activeDeployment.id },
-            data: { status: "STOPPED" },
-          });
+          if (activeDeployment) {
+            await db.deployment.update({
+              where: { id: activeDeployment.id },
+              data: { status: "STOPPED" },
+            });
+          }
         } else if (action === "restart") {
           await restartContainer(containerId);
-          await db.deployment.update({
-            where: { id: activeDeployment.id },
-            data: { status: "ACTIVE" },
-          });
+          if (activeDeployment) {
+            await db.deployment.update({
+              where: { id: activeDeployment.id },
+              data: { status: "ACTIVE" },
+            });
+          }
         }
       } catch (dockerErr: any) {
         console.error(`Container ${action} error:`, dockerErr);
+        return NextResponse.json(
+          { success: false, error: `Docker action failed: ${dockerErr.message}` },
+          { status: 500 }
+        );
       }
     } else {
       // Standalone mode simulation

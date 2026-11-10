@@ -8,6 +8,8 @@ import { ChevronRight, Server, Globe, ExternalLink, Lock } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DeleteAppButton } from "@/components/DeleteAppButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function ApplicationDetailPage({
   params,
 }: {

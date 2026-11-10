@@ -34,6 +34,7 @@ import {
   HelpCircle,
   ShieldAlert,
   Zap,
+  Pause,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CopyButton } from "@/components/CopyButton";
@@ -56,12 +57,22 @@ export function AppConsoleTabs({
   const [isDeploying, setIsDeploying] = useState(false);
   const router = useRouter();
 
-  // Log streaming state
+  // Log Mode state: "runtime" (live container stream) vs "build" (CI/CD build logs)
+  const [logMode, setLogMode] = useState<"runtime" | "build">("runtime");
+  const [runtimeLogs, setRuntimeLogs] = useState<
+    Array<{ text: string; stream: "stdout" | "stderr"; timestamp?: number }>
+  >([]);
   const [logs, setLogs] = useState<string[]>([]);
   const [logFilter, setLogFilter] = useState("");
   const [autoScroll, setAutoScroll] = useState(true);
+  const [isStreamingPaused, setIsStreamingPaused] = useState(false);
   const [isJustDeployed, setIsJustDeployed] = useState(false);
   const logContainerRef = useRef<HTMLDivElement>(null);
+
+  // Power actions state (restart, stop, start)
+  const [actionLoading, setActionLoading] = useState<"restart" | "start" | "stop" | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [currentAppStatus, setCurrentAppStatus] = useState<string>(activeDeployment?.status || "STOPPED");
 
   const primaryDomain = app.domains?.find((d: any) => d.isPrimary) || app.domains?.[0];
   const accessUrl = primaryDomain
@@ -70,6 +81,52 @@ export function AppConsoleTabs({
   const localDirectUrl = `http://localhost:${app.internalPort}`;
   const isLocalhost = !primaryDomain;
   const [showDomainHelp, setShowDomainHelp] = useState(false);
+
+  // Handle service restart, start, stop
+  const handleAction = async (action: "restart" | "start" | "stop") => {
+    setActionLoading(action);
+    setActionFeedback(null);
+    try {
+      const res = await fetch(`/api/apps/${app.id}/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const nextStatus = data.status || (action === "stop" ? "STOPPED" : "ACTIVE");
+        setCurrentAppStatus(nextStatus);
+        setActionFeedback({
+          text: `Service '${app.name}' successfully ${action === "restart" ? "restarted" : action + "ed"}!`,
+          type: "success",
+        });
+
+        const timeStr = new Date().toLocaleTimeString();
+        setRuntimeLogs((prev) => [
+          ...prev,
+          {
+            text: `[SYSTEM ${timeStr}] Action '${action.toUpperCase()}' dispatched by user. Container status: ${nextStatus}`,
+            stream: "stdout",
+            timestamp: Date.now(),
+          },
+        ]);
+        router.refresh();
+      } else {
+        setActionFeedback({
+          text: data.error || `Failed to ${action} service.`,
+          type: "error",
+        });
+      }
+    } catch (err: any) {
+      setActionFeedback({
+        text: err?.message || `Failed to ${action} service.`,
+        type: "error",
+      });
+    } finally {
+      setActionLoading(null);
+      setTimeout(() => setActionFeedback(null), 4000);
+    }
+  };
 
   // Trigger manual deployment
   const handleDeploy = async () => {
@@ -83,6 +140,7 @@ export function AppConsoleTabs({
       });
       const data = await res.json();
       if (data.success) {
+        setLogMode("build");
         setActiveTab("logs");
         router.refresh();
       }
@@ -93,9 +151,54 @@ export function AppConsoleTabs({
     }
   };
 
-  // SSE Log Streaming connection
+  // Runtime Logs Streaming (SSE)
   useEffect(() => {
-    if (activeTab !== "logs" || !activeDeployment?.id) return;
+    if (activeTab !== "logs" || logMode !== "runtime") return;
+
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource(`/api/apps/${app.id}/logs?tail=200`);
+
+      eventSource.addEventListener("init", (e: any) => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.status) setCurrentAppStatus(payload.status);
+        } catch {}
+      });
+
+      eventSource.addEventListener("log", (e: any) => {
+        if (isStreamingPaused) return;
+        try {
+          const payload = JSON.parse(e.data);
+          setRuntimeLogs((prev) => {
+            const next = [...prev, payload];
+            if (next.length > 1000) return next.slice(-1000);
+            return next;
+          });
+        } catch {}
+      });
+
+      eventSource.addEventListener("complete", () => {
+        // Stream completed
+      });
+
+      eventSource.onerror = () => {
+        // EventSource will auto-reconnect
+      };
+    } catch (err) {
+      console.error("Runtime log connection error:", err);
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [activeTab, logMode, app.id, isStreamingPaused]);
+
+  // Build Logs Streaming (SSE)
+  useEffect(() => {
+    if (activeTab !== "logs" || logMode !== "build" || !activeDeployment?.id) return;
 
     setLogs([]);
     const eventSource = new EventSource(`/api/deployments/${activeDeployment.id}/logs`);
@@ -112,6 +215,7 @@ export function AppConsoleTabs({
         const payload = JSON.parse(e.data);
         if (payload?.status === "ACTIVE") {
           setIsJustDeployed(true);
+          setCurrentAppStatus("ACTIVE");
         }
       } catch {}
       router.refresh();
@@ -125,14 +229,14 @@ export function AppConsoleTabs({
     return () => {
       eventSource.close();
     };
-  }, [activeTab, activeDeployment?.id, router]);
+  }, [activeTab, logMode, activeDeployment?.id, router]);
 
   // Auto scroll terminal to bottom
   useEffect(() => {
     if (autoScroll && logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [logs, autoScroll]);
+  }, [logs, runtimeLogs, autoScroll, logMode]);
 
   return (
     <div className="space-y-6">
@@ -219,6 +323,18 @@ export function AppConsoleTabs({
               <ExternalLink className="w-3 h-3" />
             </a>
 
+            {/* Quick Restart Action on Banner */}
+            <button
+              type="button"
+              onClick={() => handleAction("restart")}
+              disabled={actionLoading !== null}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              title="Restart service container"
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-[#00F0FF]" : "text-cyan-400"}`} />
+              <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
+            </button>
+
             {isLocalhost && (
               <button
                 type="button"
@@ -233,8 +349,34 @@ export function AppConsoleTabs({
         </div>
       )}
 
+      {/* Action Feedback Banner */}
+      {actionFeedback && (
+        <div
+          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in ${
+            actionFeedback.type === "success"
+              ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
+              : "border-rose-500/40 bg-rose-950/30 text-rose-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {actionFeedback.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
+            <span className="font-medium">{actionFeedback.text}</span>
+          </div>
+          <button
+            onClick={() => setActionFeedback(null)}
+            className="text-zinc-500 hover:text-white text-xs px-1"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
       {/* Tab Navigation */}
-      <div className="flex items-center justify-between border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800 gap-3">
         <div className="flex items-center gap-1 overflow-x-auto">
           {[
             { id: "overview", label: "Overview & Metrics", icon: Activity },
@@ -262,14 +404,53 @@ export function AppConsoleTabs({
           })}
         </div>
 
-        <button
-          onClick={handleDeploy}
-          disabled={isDeploying}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isDeploying ? "animate-spin" : ""}`} />
-          Redeploy
-        </button>
+        {/* Action Controls Group: Restart, Stop/Start, Redeploy */}
+        <div className="flex items-center gap-2 pb-2 sm:pb-0 shrink-0">
+          {currentAppStatus === "ACTIVE" ? (
+            <>
+              <button
+                type="button"
+                onClick={() => handleAction("restart")}
+                disabled={actionLoading !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/30 hover:bg-cyan-900/40 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                title="Restart service container"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-cyan-400"}`} />
+                <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAction("stop")}
+                disabled={actionLoading !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-800/60 bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                title="Stop service container"
+              >
+                <Square className="w-3.5 h-3.5 text-rose-400" />
+                <span>{actionLoading === "stop" ? "Stopping..." : "Stop"}</span>
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleAction("start")}
+              disabled={actionLoading !== null}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700/60 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              title="Start service container"
+            >
+              <Play className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{actionLoading === "start" ? "Starting..." : "Start"}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleDeploy}
+            disabled={isDeploying || actionLoading !== null}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isDeploying ? "animate-spin" : ""}`} />
+            Redeploy
+          </button>
+        </div>
       </div>
 
       {/* Tab 1: Overview */}
@@ -387,7 +568,7 @@ export function AppConsoleTabs({
         </div>
       )}
 
-      {/* Tab 3: Live Logs Terminal */}
+      {/* Tab 3: Live Logs Terminal (Runtime + Build) */}
       {activeTab === "logs" && (
         <div className="space-y-4">
           {/* Post-deploy Access Notification Card */}
@@ -431,88 +612,228 @@ export function AppConsoleTabs({
             </div>
           )}
 
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl">
-          {/* Terminal Toolbar */}
-          <div className="px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 font-mono text-zinc-300">
-                <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-                Console Stream
-              </span>
-              <span className="text-zinc-500 text-[11px]">
-                Deployment: {activeDeployment?.id?.slice(-8) || "None"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Search className="w-3.5 h-3.5 text-zinc-500" />
-                <input
-                  type="text"
-                  placeholder="Filter logs..."
-                  value={logFilter}
-                  onChange={(e) => setLogFilter(e.target.value)}
-                  className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-xs text-white placeholder-zinc-500 focus:outline-none"
-                />
-              </div>
-
-              <label className="flex items-center gap-1.5 text-zinc-400 text-xs cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={autoScroll}
-                  onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="rounded text-indigo-600 bg-zinc-800 border-zinc-700"
-                />
-                Auto-scroll
-              </label>
+          {/* Log Stream Mode Switcher Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60">
+            <div className="flex items-center gap-1.5 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setLogMode("runtime")}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  logMode === "runtime"
+                    ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-500/40 shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Runtime Logs (Live Container Stream)</span>
+              </button>
 
               <button
-                onClick={() => {
-                  const blob = new Blob([logs.join("\n")], { type: "text/plain" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `build_${activeDeployment?.id || "logs"}.log`;
-                  a.click();
-                }}
-                className="p-1 rounded text-zinc-400 hover:text-white transition"
-                title="Download full log"
+                type="button"
+                onClick={() => setLogMode("build")}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  logMode === "build"
+                    ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
               >
-                <Download className="w-3.5 h-3.5" />
+                <GitCommit className="w-3.5 h-3.5" />
+                <span>Build Logs (CI/CD History)</span>
+              </button>
+            </div>
+
+            {/* Quick Restart in Log Streamer */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleAction("restart")}
+                disabled={actionLoading !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                title="Restart container without leaving logs"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-cyan-400"}`} />
+                <span>{actionLoading === "restart" ? "Restarting..." : "Restart Service"}</span>
               </button>
             </div>
           </div>
 
-          {/* Terminal Screen */}
-          <div
-            ref={logContainerRef}
-            className="p-4 font-mono text-xs text-zinc-300 h-96 overflow-y-auto space-y-1 bg-black/95 select-text"
-          >
-            {logs.length === 0 ? (
-              <div className="text-zinc-600 italic">No output yet. Waiting for events...</div>
-            ) : (
-              logs
-                .filter((l) => !logFilter || l.toLowerCase().includes(logFilter.toLowerCase()))
-                .map((line, idx) => (
-                  <div
-                    key={idx}
-                    className={`leading-relaxed ${
-                      line.includes("ERROR") || line.includes("ERR")
-                        ? "text-rose-400"
-                        : line.includes("WARNING")
-                        ? "text-amber-400"
-                        : line.includes("Simulated")
-                        ? "text-indigo-400"
-                        : "text-zinc-300"
-                    }`}
+          {/* Terminal Console Card */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl">
+            {/* Terminal Toolbar */}
+            <div className="px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 font-mono text-zinc-300 font-bold">
+                  <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                  {logMode === "runtime" ? "Container stdout/stderr" : "Build Output Stream"}
+                </span>
+
+                {logMode === "runtime" ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    {isStreamingPaused ? "PAUSED" : "LIVE STREAM"}
+                  </span>
+                ) : (
+                  <span className="text-zinc-500 text-[11px] font-mono">
+                    Deployment: {activeDeployment?.id?.slice(-8) || "None"}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Search / Filter */}
+                <div className="flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-zinc-500" />
+                  <input
+                    type="text"
+                    placeholder="Filter logs..."
+                    value={logFilter}
+                    onChange={(e) => setLogFilter(e.target.value)}
+                    className="px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 w-32 sm:w-48"
+                  />
+                </div>
+
+                {/* Auto-scroll */}
+                <label className="flex items-center gap-1.5 text-zinc-400 text-xs cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoScroll}
+                    onChange={(e) => setAutoScroll(e.target.checked)}
+                    className="rounded text-cyan-500 bg-zinc-800 border-zinc-700"
+                  />
+                  <span>Auto-scroll</span>
+                </label>
+
+                {/* Pause/Resume for Runtime */}
+                {logMode === "runtime" && (
+                  <button
+                    type="button"
+                    onClick={() => setIsStreamingPaused(!isStreamingPaused)}
+                    className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition"
+                    title={isStreamingPaused ? "Resume streaming" : "Pause streaming"}
                   >
-                    {line}
+                    {isStreamingPaused ? "Resume" : "Pause"}
+                  </button>
+                )}
+
+                {/* Clear Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (logMode === "runtime") setRuntimeLogs([]);
+                    else setLogs([]);
+                  }}
+                  className="p-1 rounded text-zinc-400 hover:text-rose-400 transition"
+                  title="Clear console view"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+
+                {/* Download Log */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const content =
+                      logMode === "runtime"
+                        ? runtimeLogs.map((l) => l.text).join("\n")
+                        : logs.join("\n");
+                    const blob = new Blob([content], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${app.slug}_${logMode}_${Date.now()}.log`;
+                    a.click();
+                  }}
+                  className="p-1 rounded text-zinc-400 hover:text-white transition"
+                  title="Download full log file"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Terminal Screen View */}
+            <div
+              ref={logContainerRef}
+              className="p-4 font-mono text-xs text-zinc-300 h-[28rem] overflow-y-auto space-y-1 bg-black/95 select-text border-t border-zinc-900"
+            >
+              {logMode === "runtime" ? (
+                runtimeLogs.length === 0 ? (
+                  <div className="py-12 text-center space-y-2">
+                    <Terminal className="w-8 h-8 text-zinc-700 mx-auto animate-pulse" />
+                    <p className="text-zinc-500 font-sans text-xs">
+                      Connected to container output stream. Waiting for incoming stdout/stderr events...
+                    </p>
+                    <p className="text-zinc-600 font-mono text-[11px]">
+                      Any console.log(), HTTP request routing, or errors will appear here in real time.
+                    </p>
                   </div>
-                ))
-            )}
+                ) : (
+                  runtimeLogs
+                    .filter((l) => !logFilter || l.text.toLowerCase().includes(logFilter.toLowerCase()))
+                    .map((item, idx) => {
+                      const line = item.text;
+                      const isError =
+                        item.stream === "stderr" ||
+                        line.includes("ERROR") ||
+                        line.includes("ERR") ||
+                        line.includes("Exception") ||
+                        line.includes("failed");
+                      const isWarn = line.includes("WARN") || line.includes("WARNING");
+                      const isHttp =
+                        line.includes("GET ") ||
+                        line.includes("POST ") ||
+                        line.includes("PUT ") ||
+                        line.includes("DELETE ") ||
+                        line.includes("HTTP/");
+                      const isSystem = line.startsWith("[SYSTEM");
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`leading-relaxed whitespace-pre-wrap break-all ${
+                            isError
+                              ? "text-rose-400 bg-rose-950/20 px-1 rounded"
+                              : isWarn
+                              ? "text-amber-400"
+                              : isHttp
+                              ? "text-cyan-300"
+                              : isSystem
+                              ? "text-indigo-400 font-bold"
+                              : "text-zinc-300"
+                          }`}
+                        >
+                          {line}
+                        </div>
+                      );
+                    })
+                )
+              ) : logs.length === 0 ? (
+                <div className="py-12 text-center text-zinc-600 italic">
+                  No build output available for this deployment. Click &apos;Redeploy&apos; to trigger a build.
+                </div>
+              ) : (
+                logs
+                  .filter((l) => !logFilter || l.toLowerCase().includes(logFilter.toLowerCase()))
+                  .map((line, idx) => (
+                    <div
+                      key={idx}
+                      className={`leading-relaxed whitespace-pre-wrap break-all ${
+                        line.includes("ERROR") || line.includes("ERR")
+                          ? "text-rose-400"
+                          : line.includes("WARNING")
+                          ? "text-amber-400"
+                          : line.includes("Simulated")
+                          ? "text-indigo-400"
+                          : "text-zinc-300"
+                      }`}
+                    >
+                      {line}
+                    </div>
+                  ))
+              )}
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Tab 4: Environment Variables */}
