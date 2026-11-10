@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { hashPassword, verifyPassword, createSessionToken, ensureDefaultAdmin } from "@/lib/auth";
+import { hashPassword, verifyPassword, createSessionToken, ensureDefaultAdmin, getSessionCookieOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -46,13 +46,7 @@ export async function POST(req: Request) {
       },
     });
 
-    res.cookies.set("paas_session", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    });
+    res.cookies.set("paas_session", token, getSessionCookieOptions(req));
 
     return res;
   } catch (err: any) {

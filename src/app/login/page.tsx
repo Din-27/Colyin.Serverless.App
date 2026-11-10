@@ -97,8 +97,7 @@ export default function LoginPage() {
         if (initialMasterCreds) {
           fetch("/api/auth/dismiss-credentials", { method: "POST" }).catch(() => {});
         }
-        router.push("/");
-        router.refresh();
+        window.location.href = "/";
       }
     } catch {
       setError("Network error. Unable to reach server.");

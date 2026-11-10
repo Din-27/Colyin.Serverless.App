@@ -4,7 +4,9 @@ import path from "path";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 
-const AUTH_SECRET = process.env.AUTH_SECRET || process.env.ENCRYPTION_KEY || "minipaas-super-secure-auth-jwt-secret-key-32";
+export function getAuthSecret(): string {
+  return process.env.AUTH_SECRET || process.env.ENCRYPTION_KEY || "minipaas-super-secure-auth-jwt-secret-key-32";
+}
 
 export type UserRole = "ADMIN" | "DEVELOPER" | "VIEWER";
 
@@ -14,6 +16,45 @@ export interface SessionPayload {
   name: string;
   role: UserRole;
   exp: number;
+}
+
+export function isRequestSecure(req?: Request): boolean {
+  // Explicit override if configured in .env / docker-compose
+  if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
+
+  if (!req) {
+    return false;
+  }
+
+  // Check standard reverse proxy headers (Traefik, Nginx, Cloudflare, etc.)
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  if (forwardedProto) {
+    const proto = forwardedProto.split(",")[0].trim().toLowerCase();
+    return proto === "https";
+  }
+
+  const forwardedSsl = req.headers.get("x-forwarded-ssl");
+  if (forwardedSsl && forwardedSsl.toLowerCase() === "on") {
+    return true;
+  }
+
+  try {
+    const url = new URL(req.url);
+    return url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function getSessionCookieOptions(req?: Request) {
+  return {
+    httpOnly: true,
+    secure: isRequestSecure(req),
+    sameSite: "lax" as const,
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+    path: "/",
+  };
 }
 
 export function hashPassword(password: string): { hash: string; salt: string } {
@@ -41,7 +82,7 @@ export function createSessionToken(user: { id: string; email: string; name: stri
   };
 
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const signature = crypto.createHmac("sha256", AUTH_SECRET).update(encodedPayload).digest("base64url");
+  const signature = crypto.createHmac("sha256", getAuthSecret()).update(encodedPayload).digest("base64url");
   return `${encodedPayload}.${signature}`;
 }
 
@@ -50,7 +91,7 @@ export function verifySessionToken(token: string): SessionPayload | null {
     const [encodedPayload, signature] = token.split(".");
     if (!encodedPayload || !signature) return null;
 
-    const expectedSig = crypto.createHmac("sha256", AUTH_SECRET).update(encodedPayload).digest("base64url");
+    const expectedSig = crypto.createHmac("sha256", getAuthSecret()).update(encodedPayload).digest("base64url");
     if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
       return null;
     }

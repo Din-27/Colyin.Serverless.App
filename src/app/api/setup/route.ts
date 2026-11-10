@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { hashPassword, createSessionToken, saveMasterCredentialsFile } from "@/lib/auth";
+import { hashPassword, createSessionToken, saveMasterCredentialsFile, getSessionCookieOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -129,15 +129,29 @@ export async function POST(req: Request) {
         },
       });
     } else {
-      adminUser = await db.user.create({
-        data: {
-          email: adminEmail.trim().toLowerCase(),
-          name: adminName.trim(),
-          password: hash,
-          salt,
-          role: "ADMIN",
-        },
-      });
+      const existingAdmins = await db.user.findMany({ where: { role: "ADMIN" } });
+      if (existingAdmins.length === 1) {
+        adminUser = await db.user.update({
+          where: { id: existingAdmins[0].id },
+          data: {
+            email: adminEmail.trim().toLowerCase(),
+            name: adminName.trim(),
+            password: hash,
+            salt,
+            role: "ADMIN",
+          },
+        });
+      } else {
+        adminUser = await db.user.create({
+          data: {
+            email: adminEmail.trim().toLowerCase(),
+            name: adminName.trim(),
+            password: hash,
+            salt,
+            role: "ADMIN",
+          },
+        });
+      }
     }
 
     // 3. Mark setup as completed in DB
@@ -153,19 +167,34 @@ export async function POST(req: Request) {
       create: { key: "WILDCARD_DOMAIN", value: wildcardDomain.trim() },
     });
 
-    // 4. Save credentials to colyin-credentials.txt
+    // 4. Save credentials to colyin-credentials.txt and update initial master credentials
     saveMasterCredentialsFile(adminEmail.trim().toLowerCase(), adminPassword);
+
+    await db.systemSetting.upsert({
+      where: { key: "INITIAL_MASTER_CREDENTIALS" },
+      update: {
+        value: JSON.stringify({
+          email: adminEmail.trim().toLowerCase(),
+          password: adminPassword,
+          viewed: false,
+          createdAt: new Date().toISOString(),
+        }),
+      },
+      create: {
+        key: "INITIAL_MASTER_CREDENTIALS",
+        value: JSON.stringify({
+          email: adminEmail.trim().toLowerCase(),
+          password: adminPassword,
+          viewed: false,
+          createdAt: new Date().toISOString(),
+        }),
+      },
+    });
 
     // 5. Generate session token and set cookie
     const token = createSessionToken(adminUser);
     const cookieStore = await cookies();
-    cookieStore.set("paas_session", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: "/",
-    });
+    cookieStore.set("paas_session", token, getSessionCookieOptions(req));
 
     return NextResponse.json({
       success: true,

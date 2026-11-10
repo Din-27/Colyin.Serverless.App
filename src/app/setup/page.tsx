@@ -102,7 +102,7 @@ export default function SetupWizardPage() {
 
       setSuccess("Configuration saved! Launching dashboard...");
       setTimeout(() => {
-        router.replace("/");
+        window.location.href = "/";
       }, 1000);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
