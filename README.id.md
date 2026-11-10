@@ -311,6 +311,60 @@ docker compose down
 
 ---
 
+## 🗑️ Cara Uninstall (Menghapus) Colyin dari Server VPS
+
+Jika Anda ingin mencopot atau menghapus instalasi Colyin dari server VPS Anda, Anda dapat menggunakan script uninstaller otomatis bawaan atau menjalankan perintah manual, dengan opsi mempertahankan data atau menghapus seluruhnya secara bersih (*complete purge*).
+
+### Opsi 1: Menggunakan Script Uninstall Otomatis (Rekomendasi)
+Masuk ke direktori instalasi Colyin dan jalankan uninstaller bawaan:
+
+```bash
+cd /opt/colyin
+sudo bash uninstall.sh
+```
+- Script interaktif ini akan menanyakan konfirmasi dan memberi pilihan apakah Anda ingin mempertahankan database (`./data/prod.db`), file penyimpanan (`./apps-storage`), serta rahasia (`.env`), atau menghapus seluruhnya secara permanen.
+- Untuk penghapusan total secara otomatis tanpa konfirmasi interaktif (misal pada script otomatisasi/teardown server):
+  ```bash
+  sudo bash uninstall.sh --yes --purge-data
+  ```
+
+---
+
+### Opsi 2: Uninstall Manual via Terminal
+
+Jika Anda ingin menghapusnya secara manual menggunakan perintah standar Docker dan Linux:
+
+#### 1. Hentikan dan hapus seluruh container, network, dan volume:
+```bash
+cd /opt/colyin
+# Hentikan controller inti Colyin & Traefik
+docker compose down -v --remove-orphans
+
+# Hentikan seluruh container aplikasi pengguna & database addon yang dibuat oleh Colyin
+docker ps -a --filter "network=minipaas-global" -q | xargs -r docker rm -f
+
+# Hapus jaringan bridge internal Colyin
+docker network rm minipaas-global 2>/dev/null || true
+```
+
+#### 2. Hapus direktori dan seluruh berkas Colyin:
+```bash
+# Menghapus seluruh folder Colyin beserta database dan file konfigurasinya:
+cd /opt
+sudo rm -rf /opt/colyin
+```
+
+#### 3. (Opsional) Tutup Kembali Port Firewall UFW:
+Jika Anda tidak lagi membutuhkan port-port yang sebelumnya dibuka:
+```bash
+sudo ufw delete allow 3000/tcp
+sudo ufw delete allow 15672/tcp
+sudo ufw delete allow 10000:10020/tcp
+sudo ufw reload
+```
+
+---
+
 ## ⚙️ Konfigurasi Environment (`.env`)
 
 | Variabel | Nilai Bawaan | Keterangan |

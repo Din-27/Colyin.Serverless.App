@@ -311,6 +311,60 @@ docker compose down
 
 ---
 
+## 🗑️ Uninstalling Colyin from Your VPS
+
+If you ever wish to remove Colyin from your server, you can choose between an automated uninstaller script or manual cleanup, with the option to preserve or completely purge your data.
+
+### Option 1: Automated Script (Recommended)
+Run the built-in uninstaller script from your installation directory:
+
+```bash
+cd /opt/colyin
+sudo bash uninstall.sh
+```
+- The interactive script will ask whether you want to preserve or permanently purge your persistent database (`./data/prod.db`), app storage (`./apps-storage`), and secrets (`.env`).
+- For non-interactive full removal (e.g. automated server teardown):
+  ```bash
+  sudo bash uninstall.sh --yes --purge-data
+  ```
+
+---
+
+### Option 2: Manual Removal via Terminal
+
+If you prefer to remove Colyin manually using standard Docker and Linux commands:
+
+#### 1. Stop and remove all containers, networks, and volumes:
+```bash
+cd /opt/colyin
+# Stop Colyin core controller & Traefik
+docker compose down -v --remove-orphans
+
+# Stop any running user application & database addon containers
+docker ps -a --filter "network=minipaas-global" -q | xargs -r docker rm -f
+
+# Remove the internal bridge network
+docker network rm minipaas-global 2>/dev/null || true
+```
+
+#### 2. Remove files and data directories:
+```bash
+# To completely delete Colyin and all associated data:
+cd /opt
+sudo rm -rf /opt/colyin
+```
+
+#### 3. (Optional) Revert Firewall Ports:
+If you no longer need the open firewall ports on UFW:
+```bash
+sudo ufw delete allow 3000/tcp
+sudo ufw delete allow 15672/tcp
+sudo ufw delete allow 10000:10020/tcp
+sudo ufw reload
+```
+
+---
+
 ## ⚙️ Environment Configuration (`.env`)
 
 | Variable | Default | Description |
