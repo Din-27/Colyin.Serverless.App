@@ -377,6 +377,13 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
       name: containerName,
       Image: imageTag,
       HostConfig: hostConfig,
+      NetworkingConfig: {
+        EndpointsConfig: {
+          "minipaas-global": {
+            Aliases: [app.slug, containerName],
+          },
+        },
+      },
       Env: envList,
       Cmd: app.startCommand && app.startCommand.trim() ? ["/bin/sh", "-c", app.startCommand.trim()] : undefined,
       Labels: {
@@ -388,6 +395,12 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     });
 
     await container.start();
+
+    // Ensure container is explicitly connected to minipaas-global network
+    try {
+      const net = docker.getNetwork("minipaas-global");
+      await net.connect({ Container: container.id }).catch(() => {});
+    } catch {}
     await log(`[Step 4/4] Container ${containerName} started with ID ${container.id.slice(0, 12)}.`);
     await log(`-------------------------------------------------------`);
     await log(`🚀 Application deployed successfully and is now LIVE!`);
