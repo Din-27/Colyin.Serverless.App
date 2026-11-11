@@ -70,6 +70,9 @@ export function AppConsoleTabs({
     "overview" | "deployments" | "logs" | "env" | "settings"
   >("overview");
   const [isDeploying, setIsDeploying] = useState(false);
+  const [currentDeploymentId, setCurrentDeploymentId] = useState<string | null>(
+    activeDeployment?.id || null
+  );
   const router = useRouter();
 
   // Log Mode state: "runtime" (live container stream) vs "build" (CI/CD build logs)
@@ -154,7 +157,9 @@ export function AppConsoleTabs({
         body: JSON.stringify({ branch: app.branch }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.deploymentId) {
+        setLogs(["[Deployment Initialized] Connecting to live build pipeline..."]);
+        setCurrentDeploymentId(data.deploymentId);
         setLogMode("build");
         setActiveTab("logs");
         router.refresh();
@@ -213,10 +218,11 @@ export function AppConsoleTabs({
 
   // Build Logs Streaming (SSE)
   useEffect(() => {
-    if (activeTab !== "logs" || logMode !== "build" || !activeDeployment?.id) return;
+    const targetDeployId = currentDeploymentId || activeDeployment?.id;
+    if (activeTab !== "logs" || logMode !== "build" || !targetDeployId) return;
 
     setLogs([]);
-    const eventSource = new EventSource(`/api/deployments/${activeDeployment.id}/logs`);
+    const eventSource = new EventSource(`/api/deployments/${targetDeployId}/logs`);
 
     eventSource.addEventListener("log", (e) => {
       try {
@@ -244,7 +250,7 @@ export function AppConsoleTabs({
     return () => {
       eventSource.close();
     };
-  }, [activeTab, logMode, activeDeployment?.id, router]);
+  }, [activeTab, logMode, currentDeploymentId, activeDeployment?.id, router]);
 
   // Auto scroll terminal to bottom
   useEffect(() => {
@@ -570,6 +576,8 @@ export function AppConsoleTabs({
                   )}
                   <button
                     onClick={() => {
+                      setCurrentDeploymentId(dep.id);
+                      setLogMode("build");
                       setActiveTab("logs");
                     }}
                     className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium"
@@ -689,7 +697,7 @@ export function AppConsoleTabs({
                   </span>
                 ) : (
                   <span className="text-zinc-500 text-[11px] font-mono">
-                    Deployment: {activeDeployment?.id?.slice(-8) || "None"}
+                    Deployment: {(currentDeploymentId || activeDeployment?.id)?.slice(-8) || "None"}
                   </span>
                 )}
               </div>
