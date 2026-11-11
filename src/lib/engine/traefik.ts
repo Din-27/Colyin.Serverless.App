@@ -24,6 +24,7 @@ export function buildTraefikLabels(params: TraefikLabelParams): Record<string, s
 
   const labels: Record<string, string> = {
     "traefik.enable": "true",
+    "traefik.docker.network": "minipaas-global",
     [`traefik.http.routers.${routerName}.rule`]: `Host(\`${hostDomain}\`)`,
     [`traefik.http.services.${routerName}.loadbalancer.server.port`]: internalPort.toString(),
   };
