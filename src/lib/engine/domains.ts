@@ -92,12 +92,18 @@ export async function ensureAppHasDomain(appId: string, slug: string) {
 }
 
 /**
- * Formats a clean public HTTPS URL for an application or domain.
+ * Formats a clean public URL for an application or domain, respecting HTTP_PORT and ENABLE_HTTPS.
  */
 export function formatAccessUrl(host?: string | null, fallbackPort = 3000): string {
   if (!host) {
     return `http://localhost:${fallbackPort}`;
   }
+  if (host.startsWith("http://") || host.startsWith("https://")) {
+    return host;
+  }
   const clean = sanitizeDomain(host);
-  return `https://${clean}`;
+  const isHttps = process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
+  const httpPort = process.env.HTTP_PORT;
+  const portSuffix = !isHttps && httpPort && httpPort !== "80" ? `:${httpPort}` : "";
+  return `${isHttps ? "https" : "http"}://${clean}${portSuffix}`;
 }

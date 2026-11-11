@@ -76,8 +76,11 @@ export function AppConsoleTabs({
 
   const primaryDomain = app.domains?.find((d: any) => d.isPrimary) || app.domains?.[0];
   const defaultProto = typeof window !== "undefined" && window.location.protocol ? window.location.protocol : "http:";
+  const portSuffix = typeof window !== "undefined" && defaultProto === "http:" && window.location.port && window.location.port !== "80" && window.location.port !== "443"
+    ? (window.location.port === "3050" ? ":8080" : `:${window.location.port}`)
+    : "";
   const accessUrl = primaryDomain
-    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `${defaultProto}//${primaryDomain.host}`)
+    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `${defaultProto}//${primaryDomain.host}${portSuffix}`)
     : `http://localhost:${app.internalPort}`;
   const localDirectUrl = `http://localhost:${app.internalPort}`;
   const isLocalhost = !primaryDomain;
@@ -1167,7 +1170,7 @@ function SettingsAndNetworkingTab({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 font-mono">
                     <a
-                      href={`https://${dom.host}`}
+                      href={dom.host.startsWith("http") ? dom.host : `${defaultProto}//${dom.host}${portSuffix}`}
                       target="_blank"
                       rel="noreferrer"
                       className="font-bold text-white hover:text-indigo-400 flex items-center gap-1.5"

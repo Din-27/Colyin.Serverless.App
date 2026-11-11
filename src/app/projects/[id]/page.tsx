@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
+import { formatAccessUrl } from "@/lib/engine/domains";
 import { db } from "@/lib/db";
 import { getDockerDaemonStatus } from "@/lib/engine/docker";
 import {
@@ -142,9 +143,7 @@ export default async function ProjectDetailPage({
 
                     {/* Domain / Route Access Link */}
                     {(() => {
-                      const appAccessUrl = primaryDomain
-                        ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `https://${primaryDomain.host}`)
-                        : `http://localhost:${app.internalPort}`;
+                      const appAccessUrl = formatAccessUrl(primaryDomain?.host, app.internalPort);
                       const displayLabel = primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`;
 
                       return (

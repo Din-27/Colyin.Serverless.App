@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDockerDaemonStatus } from "@/lib/engine/docker";
+import { formatAccessUrl } from "@/lib/engine/domains";
 import { AppConsoleTabs } from "@/components/AppConsoleTabs";
 import Link from "next/link";
 import { ChevronRight, Server, Globe, ExternalLink, Lock } from "lucide-react";
@@ -40,9 +41,7 @@ export default async function ApplicationDetailPage({
   const dockerStatus = await getDockerDaemonStatus();
   const activeDeployment = app.deployments.find((d) => d.id === app.activeDeployId) || app.deployments[0];
   const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
-  const accessUrl = primaryDomain
-    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `https://${primaryDomain.host}`)
-    : `http://localhost:${app.internalPort}`;
+  const accessUrl = formatAccessUrl(primaryDomain?.host, app.internalPort);
   const localDirectUrl = `http://localhost:${app.internalPort}`;
 
   return (

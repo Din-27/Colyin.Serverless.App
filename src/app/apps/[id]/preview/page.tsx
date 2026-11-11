@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getDockerDaemonStatus } from "@/lib/engine/docker";
 import { validatePort } from "@/lib/engine/ports";
+import { formatAccessUrl } from "@/lib/engine/domains";
 import Link from "next/link";
 import {
   ChevronRight,
@@ -48,9 +49,7 @@ export default async function AppPreviewPage({
   if (!app) notFound();
 
   const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
-  const accessUrl = primaryDomain
-    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `https://${primaryDomain.host}`)
-    : `http://localhost:${app.internalPort}`;
+  const accessUrl = formatAccessUrl(primaryDomain?.host, app.internalPort);
   const localDirectUrl = `http://localhost:${app.internalPort}`;
 
   const dockerStatus = await getDockerDaemonStatus();
