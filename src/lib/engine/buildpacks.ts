@@ -165,27 +165,27 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
         if (pkg.scripts?.start) {
           startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
         } else if (pkg.scripts?.preview) {
-          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}" : "npm run preview -- --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}"}`;
         } else {
-          startCmd = `serve -s dist -l ${defaultPort}`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}}`;
         }
       } else if (pkg.dependencies?.["react-scripts"]) {
         framework = "Create React App";
         defaultPort = 3000;
-        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s build -l ${defaultPort}`;
+        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s build -l tcp://0.0.0.0:\${PORT:-${defaultPort}}`;
       } else if (isAngular) {
         framework = "Angular SPA";
         defaultPort = 4200;
-        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s dist -l ${defaultPort}`;
+        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}}`;
       } else if (isReact || isVue || isSvelte) {
         framework = isReact ? "React SPA" : isVue ? "Vue SPA" : "Svelte SPA";
         defaultPort = 3000;
         if (pkg.scripts?.start) {
           startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
         } else if (pkg.scripts?.preview) {
-          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}" : "npm run preview -- --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}"}`;
         } else {
-          startCmd = `serve -s dist -l ${defaultPort} || serve -s build -l ${defaultPort}`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || serve -s build -l tcp://0.0.0.0:\${PORT:-${defaultPort}}`;
         }
       } else if (pkg.dependencies?.express) {
         framework = "Express.js REST API";
@@ -210,7 +210,7 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
         if (pkg.scripts?.start) {
           startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
         } else if (pkg.scripts?.preview) {
-          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}" : "npm run preview -- --host 0.0.0.0 --port \${PORT:-" + defaultPort + "}"}`;
         } else if (fs.existsSync(path.join(dir, "server.js"))) {
           startCmd = "node server.js";
         } else if (fs.existsSync(path.join(dir, "index.js"))) {
@@ -222,7 +222,7 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
         } else if (fs.existsSync(path.join(dir, "dist/index.js"))) {
           startCmd = "node dist/index.js";
         } else {
-          startCmd = `serve -s dist -l ${defaultPort} || serve -s build -l ${defaultPort} || node index.js`;
+          startCmd = `serve -s dist -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || serve -s build -l tcp://0.0.0.0:\${PORT:-${defaultPort}} || node index.js`;
         }
       }
 
