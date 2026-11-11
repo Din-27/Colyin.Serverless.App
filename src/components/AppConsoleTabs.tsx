@@ -75,8 +75,9 @@ export function AppConsoleTabs({
   const [currentAppStatus, setCurrentAppStatus] = useState<string>(activeDeployment?.status || "STOPPED");
 
   const primaryDomain = app.domains?.find((d: any) => d.isPrimary) || app.domains?.[0];
+  const defaultProto = typeof window !== "undefined" && window.location.protocol ? window.location.protocol : "http:";
   const accessUrl = primaryDomain
-    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `https://${primaryDomain.host}`)
+    ? (primaryDomain.host.startsWith("http") ? primaryDomain.host : `${defaultProto}//${primaryDomain.host}`)
     : `http://localhost:${app.internalPort}`;
   const localDirectUrl = `http://localhost:${app.internalPort}`;
   const isLocalhost = !primaryDomain;

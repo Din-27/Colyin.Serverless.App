@@ -117,13 +117,17 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
   try {
     // Ensure application has a verified HTTPS domain
     const primaryDomain = await ensureAppHasDomain(app.id, app.slug);
-    const accessUrl = `https://${primaryDomain.host}`;
+    // Determine HTTPS / HTTP protocol and port
+    const isHttpsEnabled = process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
+    const httpPort = process.env.HTTP_PORT;
+    const portSuffix = !isHttpsEnabled && httpPort && httpPort !== "80" ? `:${httpPort}` : "";
+    const accessUrl = `${isHttpsEnabled ? "https" : "http"}://${primaryDomain.host}${portSuffix}`;
 
     await log(`=======================================================`);
     await log(`Deployment initiated for service '${app.name}'`);
     await log(`Repository URL : ${app.repositoryUrl}`);
     await log(`Target Branch  : ${app.branch}`);
-    await log(`Target Domain  : ${accessUrl} (HTTPS / SSL Active)`);
+    await log(`Target Domain  : ${accessUrl} (${isHttpsEnabled ? "HTTPS / SSL Active" : "HTTP Mode"})`);
     await log(`Workspace Path : ${buildDir}`);
     await log(`=======================================================`);
 
@@ -343,7 +347,7 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
       routerName: `router_${app.slug}`,
       hostDomain: primaryDomain.host,
       internalPort: app.internalPort,
-      enableHttps: true,
+      enableHttps: isHttpsEnabled,
     });
 
     const containerName = `app_${app.slug}_${deploymentId.slice(-6)}`;
@@ -388,7 +392,7 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     await log(`-------------------------------------------------------`);
     await log(`🚀 Application deployed successfully and is now LIVE!`);
     await log(`🌐 Public Domain : ${accessUrl}`);
-    await log(`🔒 SSL Security  : Active (Traefik Dynamic TLS)`);
+    await log(`🔒 SSL Security  : ${isHttpsEnabled ? "Active (Traefik Dynamic TLS)" : "Disabled (Direct HTTP Routing)"}`);
     await log(`🔗 Internal Mesh : http://${app.slug}:${app.internalPort}`);
     await log(`-------------------------------------------------------`);
 

@@ -38,6 +38,8 @@ services:
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASS=${SMTP_PASS:-}
+      - HTTP_PORT=${HTTP_PORT:-}
+      - ENABLE_HTTPS=${ENABLE_HTTPS:-true}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./data:/app/data"
