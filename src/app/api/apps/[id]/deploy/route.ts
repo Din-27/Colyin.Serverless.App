@@ -344,7 +344,7 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     }
 
     const traefikLabels = buildTraefikLabels({
-      routerName: `router_${app.slug}`,
+      routerName: `router-${app.slug.replace(/[^a-zA-Z0-9-]/g, "-")}`,
       hostDomain: primaryDomain.host,
       internalPort: app.internalPort,
       enableHttps: isHttpsEnabled,

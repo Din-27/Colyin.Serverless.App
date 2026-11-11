@@ -21,35 +21,45 @@ export function buildTraefikLabels(params: TraefikLabelParams): Record<string, s
   } = params;
 
   const hostDomain = sanitizeDomain(rawHost);
+  const safeName = routerName.replace(/[^a-zA-Z0-9-]/g, "-").replace(/^-+|-+$/g, "");
+  const httpPort = process.env.HTTP_PORT || "8080";
+
+  // Match both standard hostname and hostname with custom port (e.g. :8080)
+  const hostRule = httpPort && httpPort !== "80" && httpPort !== "443"
+    ? `Host(\`${hostDomain}\`) || Host(\`${hostDomain}:${httpPort}\`)`
+    : `Host(\`${hostDomain}\`)`;
 
   const labels: Record<string, string> = {
     "traefik.enable": "true",
     "traefik.docker.network": "minipaas-global",
-    [`traefik.http.routers.${routerName}.rule`]: `Host(\`${hostDomain}\`)`,
-    [`traefik.http.services.${routerName}.loadbalancer.server.port`]: internalPort.toString(),
+    [`traefik.http.routers.${safeName}.rule`]: hostRule,
+    [`traefik.http.routers.${safeName}.service`]: safeName,
+    [`traefik.http.services.${safeName}.loadbalancer.server.port`]: internalPort.toString(),
   };
 
   if (enableHttps) {
     // 1. Primary Secure Router (HTTPS / 443)
-    labels[`traefik.http.routers.${routerName}.entrypoints`] = "websecure";
-    labels[`traefik.http.routers.${routerName}.tls`] = "true";
-    labels[`traefik.http.routers.${routerName}.tls.certresolver`] = tlsCertResolver;
+    labels[`traefik.http.routers.${safeName}.entrypoints`] = "websecure";
+    labels[`traefik.http.routers.${safeName}.tls`] = "true";
+    labels[`traefik.http.routers.${safeName}.tls.certresolver`] = tlsCertResolver;
     
     // Security headers middleware
-    labels[`traefik.http.middlewares.${routerName}-headers.headers.sslredirect`] = "true";
-    labels[`traefik.http.middlewares.${routerName}-headers.headers.browserXssFilter`] = "true";
-    labels[`traefik.http.middlewares.${routerName}-headers.headers.contentTypeNosniff`] = "true";
-    labels[`traefik.http.routers.${routerName}.middlewares`] = `${routerName}-headers`;
+    labels[`traefik.http.middlewares.${safeName}-headers.headers.sslredirect`] = "true";
+    labels[`traefik.http.middlewares.${safeName}-headers.headers.browserXssFilter`] = "true";
+    labels[`traefik.http.middlewares.${safeName}-headers.headers.contentTypeNosniff`] = "true";
+    labels[`traefik.http.routers.${safeName}.middlewares`] = `${safeName}-headers`;
 
     // 2. HTTP to HTTPS automatic upgrade router (HTTP / 80 -> HTTPS)
-    const httpRouter = `${routerName}-http`;
-    labels[`traefik.http.routers.${httpRouter}.rule`] = `Host(\`${hostDomain}\`)`;
+    const httpRouter = `${safeName}-http`;
+    labels[`traefik.http.routers.${httpRouter}.rule`] = hostRule;
     labels[`traefik.http.routers.${httpRouter}.entrypoints`] = "web";
-    labels[`traefik.http.routers.${httpRouter}.middlewares`] = `${routerName}-redirect-ssl`;
-    labels[`traefik.http.middlewares.${routerName}-redirect-ssl.redirectscheme.scheme`] = "https";
-    labels[`traefik.http.middlewares.${routerName}-redirect-ssl.redirectscheme.permanent`] = "true";
+    labels[`traefik.http.routers.${httpRouter}.service`] = safeName;
+    labels[`traefik.http.routers.${httpRouter}.middlewares`] = `${safeName}-redirect-ssl`;
+    labels[`traefik.http.middlewares.${safeName}-redirect-ssl.redirectscheme.scheme`] = "https";
+    labels[`traefik.http.middlewares.${safeName}-redirect-ssl.redirectscheme.permanent`] = "true";
   } else {
-    labels[`traefik.http.routers.${routerName}.entrypoints`] = "web";
+    // Plain HTTP routing (Direct / Reverse Proxy Mode)
+    labels[`traefik.http.routers.${safeName}.entrypoints`] = "web";
   }
 
   return labels;
