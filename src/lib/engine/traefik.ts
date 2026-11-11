@@ -22,12 +22,7 @@ export function buildTraefikLabels(params: TraefikLabelParams): Record<string, s
 
   const hostDomain = sanitizeDomain(rawHost);
   const safeName = routerName.replace(/[^a-zA-Z0-9-]/g, "-").replace(/^-+|-+$/g, "");
-  const httpPort = process.env.HTTP_PORT || "8080";
-
-  // Match both standard hostname and hostname with custom port (e.g. :8080)
-  const hostRule = httpPort && httpPort !== "80" && httpPort !== "443"
-    ? `Host(\`${hostDomain}\`) || Host(\`${hostDomain}:${httpPort}\`)`
-    : `Host(\`${hostDomain}\`)`;
+  const hostRule = `Host(\`${hostDomain}\`)`;
 
   const labels: Record<string, string> = {
     "traefik.enable": "true",
