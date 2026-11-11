@@ -1,7 +1,7 @@
 services:
   # Traefik v3 Ingress & Reverse Proxy with Let's Encrypt Auto-SSL
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.6
     container_name: minipaas-traefik
     restart: unless-stopped
     command:
