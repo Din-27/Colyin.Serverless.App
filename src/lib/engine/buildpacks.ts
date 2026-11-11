@@ -126,37 +126,104 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
     const nodeVer = detectNodeVersion(dir) || "20";
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
+      const hasPnpm = fs.existsSync(path.join(dir, "pnpm-lock.yaml"));
+      const hasYarn = fs.existsSync(path.join(dir, "yarn.lock"));
+
+      const isVite = !!(pkg.dependencies?.vite || pkg.devDependencies?.vite);
+      const isReact = !!(pkg.dependencies?.react || pkg.devDependencies?.react);
+      const isVue = !!(pkg.dependencies?.vue || pkg.devDependencies?.vue);
+      const isSvelte = !!(pkg.dependencies?.svelte || pkg.devDependencies?.svelte);
+      const isAngular = !!(pkg.dependencies?.["@angular/core"] || pkg.devDependencies?.["@angular/core"]);
+
       let framework = "Node.js Application";
       let defaultPort = 3000;
-      let startCmd = "npm start";
+      let startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
 
       if (pkg.dependencies?.next || pkg.devDependencies?.next) {
         framework = "Next.js (App Router / Pages)";
         defaultPort = 3000;
-        startCmd = "npm run start";
+        startCmd = hasPnpm ? "pnpm run start" : hasYarn ? "yarn start" : "npm run start";
       } else if (pkg.dependencies?.["@nestjs/core"]) {
         framework = "NestJS Enterprise API";
         defaultPort = 3000;
-        startCmd = "npm run start:prod";
-      } else if (pkg.dependencies?.express) {
-        framework = "Express.js REST API";
-        defaultPort = 3000;
-        startCmd = pkg.scripts?.start ? "npm start" : "node index.js";
-      } else if (pkg.dependencies?.fastify) {
-        framework = "Fastify High-Performance API";
-        defaultPort = 3000;
-      } else if (pkg.dependencies?.hono) {
-        framework = "Hono Web Framework";
-        defaultPort = 3000;
-      } else if (pkg.dependencies?.astro) {
-        framework = "Astro Framework";
-        defaultPort = 4321;
+        startCmd = hasPnpm ? "pnpm run start:prod" : hasYarn ? "yarn start:prod" : "npm run start:prod";
       } else if (pkg.dependencies?.nuxt) {
         framework = "Nuxt.js Vue Framework";
         defaultPort = 3000;
+        startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
       } else if (pkg.dependencies?.["@sveltejs/kit"]) {
         framework = "SvelteKit Application";
         defaultPort = 3000;
+        startCmd = "node build";
+      } else if (pkg.dependencies?.astro) {
+        framework = "Astro Framework";
+        defaultPort = 4321;
+        startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
+      } else if (isVite) {
+        framework = "Vite React/Vue/SPA Web Application";
+        defaultPort = 3000;
+        if (pkg.scripts?.start) {
+          startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
+        } else if (pkg.scripts?.preview) {
+          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+        } else {
+          startCmd = `serve -s dist -l ${defaultPort}`;
+        }
+      } else if (pkg.dependencies?.["react-scripts"]) {
+        framework = "Create React App";
+        defaultPort = 3000;
+        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s build -l ${defaultPort}`;
+      } else if (isAngular) {
+        framework = "Angular SPA";
+        defaultPort = 4200;
+        startCmd = pkg.scripts?.start ? (hasPnpm ? "pnpm start" : "npm start") : `serve -s dist -l ${defaultPort}`;
+      } else if (isReact || isVue || isSvelte) {
+        framework = isReact ? "React SPA" : isVue ? "Vue SPA" : "Svelte SPA";
+        defaultPort = 3000;
+        if (pkg.scripts?.start) {
+          startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
+        } else if (pkg.scripts?.preview) {
+          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+        } else {
+          startCmd = `serve -s dist -l ${defaultPort} || serve -s build -l ${defaultPort}`;
+        }
+      } else if (pkg.dependencies?.express) {
+        framework = "Express.js REST API";
+        defaultPort = 3000;
+        startCmd = pkg.scripts?.start
+          ? (hasPnpm ? "pnpm start" : "npm start")
+          : (fs.existsSync(path.join(dir, "server.js")) ? "node server.js" : "node index.js");
+      } else if (pkg.dependencies?.fastify) {
+        framework = "Fastify High-Performance API";
+        defaultPort = 3000;
+        startCmd = pkg.scripts?.start
+          ? (hasPnpm ? "pnpm start" : "npm start")
+          : (fs.existsSync(path.join(dir, "server.js")) ? "node server.js" : "node index.js");
+      } else if (pkg.dependencies?.hono) {
+        framework = "Hono Web Framework";
+        defaultPort = 3000;
+        startCmd = pkg.scripts?.start
+          ? (hasPnpm ? "pnpm start" : "npm start")
+          : (fs.existsSync(path.join(dir, "server.js")) ? "node server.js" : "node index.js");
+      } else {
+        // Fallback for general Node.js apps
+        if (pkg.scripts?.start) {
+          startCmd = hasPnpm ? "pnpm start" : hasYarn ? "yarn start" : "npm start";
+        } else if (pkg.scripts?.preview) {
+          startCmd = `serve -s dist -l ${defaultPort} || ${hasPnpm ? "pnpm run preview --host 0.0.0.0 --port " + defaultPort : "npm run preview -- --host 0.0.0.0 --port " + defaultPort}`;
+        } else if (fs.existsSync(path.join(dir, "server.js"))) {
+          startCmd = "node server.js";
+        } else if (fs.existsSync(path.join(dir, "index.js"))) {
+          startCmd = "node index.js";
+        } else if (pkg.main && fs.existsSync(path.join(dir, pkg.main))) {
+          startCmd = `node ${pkg.main}`;
+        } else if (fs.existsSync(path.join(dir, "src/index.js"))) {
+          startCmd = "node src/index.js";
+        } else if (fs.existsSync(path.join(dir, "dist/index.js"))) {
+          startCmd = "node dist/index.js";
+        } else {
+          startCmd = `serve -s dist -l ${defaultPort} || serve -s build -l ${defaultPort} || node index.js`;
+        }
       }
 
       const hasPnpm = fs.existsSync(path.join(dir, "pnpm-lock.yaml"));
@@ -477,6 +544,7 @@ RUN ${info.buildCmd || "npm run build --if-present"}
 FROM node:${nodeTag} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+RUN npm install -g serve
 ${hasPnpm ? "RUN corepack enable && corepack prepare pnpm@latest --activate" : ""}
 COPY --from=builder /app ./
 EXPOSE ${port}

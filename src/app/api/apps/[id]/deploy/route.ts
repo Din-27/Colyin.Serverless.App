@@ -173,6 +173,15 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     await log(`Buildpack Strategy : ${detected.buildPack}`);
     await log(`Default Port Target: :${detected.defaultPort}`);
 
+    if (app.buildCommand && app.buildCommand.trim()) {
+      detected.buildCmd = app.buildCommand.trim();
+      await log(`[Custom Override] Build command set to: ${detected.buildCmd}`);
+    }
+    if (app.startCommand && app.startCommand.trim()) {
+      detected.startCmd = app.startCommand.trim();
+      await log(`[Custom Override] Start command set to: ${detected.startCmd}`);
+    }
+
     // Auto-generate multi-stage production Dockerfile if not present
     if (!fs.existsSync(path.join(buildDir, "Dockerfile"))) {
       const generatedDockerfile = generateUniversalDockerfile(detected, buildDir, app.runtimeVersion);
@@ -365,6 +374,7 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
       Image: imageTag,
       HostConfig: hostConfig,
       Env: envList,
+      Cmd: app.startCommand && app.startCommand.trim() ? ["/bin/sh", "-c", app.startCommand.trim()] : undefined,
       Labels: {
         "managed-by": "minipaas",
         "app-id": app.id,
