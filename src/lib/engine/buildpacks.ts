@@ -226,8 +226,6 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
         }
       }
 
-      const hasPnpm = fs.existsSync(path.join(dir, "pnpm-lock.yaml"));
-      const hasYarn = fs.existsSync(path.join(dir, "yarn.lock"));
       const installCmd = hasPnpm ? "pnpm install --config.dangerously-allow-all-builds=true" : hasYarn ? "yarn install" : "npm install";
 
       return {
