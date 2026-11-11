@@ -119,8 +119,8 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
     const primaryDomain = await ensureAppHasDomain(app.id, app.slug);
     // Determine HTTPS / HTTP protocol and port
     const isHttpsEnabled = process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
-    const httpPort = process.env.HTTP_PORT;
-    const portSuffix = !isHttpsEnabled && httpPort && httpPort !== "80" ? `:${httpPort}` : "";
+    const publicPort = process.env.PUBLIC_HTTP_PORT || process.env.HTTP_PORT;
+    const portSuffix = !isHttpsEnabled && publicPort && publicPort !== "80" && publicPort !== "443" ? `:${publicPort}` : "";
     const accessUrl = `${isHttpsEnabled ? "https" : "http"}://${primaryDomain.host}${portSuffix}`;
 
     await log(`=======================================================`);

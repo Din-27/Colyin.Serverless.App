@@ -103,7 +103,7 @@ export function formatAccessUrl(host?: string | null, fallbackPort = 3000): stri
   }
   const clean = sanitizeDomain(host);
   const isHttps = process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
-  const httpPort = process.env.HTTP_PORT;
-  const portSuffix = !isHttps && httpPort && httpPort !== "80" ? `:${httpPort}` : "";
+  const publicPort = process.env.PUBLIC_HTTP_PORT || process.env.HTTP_PORT;
+  const portSuffix = !isHttps && publicPort && publicPort !== "80" && publicPort !== "443" ? `:${publicPort}` : "";
   return `${isHttps ? "https" : "http"}://${clean}${portSuffix}`;
 }
