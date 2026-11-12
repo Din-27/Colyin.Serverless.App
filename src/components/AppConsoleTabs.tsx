@@ -384,8 +384,8 @@ export function AppConsoleTabs({
       {actionFeedback && (
         <div
           className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in ${actionFeedback.type === "success"
-              ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
-              : "border-rose-500/40 bg-rose-950/30 text-rose-300"
+            ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
+            : "border-rose-500/40 bg-rose-950/30 text-rose-300"
             }`}
         >
           <div className="flex items-center gap-2">
@@ -656,11 +656,10 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setLogMode("runtime")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
-                  logMode === "runtime"
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "runtime"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Runtime Logs (Live Container Stream)</span>
@@ -669,11 +668,10 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setLogMode("build")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
-                  logMode === "build"
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "build"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 <GitCommit className="w-3.5 h-3.5" />
                 <span>Build Logs (CI/CD History)</span>
@@ -829,14 +827,14 @@ export function AppConsoleTabs({
                         <div
                           key={idx}
                           className={`leading-relaxed whitespace-pre-wrap break-all ${isError
-                              ? "text-rose-400 bg-rose-950/20 px-1 rounded"
-                              : isWarn
-                                ? "text-amber-400"
-                                : isHttp
-                                  ? "text-cyan-300"
-                                  : isSystem
-                                    ? "text-indigo-400 font-bold"
-                                    : "text-zinc-300"
+                            ? "text-rose-400 bg-rose-950/20 px-1 rounded"
+                            : isWarn
+                              ? "text-amber-400"
+                              : isHttp
+                                ? "text-cyan-300"
+                                : isSystem
+                                  ? "text-indigo-400 font-bold"
+                                  : "text-zinc-300"
                             }`}
                         >
                           {line}
@@ -855,12 +853,12 @@ export function AppConsoleTabs({
                     <div
                       key={idx}
                       className={`leading-relaxed whitespace-pre-wrap break-all ${line.includes("ERROR") || line.includes("ERR")
-                          ? "text-rose-400"
-                          : line.includes("WARNING")
-                            ? "text-amber-400"
-                            : line.includes("Simulated")
-                              ? "text-indigo-400"
-                              : "text-zinc-300"
+                        ? "text-rose-400"
+                        : line.includes("WARNING")
+                          ? "text-amber-400"
+                          : line.includes("Simulated")
+                            ? "text-indigo-400"
+                            : "text-zinc-300"
                         }`}
                     >
                       {line}
@@ -1224,8 +1222,8 @@ function SettingsAndNetworkingTab({
                     <span>&bull;</span>
                     <span
                       className={`font-semibold ${dom.certificateStatus === "ISSUED"
-                          ? "text-emerald-400"
-                          : "text-amber-400"
+                        ? "text-emerald-400"
+                        : "text-amber-400"
                         }`}
                     >
                       Cert: {dom.certificateStatus}
