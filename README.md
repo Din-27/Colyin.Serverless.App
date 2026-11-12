@@ -479,6 +479,21 @@ Colyin is available in two complementary editions:
 
 ---
 
+## 🛠️ Troubleshooting & Deployment Access Issues
+
+If your application returns **404 Page Not Found** or **502 Bad Gateway** after deployment, check out our comprehensive troubleshooting guide:
+
+👉 **[Detailed Deployment Access Troubleshooting Guide (docs/TROUBLESHOOTING-DEPLOYMENT-ACCESS.md)](./docs/TROUBLESHOOTING-DEPLOYMENT-ACCESS.md)**
+
+Key covered topics include:
+- **Mandatory Role of `minipaas-controller`:** Why the controller must stay running to handle Docker socket events, Traefik mesh labels, and build lifecycles.
+- **Docker Client API Mismatch (404 Error):** Resolving ancient client version 1.24 errors with Traefik v3.6 and `DOCKER_API_VERSION=1.44`.
+- **Port Mismatch & 0.0.0.0 Binding (502 Bad Gateway):** Ensuring SPA and server containers bind to `0.0.0.0:${PORT}` dynamically.
+- **Host Port Conflicts:** Running Traefik behind existing host Nginx proxies on ports 80/443 without certificate or port collisions.
+- **Quick Diagnostic Checklist:** Handy CLI commands to verify Traefik routing, mesh connectivity, and container state.
+
+---
+
 ## 🤝 Contributing to Open Source
 
 Colyin is 100% open-source software under the **MIT License**. We welcome contributions from developers worldwide!

@@ -479,6 +479,21 @@ Colyin hadir dalam dua edisi yang saling melengkapi:
 
 ---
 
+## 🛠️ Troubleshooting & Panduan Masalah Deployment
+
+Jika Anda mengalami kendala saat mengakses aplikasi setelah deployment (seperti **404 Page Not Found** atau **502 Bad Gateway**), silakan baca panduan pemecahan masalah lengkap di:
+
+👉 **[Panduan Lengkap Troubleshooting Deployment (docs/TROUBLESHOOTING-DEPLOYMENT-ACCESS.md)](./docs/TROUBLESHOOTING-DEPLOYMENT-ACCESS.md)**
+
+Panduan tersebut mencakup:
+- **Peran Wajib `minipaas-controller`:** Mengapa controller harus aktif untuk mengelola jaringan mesh, Docker labels, dan build lifecycle.
+- **Docker Client API Mismatch (Error 404):** Solusi upgrade ke Traefik v3.6 dan `DOCKER_API_VERSION=1.44`.
+- **Port Mismatch & Binding Address 0.0.0.0 (Error 502 Bad Gateway):** Memastikan aplikasi mengikat ke `0.0.0.0:${PORT}` secara dinamis.
+- **Arsitektur Nginx di Depan, Traefik di Belakang:** Cara menghindari konflik port jika server VPS Anda sudah memiliki Nginx aktif di port 80/443.
+- **Checklist Diagnostik Cepat:** Perintah CLI untuk memverifikasi status Traefik, network mesh, dan internal connectivity.
+
+---
+
 ## 🤝 Berkontribusi ke Open Source
 
 Colyin adalah perangkat lunak open-source 100% di bawah naungan **Lisensi MIT**. Kami menyambut kontribusi dari para pengembang di seluruh dunia!
