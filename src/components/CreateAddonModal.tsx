@@ -2,7 +2,57 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Database, Plus, X, Loader2, Layers, Network, HardDrive } from "lucide-react";
+import {
+  Database,
+  Plus,
+  X,
+  Loader2,
+  Layers,
+  Network,
+  HardDrive,
+  Check,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+const ADDON_TYPES = [
+  {
+    type: "POSTGRESQL",
+    name: "PostgreSQL 16",
+    desc: "ACID-compliant relational database",
+    defaultPort: 5432,
+    badgeColor: "text-blue-500",
+  },
+  {
+    type: "REDIS",
+    name: "Redis 7",
+    desc: "In-memory key-value cache & message broker",
+    defaultPort: 6379,
+    badgeColor: "text-rose-500",
+  },
+  {
+    type: "MYSQL",
+    name: "MySQL 8",
+    desc: "Popular relational database system",
+    defaultPort: 3306,
+    badgeColor: "text-amber-500",
+  },
+  {
+    type: "RABBITMQ",
+    name: "RabbitMQ",
+    desc: "AMQP message broker with management UI",
+    defaultPort: 5672,
+    badgeColor: "text-orange-500",
+  },
+  {
+    type: "MINIO",
+    name: "MinIO S3",
+    desc: "High-performance S3 compatible object storage",
+    defaultPort: 9000,
+    badgeColor: "text-emerald-500",
+  },
+];
 
 export function CreateAddonModal({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
@@ -48,111 +98,122 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
 
   return (
     <>
-      <button
+      <Button
+        variant="outline"
         onClick={() => handleOpen("POSTGRESQL", "")}
-        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium border border-zinc-700 transition"
+        className="gap-2 shadow-xs cursor-pointer"
       >
         <Plus className="w-4 h-4" />
-        Add Database / Service
-      </button>
+        <span>Add Database</span>
+      </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg rounded-xl bg-zinc-900 border border-zinc-800 p-6 shadow-xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-lg rounded-xl bg-card border border-border p-6 shadow-xl relative animate-zoom-in">
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white"
+              className="absolute top-4 right-4 rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Database className="w-5 h-5 text-emerald-400" />
-              One-Click Service Provisioning
-            </h3>
-            <p className="text-xs text-zinc-400 mt-1">
-              Deploy an isolated managed instance with persistent volume and internal DNS discovery.
-            </p>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <Database className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground">
+                  Provision Database Addon
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Deploy an isolated database service attached to this project mesh.
+                </p>
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800/80 text-rose-300 text-xs">
+                <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
                   {error}
                 </div>
               )}
 
-              {/* Addon Type Selector */}
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-2">
+              {/* Service Selection Grid */}
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-foreground">
                   Select Engine Type
                 </label>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                  {[
-                    { id: "POSTGRESQL", label: "PostgreSQL", icon: Database },
-                    { id: "REDIS", label: "Redis", icon: Layers },
-                    { id: "RABBITMQ", label: "RabbitMQ", icon: Network },
-                    { id: "MINIO", label: "MinIO S3", icon: HardDrive },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    const selected = type === item.id;
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {ADDON_TYPES.map((item) => {
+                    const isSelected = type === item.type;
                     return (
                       <button
-                        key={item.id}
+                        key={item.type}
                         type="button"
                         onClick={() => {
-                          setType(item.id);
-                          setName(`${item.id.toLowerCase()}-instance`);
+                          setType(item.type);
+                          if (!name || ADDON_TYPES.some((t) => t.name.toLowerCase() === name.toLowerCase())) {
+                            setName(`${item.type.toLowerCase()}-db`);
+                          }
                         }}
-                        className={`p-3 rounded-lg border text-left transition flex flex-col gap-1.5 ${
-                          selected
-                            ? "bg-indigo-950/50 border-indigo-500 text-white"
-                            : "bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800"
-                        }`}
+                        className={cn(
+                          "flex items-start gap-2.5 p-3 rounded-lg border text-left transition-all duration-150 cursor-pointer",
+                          isSelected
+                            ? "border-primary bg-secondary/80 ring-1 ring-primary/20"
+                            : "border-border hover:border-muted-foreground/30 hover:bg-secondary/40"
+                        )}
                       >
-                        <Icon className={`w-4 h-4 ${selected ? "text-indigo-400" : "text-zinc-500"}`} />
-                        <span className="text-xs font-semibold">{item.label}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground">
+                              {item.name}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-primary" />}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                            {item.desc}
+                          </p>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                  Instance Name
+              {/* Instance Name Input */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs font-medium text-foreground">
+                  Instance Name / Hostname
                 </label>
-                <input
-                  type="text"
+                <Input
                   required
-                  placeholder="e.g. main-db, redis-cache, or rabbitmq-queue"
+                  placeholder="e.g. users-postgres, session-redis"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500"
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  Will be accessible by other containers in this project as <code className="font-mono text-foreground font-medium">{name || "instance-name"}</code>.
+                </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-400 space-y-1">
-                <div>• Automatic persistent volume created</div>
-                <div>• Secure password generated & encrypted with AES-256-GCM</div>
-                <div>• Accessible by all apps in project network</div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-3">
-                <button
+              <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-border/60">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white"
+                  disabled={loading}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium"
+                  variant="brand"
+                  disabled={loading || !name.trim()}
+                  className="gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Provision Instance
-                </button>
+                  <span>{loading ? "Provisioning..." : "Provision Addon"}</span>
+                </Button>
               </div>
             </form>
           </div>

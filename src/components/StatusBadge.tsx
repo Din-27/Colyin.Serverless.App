@@ -1,40 +1,70 @@
-import { CheckCircle2, CircleSlash, AlertTriangle, Activity, RefreshCw } from "lucide-react";
+import { CheckCircle2, CircleSlash, AlertCircle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({
+  status,
+  className = "",
+}: {
+  status: string;
+  className?: string;
+}) {
   const normalized = (status || "STOPPED").toUpperCase();
 
   if (normalized === "ACTIVE" || normalized === "RUNNING") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950/70 text-emerald-400 border border-emerald-800/60">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/50 transition-colors",
+          className
+        )}
+      >
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+        </span>
         <CheckCircle2 className="w-3.5 h-3.5" />
-        {normalized}
+        <span>{normalized}</span>
       </span>
     );
   }
 
   if (normalized === "BUILDING" || normalized === "DEPLOYING" || normalized === "QUEUED") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-950/70 text-blue-400 border border-blue-800/60">
-        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-        {normalized}
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200/80 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-800/50 transition-colors",
+          className
+        )}
+      >
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-500" />
+        <span>{normalized}</span>
       </span>
     );
   }
 
   if (normalized === "FAILED" || normalized === "CRASHED") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-950/70 text-rose-400 border border-rose-800/60">
-        <AlertTriangle className="w-3.5 h-3.5" />
-        {normalized}
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/50 transition-colors",
+          className
+        )}
+      >
+        <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+        <span>{normalized}</span>
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-900 text-zinc-400 border border-zinc-800">
-      <CircleSlash className="w-3.5 h-3.5" />
-      {normalized}
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-muted-foreground border border-border transition-colors",
+        className
+      )}
+    >
+      <CircleSlash className="w-3.5 h-3.5 text-muted-foreground" />
+      <span>{normalized}</span>
     </span>
   );
 }

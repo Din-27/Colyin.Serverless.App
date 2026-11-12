@@ -1,9 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { Layers, Plus, Server, Database, ArrowRight, FolderKanban } from "lucide-react";
-import { StatusBadge } from "@/components/StatusBadge";
+import {
+  Layers,
+  Server,
+  Database,
+  ArrowUpRight,
+  FolderKanban,
+  Network,
+  Activity,
+} from "lucide-react";
 import { CreateProjectModal } from "@/components/CreateProjectModal";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface ProjectItem {
   id: string;
@@ -35,75 +51,85 @@ interface ProjectsCanvasProps {
 
 export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
   return (
-    <div className="space-y-8">
-      {/* Hero Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800">
+    <div className="space-y-8 animate-fade-in">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <FolderKanban className="w-6 h-6 text-indigo-400" />
-            Projects
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <FolderKanban className="w-6 h-6 text-indigo-500" />
+            <span>Projects</span>
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Manage your project environments and services.
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage your project environments, deployed web applications, and database add-ons.
           </p>
         </div>
         <CreateProjectModal />
       </div>
 
-      {/* Projects Grid */}
+      {/* Projects Grid or Empty State */}
       {projects.length === 0 ? (
-        <div className="p-12 text-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20">
-          <Layers className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-base font-semibold text-zinc-300">No projects created yet</h3>
-          <p className="text-sm text-zinc-500 mt-1 max-w-sm mx-auto">
+        <Card className="border-dashed p-12 text-center bg-card/50">
+          <div className="w-12 h-12 rounded-xl bg-secondary mx-auto flex items-center justify-center mb-4 text-muted-foreground">
+            <Layers className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-semibold text-foreground">
+            No projects created yet
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
             Get started by creating your first project environment to group applications and databases together.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center">
             <CreateProjectModal />
           </div>
-        </div>
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {projects.map((project) => (
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="group block rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 hover:border-indigo-500/50 hover:bg-zinc-900/80 transition relative overflow-hidden"
+              className="group block transition-all focus:outline-none"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition flex items-center gap-2">
-                    {project.name}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
+              <Card className="h-full hover:-translate-y-1 hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-500/40 transition-all duration-200 flex flex-col justify-between">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-base group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                      {project.name}
+                    </CardTitle>
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                  <CardDescription className="line-clamp-2 mt-1">
                     {project.description || "No description provided."}
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition" />
-              </div>
+                  </CardDescription>
+                </CardHeader>
 
-              {/* Network Mesh Tag */}
-              <div className="mt-4 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-800/60 text-xs text-zinc-400 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                {project.networkName}
-              </div>
+                <CardContent className="py-2">
+                  {/* Network Mesh Tag */}
+                  <Badge variant="outline" className="font-mono text-[11px] gap-1.5 bg-secondary/50">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{project.networkName}</span>
+                  </Badge>
+                </CardContent>
 
-              {/* Service Counts Footer */}
-              <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5">
-                    <Server className="w-3.5 h-3.5 text-zinc-500" />
-                    {project.applications.length} Apps
+                <CardFooter className="pt-3 border-t border-border/60 text-xs text-muted-foreground flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Server className="w-3.5 h-3.5" />
+                      <span>{project.applications.length} Apps</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Database className="w-3.5 h-3.5" />
+                      <span>{project.addons.length} Addons</span>
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground/75 font-mono">
+                    {new Date(project.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Database className="w-3.5 h-3.5 text-zinc-500" />
-                    {project.addons.length} Addons
-                  </span>
-                </div>
-                <span className="text-zinc-500 text-[11px]">
-                  {new Date(project.createdAt).toLocaleDateString()}
-                </span>
-              </div>
+                </CardFooter>
+              </Card>
             </Link>
           ))}
         </div>

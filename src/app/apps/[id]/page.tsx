@@ -8,6 +8,8 @@ import Link from "next/link";
 import { ChevronRight, Server, Globe, ExternalLink, Lock } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DeleteAppButton } from "@/components/DeleteAppButton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -45,33 +47,33 @@ export default async function ApplicationDetailPage({
   const localDirectUrl = `http://localhost:${app.internalPort}`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Breadcrumb Header */}
       <div>
-        <div className="flex items-center gap-2 text-xs text-zinc-500 mb-1.5">
-          <Link href="/" className="hover:text-zinc-300">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+          <Link href="/" className="hover:text-foreground transition-colors">
             Projects
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/projects/${app.project.id}`} className="hover:text-zinc-300">
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <Link href={`/projects/${app.project.id}`} className="hover:text-foreground transition-colors">
             {app.project.name}
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-zinc-300">{app.name}</span>
-        </div>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <span className="text-foreground font-medium">{app.name}</span>
+        </nav>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-indigo-950/60 border border-indigo-800/80 flex items-center justify-center text-indigo-400">
-              <Server className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-foreground">
+              <Server className="w-5 h-5 text-indigo-500" />
             </div>
             <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-white">{app.name}</h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{app.name}</h1>
                 <StatusBadge status={activeDeployment?.status || "STOPPED"} />
               </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-zinc-400 font-mono">
-                <span>{app.repositoryUrl}</span>
+              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground font-mono">
+                <span className="truncate max-w-xs">{app.repositoryUrl}</span>
                 <span>&bull;</span>
                 <span>Branch: {app.branch}</span>
               </div>
@@ -79,34 +81,35 @@ export default async function ApplicationDetailPage({
           </div>
 
           <div className="flex items-center gap-2.5">
-            <Link
-              href={`/apps/${app.id}/preview`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition shadow-sm cursor-pointer"
-              title="Open Ingress & Preview Simulator"
-            >
-              <Globe className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Preview Simulator</span>
-            </Link>
-            <a
-              href={accessUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/30 text-emerald-300 text-xs font-mono hover:bg-emerald-950/60 transition shadow-sm"
-              title={`Open ${accessUrl} in new tab`}
-            >
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`}</span>
-              <ExternalLink className="w-3 h-3 opacity-70" />
-            </a>
+            <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
+              <Link href={`/apps/${app.id}/preview`}>
+                <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Simulator</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2 font-mono text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 shadow-xs">
+              <a
+                href={accessUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={`Open ${accessUrl} in new tab`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`}</span>
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
+            </Button>
             <DeleteAppButton appId={app.id} appName={app.name} projectId={app.project.id} />
           </div>
         </div>
       </div>
 
-      {/* Tabbed Console Component */}
+      {/* Main Tabbed Console */}
       <AppConsoleTabs
         app={app}
         activeDeployment={activeDeployment}
+        accessUrl={accessUrl}
+        localDirectUrl={localDirectUrl}
         dockerOnline={dockerStatus.online}
       />
     </div>

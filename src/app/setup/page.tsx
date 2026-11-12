@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Shield,
-  KeyRound,
   Globe,
   User,
   Mail,
@@ -12,11 +11,21 @@ import {
   RefreshCw,
   CheckCircle2,
   Loader2,
-  Server,
   ArrowRight,
   Terminal,
 } from "lucide-react";
 import { ColyinLogo } from "@/components/ColyinLogo";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 export default function SetupWizardPage() {
   const router = useRouter();
@@ -89,272 +98,216 @@ export default function SetupWizardPage() {
           encryptionMasterKey,
           authSecret,
           webhookSecret,
-          adminName,
           adminEmail,
+          adminName,
           adminPassword,
         }),
       });
 
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.error || "Setup failed.");
+        throw new Error(data.error || "Setup failed");
       }
 
-      setSuccess("Configuration saved! Launching dashboard...");
+      setSuccess("Platform initialization successful! Redirecting to dashboard...");
       setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+        router.push("/");
+        router.refresh();
+      }, 1500);
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      setError(err.message || "Failed to initialize setup");
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] text-white">
-        <Loader2 className="w-8 h-8 text-[#00F0FF] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 py-12 px-4 sm:px-6 flex flex-col justify-center items-center">
-      <div className="w-full max-w-2xl space-y-8">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 flex flex-col justify-center items-center animate-fade-in">
+      <div className="w-full max-w-2xl space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-3">
-          <div className="flex justify-center">
-            <ColyinLogo size={56} showText={true} />
+        <div className="text-center space-y-2">
+          <div className="flex justify-center mb-2">
+            <ColyinLogo size={48} showText={true} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Server Setup &amp; Initialization
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-            Please review or customize your environment secrets and create the master administrator account to launch your PaaS cluster.
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
+            Configure your environment secrets and create the master administrator account.
           </p>
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-300 text-xs">
+          <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{success}</span>
           </div>
         )}
 
         {/* Wizard Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl border border-cyan-500/20 bg-[#0F172A]/80 backdrop-blur-xl p-6 sm:p-8 space-y-6 shadow-2xl shadow-cyan-500/10"
-        >
-          {/* Section 1: Ingress & Network */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-cyan-500/15 text-sm font-bold text-white">
-              <Globe className="w-4 h-4 text-[#00F0FF]" />
-              <span>1. Network &amp; Public Domains</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div>
-                <label className="block font-medium text-slate-300 mb-1.5">
-                  Server Public IP
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={publicIp}
-                  onChange={(e) => setPublicIp(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-white font-mono text-xs focus:outline-none focus:border-[#00F0FF]"
-                  placeholder="e.g. 103.123.45.67 or 127.0.0.1"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium text-slate-300 mb-1.5">
-                  Wildcard Subdomain Root
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={wildcardDomain}
-                  onChange={(e) => setWildcardDomain(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-white font-mono text-xs focus:outline-none focus:border-[#00F0FF]"
-                  placeholder="e.g. 127.0.0.1.sslip.io or apps.mydomain.com"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Cryptographic Secrets */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-cyan-500/15">
-              <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Shield className="w-4 h-4 text-[#00F0FF]" />
-                <span>2. Encryption &amp; Security Secrets</span>
-              </div>
-              <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/60">
-                Auto-Generated 256-bit
-              </span>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="font-medium text-slate-300">
-                    Master Encryption Key (AES-256-GCM)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setEncryptionMasterKey(generateRandomHex(64))}
-                    className="text-[11px] text-[#00F0FF] hover:underline flex items-center gap-1"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    Regenerate
-                  </button>
+        <Card className="shadow-lg border-border">
+          <form onSubmit={handleSubmit}>
+            <CardContent className="p-6 sm:p-8 space-y-6">
+              {/* Section 1: Ingress & Network */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/80 text-sm font-semibold text-foreground">
+                  <Globe className="w-4 h-4 text-indigo-500" />
+                  <span>1. Network &amp; Public Domains</span>
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={encryptionMasterKey}
-                  onChange={(e) => setEncryptionMasterKey(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-[#00F0FF]"
-                />
-              </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="font-medium text-slate-300">
-                    JWT Session Token Secret
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setAuthSecret(generateRandomHex(64))}
-                    className="text-[11px] text-[#00F0FF] hover:underline flex items-center gap-1"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    Regenerate
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1.5">
+                    <label className="font-medium text-foreground">Server Public IP</label>
+                    <Input
+                      type="text"
+                      required
+                      value={publicIp}
+                      onChange={(e) => setPublicIp(e.target.value)}
+                      placeholder="e.g. 103.123.45.67 or 127.0.0.1"
+                      className="font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-medium text-foreground">Wildcard Subdomain Root</label>
+                    <Input
+                      type="text"
+                      required
+                      value={wildcardDomain}
+                      onChange={(e) => setWildcardDomain(e.target.value)}
+                      placeholder="e.g. 127.0.0.1.sslip.io"
+                      className="font-mono text-xs"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={authSecret}
-                  onChange={(e) => setAuthSecret(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-[#00F0FF]"
-                />
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="font-medium text-slate-300">
-                    GitHub Webhook Secret
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setWebhookSecret(generateRandomHex(48))}
-                    className="text-[11px] text-[#00F0FF] hover:underline flex items-center gap-1"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    Regenerate
-                  </button>
+              {/* Section 2: Cryptographic Secrets */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-border/80">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Shield className="w-4 h-4 text-indigo-500" />
+                    <span>2. Encryption &amp; Security Secrets</span>
+                  </div>
+                  <Badge variant="outline" className="font-mono text-[10px]">
+                    Auto-Generated 256-bit
+                  </Badge>
                 </div>
-                <input
-                  type="text"
-                  value={webhookSecret}
-                  onChange={(e) => setWebhookSecret(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-[#00F0FF]"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* Section 3: Administrator Credentials */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-cyan-500/15 text-sm font-bold text-white">
-              <User className="w-4 h-4 text-[#00F0FF]" />
-              <span>3. Initial Master Administrator</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div>
-                <label className="block font-medium text-slate-300 mb-1.5">
-                  Admin Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={adminName}
-                  onChange={(e) => setAdminName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-white text-xs focus:outline-none focus:border-[#00F0FF]"
-                />
+                <div className="space-y-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <label className="font-medium text-foreground">
+                        Master Encryption Key (AES-256-GCM)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setEncryptionMasterKey(generateRandomHex(64))}
+                        className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Regenerate</span>
+                      </button>
+                    </div>
+                    <Input
+                      type="text"
+                      required
+                      value={encryptionMasterKey}
+                      onChange={(e) => setEncryptionMasterKey(e.target.value)}
+                      className="font-mono text-[11px]"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block font-medium text-slate-300 mb-1.5">
-                  Admin Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-white font-mono text-xs focus:outline-none focus:border-[#00F0FF]"
-                />
-              </div>
-            </div>
+              {/* Section 3: Master Admin Account */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/80 text-sm font-semibold text-foreground">
+                  <User className="w-4 h-4 text-indigo-500" />
+                  <span>3. Administrator Account</span>
+                </div>
 
-            <div className="text-xs">
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="font-medium text-slate-300">
-                  Admin Password
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setAdminPassword(generatePassword())}
-                  className="text-[11px] text-[#00F0FF] hover:underline flex items-center gap-1"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                  Generate Strong Password
-                </button>
-              </div>
-              <input
-                type="text"
-                required
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0B0F19] border border-slate-700 text-emerald-400 font-mono text-xs font-semibold focus:outline-none focus:border-[#00F0FF]"
-              />
-              <p className="text-[11px] text-slate-400 mt-1">
-                This password will also be automatically saved to <code className="text-amber-300 font-mono">colyin-credentials.txt</code> on the server.
-              </p>
-            </div>
-          </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1.5">
+                    <label className="font-medium text-foreground">Admin Name</label>
+                    <Input
+                      type="text"
+                      required
+                      value={adminName}
+                      onChange={(e) => setAdminName(e.target.value)}
+                      placeholder="e.g. System Administrator"
+                    />
+                  </div>
 
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#0284C7] to-[#1D4ED8] hover:from-[#00F0FF] hover:to-[#0284C7] hover:text-[#0B0F19] text-white font-bold text-sm shadow-xl shadow-cyan-500/25 border border-cyan-500/30 transition flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving Configuration &amp; Initializing...</span>
-                </>
-              ) : (
-                <>
-                  <span>Save Configuration &amp; Launch Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+                  <div className="space-y-1.5">
+                    <label className="font-medium text-foreground">Admin Email</label>
+                    <Input
+                      type="email"
+                      required
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder="admin@colyin.local"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="font-medium text-foreground">Admin Password</label>
+                      <button
+                        type="button"
+                        onClick={() => setAdminPassword(generatePassword())}
+                        className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Generate Secure</span>
+                      </button>
+                    </div>
+                    <Input
+                      type="text"
+                      required
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      className="font-mono text-xs"
+                      placeholder="Minimum 8 characters"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                variant="brand"
+                disabled={submitting}
+                className="w-full gap-2 mt-4 h-11"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Configuring Cluster...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Initialize Platform &amp; Continue</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </form>
+        </Card>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme, Theme } from "@/components/ThemeProvider";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function ThemeToggle({
   variant = "dropdown",
@@ -29,11 +30,11 @@ export function ThemeToggle({
 
   if (!mounted) {
     return (
-      <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 opacity-60" />
+      <div className="w-8 h-8 rounded-lg bg-secondary border border-border opacity-50" />
     );
   }
 
-  // Variant: Segmented Control (ideal for Settings page)
+  // Variant: Segmented Control
   if (variant === "segmented") {
     const options: Array<{ value: Theme; label: string; icon: typeof Sun }> = [
       { value: "light", label: "Light", icon: Sun },
@@ -43,7 +44,10 @@ export function ThemeToggle({
 
     return (
       <div
-        className={`inline-flex items-center p-1 rounded-xl bg-zinc-900 border border-zinc-800 gap-1 text-xs ${className}`}
+        className={cn(
+          "inline-flex items-center p-1 rounded-xl bg-secondary border border-border gap-1 text-xs",
+          className
+        )}
       >
         {options.map((opt) => {
           const Icon = opt.icon;
@@ -53,11 +57,12 @@ export function ThemeToggle({
               key={opt.value}
               type="button"
               onClick={() => setTheme(opt.value)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition cursor-pointer",
                 isSelected
-                  ? "bg-indigo-600 text-white shadow-sm font-semibold"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
-              }`}
+                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+              )}
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{opt.label}</span>
@@ -68,14 +73,17 @@ export function ThemeToggle({
     );
   }
 
-  // Variant: Quick Toggle Button (toggles directly between Light and Dark)
+  // Variant: Quick Toggle Button
   if (variant === "button") {
     return (
       <button
         type="button"
         onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
         title={`Current: ${theme} theme. Click to toggle.`}
-        className={`p-2 rounded-lg border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer ${className}`}
+        className={cn(
+          "p-2 rounded-lg border border-border bg-background hover:bg-secondary text-foreground transition cursor-pointer",
+          className
+        )}
       >
         {resolvedTheme === "dark" ? (
           <Moon className="w-4 h-4 text-indigo-400" />
@@ -86,14 +94,14 @@ export function ThemeToggle({
     );
   }
 
-  // Default: Dropdown Menu (compact for Navbar)
+  // Default: Dropdown Menu
   return (
-    <div ref={menuRef} className={`relative inline-block ${className}`}>
+    <div ref={menuRef} className={cn("relative inline-block", className)}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         title="Toggle Theme"
-        className="flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
+        className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition cursor-pointer shadow-xs"
         aria-label="Toggle theme"
       >
         {resolvedTheme === "dark" ? (
@@ -104,18 +112,19 @@ export function ThemeToggle({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-36 rounded-xl border border-zinc-800 bg-zinc-950 p-1.5 shadow-2xl z-50 text-xs space-y-0.5 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute right-0 mt-1.5 w-34 rounded-xl border border-border bg-popover text-popover-foreground p-1 shadow-lg z-50 text-xs space-y-0.5 animate-zoom-in">
           <button
             type="button"
             onClick={() => {
               setTheme("light");
               setOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer ${
+            className={cn(
+              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
               theme === "light"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
-            }`}
+                ? "bg-secondary text-foreground font-semibold"
+                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+            )}
           >
             <div className="flex items-center gap-2">
               <Sun className="w-3.5 h-3.5 text-amber-500" />
@@ -130,11 +139,12 @@ export function ThemeToggle({
               setTheme("dark");
               setOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer ${
+            className={cn(
+              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
               theme === "dark"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
-            }`}
+                ? "bg-secondary text-foreground font-semibold"
+                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+            )}
           >
             <div className="flex items-center gap-2">
               <Moon className="w-3.5 h-3.5 text-indigo-400" />
@@ -149,14 +159,15 @@ export function ThemeToggle({
               setTheme("system");
               setOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer ${
+            className={cn(
+              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
               theme === "system"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
-            }`}
+                ? "bg-secondary text-foreground font-semibold"
+                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+            )}
           >
             <div className="flex items-center gap-2">
-              <Monitor className="w-3.5 h-3.5 text-zinc-400" />
+              <Monitor className="w-3.5 h-3.5 text-muted-foreground" />
               <span>System</span>
             </div>
             {theme === "system" && <Check className="w-3.5 h-3.5" />}
