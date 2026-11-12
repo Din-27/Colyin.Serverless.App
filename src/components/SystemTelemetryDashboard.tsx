@@ -216,19 +216,20 @@ export function SystemTelemetryDashboard() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsLive(!isLive)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition border cursor-pointer ${
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition border cursor-pointer",
               isLive
-                ? "bg-emerald-950/60 border-emerald-800 text-emerald-300 hover:bg-emerald-950"
-                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
-            }`}
+                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-500 shadow-xs"
+                : "bg-secondary text-foreground border-border hover:bg-secondary/80"
+            )}
           >
-            {isLive ? <Pause className="w-3.5 h-3.5 text-emerald-400" /> : <Play className="w-3.5 h-3.5" />}
+            {isLive ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5" />}
             <span>{isLive ? "Live Streaming" : "Paused"}</span>
           </button>
 
           <button
             onClick={fetchMetrics}
-            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 transition cursor-pointer"
+            className="p-2 rounded-lg bg-secondary border border-border hover:bg-secondary/80 text-foreground transition cursor-pointer shadow-xs"
             title="Refresh Metrics Now"
           >
             <RefreshCw className="w-4 h-4" />
@@ -407,16 +408,16 @@ export function SystemTelemetryDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#00F0FF]" />
+                  <Layers className="w-4 h-4 text-indigo-500" />
                   Active Integrated Services
                 </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Applications and database addons currently orchestrated by Colyin.
                 </p>
               </div>
               <button
                 onClick={() => setActiveTab("services")}
-                className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+                className="text-xs text-primary hover:underline font-semibold flex items-center gap-1"
               >
                 <span>View Task Manager Table</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />

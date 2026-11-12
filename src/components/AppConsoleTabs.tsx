@@ -352,10 +352,10 @@ export function AppConsoleTabs({
               type="button"
               onClick={() => handleAction("restart")}
               disabled={actionLoading !== null}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
               title="Restart service container"
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-[#00F0FF]" : "text-cyan-400"}`} />
+              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-primary" : "text-muted-foreground"}`} />
               <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
             </button>
 
@@ -645,14 +645,15 @@ export function AppConsoleTabs({
 
           {/* Log Stream Mode Switcher Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60">
-            <div className="flex items-center gap-1.5 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+            <div className="flex items-center gap-1.5 bg-secondary p-1 rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setLogMode("runtime")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "runtime"
-                    ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-500/40 shadow-sm"
-                    : "text-zinc-400 hover:text-white"
-                  }`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  logMode === "runtime"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Runtime Logs (Live Container Stream)</span>
@@ -661,10 +662,11 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setLogMode("build")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "build"
-                    ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 shadow-sm"
-                    : "text-zinc-400 hover:text-white"
-                  }`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  logMode === "build"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <GitCommit className="w-3.5 h-3.5" />
                 <span>Build Logs (CI/CD History)</span>
@@ -677,10 +679,10 @@ export function AppConsoleTabs({
                 type="button"
                 onClick={() => handleAction("restart")}
                 disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 title="Restart container without leaving logs"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-cyan-400"}`} />
+                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-muted-foreground"}`} />
                 <span>{actionLoading === "restart" ? "Restarting..." : "Restart Service"}</span>
               </button>
             </div>
