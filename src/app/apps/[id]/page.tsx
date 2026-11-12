@@ -108,8 +108,6 @@ export default async function ApplicationDetailPage({
       <AppConsoleTabs
         app={app}
         activeDeployment={activeDeployment}
-        accessUrl={accessUrl}
-        localDirectUrl={localDirectUrl}
         dockerOnline={dockerStatus.online}
       />
     </div>

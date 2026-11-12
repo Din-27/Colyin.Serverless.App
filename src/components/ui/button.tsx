@@ -14,6 +14,7 @@ export interface ButtonProps
     | "link"
     | "brand";
   size?: "default" | "sm" | "lg" | "icon";
+  asChild?: boolean;
 }
 
 export const buttonVariants = ({
@@ -55,17 +56,28 @@ export const buttonVariants = ({
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", ...props }, ref) => {
+  ({ className, variant = "default", size = "default", asChild = false, children, ...props }, ref) => {
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children as React.ReactElement<any>, {
+        className: cn(
+          buttonVariants({ variant, size, className }),
+          (children.props as any)?.className
+        ),
+        ...props,
+      });
+    }
+
     return (
       <button
         className={buttonVariants({ variant, size, className })}
         ref={ref}
         {...props}
-      />
+      >
+        {children}
+      </button>
     );
   }
 );
 Button.displayName = "Button";
 
 export { Button };
-
