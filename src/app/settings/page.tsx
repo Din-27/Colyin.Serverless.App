@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<
@@ -265,78 +266,44 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="pb-6 border-b border-zinc-800">
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-          <Shield className="w-6 h-6 text-indigo-400" />
-          Settings
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+      <div className="pb-6 border-b border-border/80">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+          <Shield className="w-6 h-6 text-indigo-500" />
+          <span>Settings</span>
         </h1>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Manage team access, alerting, and integrations.
         </p>
       </div>
 
       {/* Settings Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-zinc-800 pb-2 text-xs">
-        <button
-          onClick={() => setActiveTab("rbac")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
-            activeTab === "rbac"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Team &amp; Users</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("alerts")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
-            activeTab === "alerts"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          <span>Alerts</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("oauth")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
-            activeTab === "oauth"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <KeyRound className="w-4 h-4" />
-          <span>GitHub OAuth</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("ingress")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
-            activeTab === "ingress"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>Domain &amp; SSL</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("appearance")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
-            activeTab === "appearance"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Palette className="w-4 h-4" />
-          <span>Appearance</span>
-        </button>
+      <div className="flex items-center gap-1.5 border-b border-border/80 pb-2 text-xs overflow-x-auto">
+        {[
+          { id: "rbac", label: "Team & Users", icon: Users },
+          { id: "alerts", label: "Alerts", icon: Bell },
+          { id: "oauth", label: "GitHub OAuth", icon: KeyRound },
+          { id: "ingress", label: "Domain & SSL", icon: Globe },
+          { id: "appearance", label: "Appearance", icon: Palette },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap",
+                isActive
+                  ? "bg-secondary text-foreground font-semibold shadow-xs border border-border/60"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+              )}
+            >
+              <Icon className={cn("w-3.5 h-3.5", isActive ? "text-foreground" : "text-muted-foreground")} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab 1: RBAC Users Management */}

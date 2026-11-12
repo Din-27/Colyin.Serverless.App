@@ -41,6 +41,9 @@ import { CopyButton } from "@/components/CopyButton";
 import { DeleteAppButton } from "@/components/DeleteAppButton";
 import { RuntimeSelector } from "@/components/RuntimeSelector";
 import { ResourceAllocationSelector } from "@/components/ResourceAllocationSelector";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 function getClientAccessUrl(host?: string | null): string {
   if (!host) return "";
@@ -396,9 +399,9 @@ export function AppConsoleTabs({
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800 gap-3">
-        <div className="flex items-center gap-1 overflow-x-auto">
+      {/* Tab Navigation & Action Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border/80 gap-3 pb-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
           {[
             { id: "overview", label: "Overview & Metrics", icon: Activity },
             { id: "deployments", label: "Deployments", icon: GitCommit },
@@ -412,65 +415,71 @@ export function AppConsoleTabs({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-medium border-b-2 transition whitespace-nowrap ${
+                className={cn(
+                  "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer",
                   active
-                    ? "border-indigo-500 text-white font-semibold"
-                    : "border-transparent text-zinc-400 hover:text-zinc-200"
-                }`}
+                    ? "bg-secondary text-foreground font-semibold shadow-xs border border-border/60"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                )}
               >
-                <Icon className={`w-4 h-4 ${active ? "text-indigo-400" : "text-zinc-500"}`} />
-                {tab.label}
+                <Icon className={cn("w-3.5 h-3.5", active ? "text-foreground" : "text-muted-foreground")} />
+                <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* Action Controls Group: Restart, Stop/Start, Redeploy */}
-        <div className="flex items-center gap-2 pb-2 sm:pb-0 shrink-0">
+        <div className="flex items-center gap-2 pb-1 sm:pb-0 shrink-0">
           {currentAppStatus === "ACTIVE" ? (
             <>
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleAction("restart")}
                 disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/30 hover:bg-cyan-900/40 text-[#00F0FF] text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="gap-1.5 text-xs h-8"
                 title="Restart service container"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-cyan-400"}`} />
+                <RotateCcw className={cn("w-3.5 h-3.5", actionLoading === "restart" && "animate-spin")} />
                 <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
                 onClick={() => handleAction("stop")}
                 disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-800/60 bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="gap-1.5 text-xs h-8"
                 title="Stop service container"
               >
-                <Square className="w-3.5 h-3.5 text-rose-400" />
+                <Square className="w-3.5 h-3.5" />
                 <span>{actionLoading === "stop" ? "Stopping..." : "Stop"}</span>
-              </button>
+              </Button>
             </>
           ) : (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => handleAction("start")}
               disabled={actionLoading !== null}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700/60 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              className="gap-1.5 text-xs h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10"
               title="Start service container"
             >
-              <Play className="w-3.5 h-3.5 text-emerald-400" />
+              <Play className="w-3.5 h-3.5" />
               <span>{actionLoading === "start" ? "Starting..." : "Start"}</span>
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button
+            variant="brand"
+            size="sm"
             onClick={handleDeploy}
             disabled={isDeploying || actionLoading !== null}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition"
+            className="gap-1.5 text-xs h-8"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isDeploying ? "animate-spin" : ""}`} />
-            Redeploy
-          </button>
+            <RefreshCw className={cn("w-3.5 h-3.5", isDeploying && "animate-spin")} />
+            <span>Redeploy</span>
+          </Button>
         </div>
       </div>
 

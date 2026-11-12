@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AddonConnectClient } from "@/components/AddonConnectClient";
 import Link from "next/link";
-import { ChevronRight, Database, Layers, Network, HardDrive, ShieldCheck } from "lucide-react";
+import { ChevronRight, Database } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 
 export const dynamic = "force-dynamic";
@@ -30,33 +30,33 @@ export default async function AddonDetailPage({
   if (!addon) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Breadcrumb Header */}
       <div>
-        <div className="flex items-center gap-2 text-xs text-zinc-500 mb-1.5">
-          <Link href="/" className="hover:text-zinc-300">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+          <Link href="/" className="hover:text-foreground transition-colors">
             Projects
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/projects/${addon.project.id}`} className="hover:text-zinc-300">
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <Link href={`/projects/${addon.project.id}`} className="hover:text-foreground transition-colors">
             {addon.project.name}
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-zinc-300">{addon.name}</span>
-        </div>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <span className="text-foreground font-medium">{addon.name}</span>
+        </nav>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-emerald-950/60 border border-emerald-800/80 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-white">{addon.name}</h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{addon.name}</h1>
                 <StatusBadge status={addon.status} />
               </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-zinc-400 font-mono">
-                <span className="text-emerald-400 font-semibold">{addon.type}</span>
+              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground font-mono">
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{addon.type}</span>
                 <span>&bull;</span>
                 <span>Volume: {addon.volumeName}</span>
               </div>

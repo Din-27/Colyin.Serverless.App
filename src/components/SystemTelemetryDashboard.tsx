@@ -23,6 +23,7 @@ import {
   Radio,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
+import { cn } from "@/lib/utils";
 
 interface MetricPoint {
   time: string;
@@ -235,67 +236,33 @@ export function SystemTelemetryDashboard() {
         </div>
       </div>
 
-      {/* Navigation Tabs: Task Manager Style */}
-      <div className="flex items-center gap-2 border-b border-zinc-800 pb-2 text-xs overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
-            activeTab === "overview"
-              ? "bg-[#0284C7] text-white shadow-md shadow-cyan-500/20"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Activity className="w-4 h-4" />
-          <span>Overview</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("cpu")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
-            activeTab === "cpu"
-              ? "bg-[#0284C7] text-white shadow-md shadow-cyan-500/20"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Cpu className="w-4 h-4" />
-          <span>CPU ({currentMetrics?.metrics?.cpu?.percent ?? 0}%)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("memory")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
-            activeTab === "memory"
-              ? "bg-[#0284C7] text-white shadow-md shadow-cyan-500/20"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Zap className="w-4 h-4" />
-          <span>Memory ({currentMetrics?.metrics?.memory?.percent ?? 0}%)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("disk")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
-            activeTab === "disk"
-              ? "bg-[#0284C7] text-white shadow-md shadow-cyan-500/20"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <HardDrive className="w-4 h-4" />
-          <span>Storage ({currentMetrics?.metrics?.disk?.percent ?? 0}%)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("services")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
-            activeTab === "services"
-              ? "bg-[#0284C7] text-white shadow-md shadow-cyan-500/20"
-              : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Services &amp; Apps ({currentMetrics?.services?.services?.length ?? 0})</span>
-        </button>
+      {/* Navigation Tabs: Standard Shadcn Style */}
+      <div className="flex items-center gap-1.5 border-b border-border/80 pb-2 text-xs overflow-x-auto">
+        {[
+          { id: "overview", label: "Overview", icon: Activity },
+          { id: "cpu", label: `CPU (${currentMetrics?.metrics?.cpu?.percent ?? 0}%)`, icon: Cpu },
+          { id: "memory", label: `Memory (${currentMetrics?.metrics?.memory?.percent ?? 0}%)`, icon: Zap },
+          { id: "disk", label: `Storage (${currentMetrics?.metrics?.disk?.percent ?? 0}%)`, icon: HardDrive },
+          { id: "services", label: `Services & Apps (${currentMetrics?.services?.services?.length ?? 0})`, icon: Layers },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap",
+                active
+                  ? "bg-secondary text-foreground font-semibold shadow-xs border border-border/60"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+              )}
+            >
+              <Icon className={cn("w-3.5 h-3.5", active ? "text-foreground" : "text-muted-foreground")} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* TAB 1: OVERVIEW COMPREHENSIVE */}

@@ -57,45 +57,45 @@ export default async function AppPreviewPage({
   const isPortOccupied = !(await validatePort(app.internalPort, { excludeAppId: app.id })).available;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-fade-in">
       {/* Top Breadcrumb */}
       <div>
-        <div className="flex items-center gap-2 text-xs text-zinc-500 mb-2">
-          <Link href="/" className="hover:text-zinc-300">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+          <Link href="/" className="hover:text-foreground transition-colors">
             Projects
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/projects/${app.project.id}`} className="hover:text-zinc-300">
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <Link href={`/projects/${app.project.id}`} className="hover:text-foreground transition-colors">
             {app.project.name}
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/apps/${app.id}`} className="hover:text-zinc-300">
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <Link href={`/apps/${app.id}`} className="hover:text-foreground transition-colors">
             {app.name}
           </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-zinc-300 font-medium">Ingress &amp; Preview Simulator</span>
-        </div>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <span className="text-foreground font-medium">Simulator</span>
+        </nav>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
           <div className="flex items-center gap-3.5">
             <Link
               href={`/apps/${app.id}`}
-              className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white transition"
+              className="p-2 rounded-lg bg-secondary border border-border hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors"
               title="Back to Console"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
                   <span>{app.name}</span>
-                  <span className="text-xs font-mono text-zinc-400 font-normal">
+                  <span className="text-xs font-mono text-muted-foreground font-normal">
                     (:{app.internalPort})
                   </span>
                 </h1>
                 <StatusBadge status={latestDeploy?.status || "STOPPED"} />
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Ingress routing diagnostics, port verification, and simulation sandbox
               </p>
             </div>
@@ -106,14 +106,14 @@ export default async function AppPreviewPage({
               href={localDirectUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Open Local Port (: {app.internalPort})</span>
             </a>
             <Link
               href={`/apps/${app.id}`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
             >
               <Server className="w-3.5 h-3.5" />
               <span>App Console</span>
