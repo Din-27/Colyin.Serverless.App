@@ -101,6 +101,7 @@ export function AppConsoleTabs({
     : `http://localhost:${app.internalPort}`;
   const localDirectUrl = `http://localhost:${app.internalPort}`;
   const isLocalhost = !primaryDomain;
+  const isHttps = accessUrl.startsWith("https://");
   const [showDomainHelp, setShowDomainHelp] = useState(false);
 
   // Handle service restart, start, stop
@@ -303,23 +304,27 @@ export function AppConsoleTabs({
                   </div>
                 )}
 
-                <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-3">
-                  <span className="text-[11px] text-zinc-400 font-medium">Local Port:</span>
-                  <a
-                    href={localDirectUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-mono text-zinc-300 hover:text-white hover:underline flex items-center gap-1"
-                  >
-                    <span>:{app.internalPort}</span>
-                    <ExternalLink className="w-3 h-3 opacity-60" />
-                  </a>
-                  <CopyButton text={localDirectUrl} label="Copy" />
-                </div>
+                {!isHttps && (
+                  <>
+                    <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-3">
+                      <span className="text-[11px] text-zinc-400 font-medium">Local Port:</span>
+                      <a
+                        href={localDirectUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-mono text-zinc-300 hover:text-white hover:underline flex items-center gap-1"
+                      >
+                        <span>:{app.internalPort}</span>
+                        <ExternalLink className="w-3 h-3 opacity-60" />
+                      </a>
+                      <CopyButton text={localDirectUrl} label="Copy" />
+                    </div>
 
-                <span className="text-[11px] text-zinc-500 font-mono hidden xl:inline border-l border-zinc-800 pl-3">
-                  Mesh: http://{app.slug}:{app.internalPort}
-                </span>
+                    <span className="text-[11px] text-zinc-500 font-mono hidden xl:inline border-l border-zinc-800 pl-3">
+                      Mesh: http://{app.slug}:{app.internalPort}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -336,30 +341,32 @@ export function AppConsoleTabs({
               <span>Open Application</span>
             </a>
 
-            <a
-              href={localDirectUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition cursor-pointer"
-              title="Open direct local port"
-            >
-              <span>Port :{app.internalPort}</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+            {!isHttps && (
+              <a
+                href={localDirectUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition cursor-pointer"
+                title="Open direct local port"
+              >
+                <span>Port :{app.internalPort}</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
 
             {/* Quick Restart Action on Banner */}
             <button
               type="button"
               onClick={() => handleAction("restart")}
               disabled={actionLoading !== null}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
               title="Restart service container"
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-primary" : "text-muted-foreground"}`} />
+              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-400" : "text-zinc-400"}`} />
               <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
             </button>
 
-            {isLocalhost && (
+            {isLocalhost && !isHttps && (
               <button
                 type="button"
                 onClick={() => setActiveTab("settings")}
@@ -519,7 +526,7 @@ export function AppConsoleTabs({
                 <Globe className="w-4 h-4 text-amber-400" />
                 Access Endpoint
               </span>
-              <span className="font-mono text-zinc-300">Port {app.internalPort}</span>
+              {!isHttps && <span className="font-mono text-zinc-300">Port {app.internalPort}</span>}
             </div>
             <div>
               <a
@@ -534,7 +541,7 @@ export function AppConsoleTabs({
               </a>
             </div>
             <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
-              <span>{primaryDomain ? "Auto TLS (Let's Encrypt)" : "Local container bridge"}</span>
+              <span>{primaryDomain ? (isHttps ? "Secure HTTPS (Let's Encrypt)" : "Auto TLS (Let's Encrypt)") : "Local container bridge"}</span>
               <CopyButton text={accessUrl} label="Copy Link" />
             </div>
           </div>
@@ -679,10 +686,10 @@ export function AppConsoleTabs({
                 type="button"
                 onClick={() => handleAction("restart")}
                 disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 title="Restart container without leaving logs"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin" : "text-muted-foreground"}`} />
+                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-400" : "text-zinc-400"}`} />
                 <span>{actionLoading === "restart" ? "Restarting..." : "Restart Service"}</span>
               </button>
             </div>

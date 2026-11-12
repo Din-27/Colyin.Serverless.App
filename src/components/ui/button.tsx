@@ -31,18 +31,18 @@ export const buttonVariants = ({
 
   const variants = {
     default:
-      "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+      "bg-zinc-900 text-white shadow-xs hover:bg-zinc-800 border border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800",
     brand:
-      "bg-indigo-600 text-white shadow-xs hover:bg-indigo-500 hover:shadow-indigo-500/25 dark:bg-indigo-600 dark:hover:bg-indigo-500",
+      "bg-indigo-600 text-white shadow-xs hover:bg-indigo-500 hover:shadow-indigo-500/25",
     destructive:
       "bg-rose-600 text-white shadow-xs hover:bg-rose-500",
     outline:
-      "border border-border bg-background text-foreground shadow-xs hover:bg-secondary hover:text-foreground",
+      "border border-zinc-700 bg-zinc-900 text-white shadow-xs hover:bg-zinc-800",
     secondary:
-      "border border-border/80 bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+      "border border-zinc-700 bg-zinc-900 text-white shadow-xs hover:bg-zinc-800",
     ghost:
-      "text-foreground hover:bg-secondary hover:text-foreground",
-    link: "text-primary underline-offset-4 hover:underline",
+      "text-foreground hover:bg-zinc-800 hover:text-white",
+    link: "text-indigo-400 underline-offset-4 hover:underline",
   };
 
   const sizes = {
