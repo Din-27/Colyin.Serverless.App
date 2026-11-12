@@ -102,8 +102,8 @@ export function formatAccessUrl(host?: string | null, fallbackPort = 3000): stri
     return host;
   }
   const clean = sanitizeDomain(host);
-  const isHttps = process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
+  const isHttps = process.env.PUBLIC_HTTPS === "true" || process.env.PUBLIC_HTTP_PORT === "443" || process.env.ENABLE_HTTPS === "true" || (process.env.ENABLE_HTTPS !== "false" && !process.env.HTTP_PORT);
   const publicPort = process.env.PUBLIC_HTTP_PORT || process.env.HTTP_PORT;
-  const portSuffix = !isHttps && publicPort && publicPort !== "80" && publicPort !== "443" ? `:${publicPort}` : "";
+  const portSuffix = (!isHttps && publicPort && publicPort !== "80" && publicPort !== "443") || (isHttps && publicPort && publicPort !== "443" && publicPort !== "80" && process.env.PUBLIC_HTTPS !== "true") ? `:${publicPort}` : "";
   return `${isHttps ? "https" : "http"}://${clean}${portSuffix}`;
 }
