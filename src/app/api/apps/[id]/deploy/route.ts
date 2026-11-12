@@ -26,6 +26,7 @@ import {
   waitForHttpReady,
 } from "@/lib/engine/nativeRunner";
 import { ensureNativeProxyRunning } from "@/lib/engine/nativeProxy";
+import { provisionHostCertbot } from "@/lib/engine/hostSsl";
 import EventEmitter from "events";
 import fs from "fs";
 import path from "path";
@@ -285,6 +286,19 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
         await log(`Process daemon running (PID: ${runningProc.pid}) on port :${app.internalPort}.`);
       }
 
+      // Auto-provision Let's Encrypt certificate on host Nginx if AUTO_CERTBOT or PUBLIC_HTTPS is active
+      if (process.env.AUTO_CERTBOT === "true" || process.env.PUBLIC_HTTPS === "true") {
+        try {
+          await provisionHostCertbot({
+            domain: primaryDomain.host,
+            email: process.env.ACME_EMAIL,
+            onLog: log,
+          });
+        } catch (sslErr: any) {
+          await log(`[SSL Auto-Provision] Notice: ${sslErr?.message || "Skipped."}`, "stderr");
+        }
+      }
+
       await log(`-------------------------------------------------------`);
       await log(`🚀 Application deployed successfully and is now LIVE!`);
       await log(`🌐 Public Domain : ${accessUrl}`);
@@ -403,6 +417,20 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
       await net.connect({ Container: container.id }).catch(() => {});
     } catch {}
     await log(`[Step 4/4] Container ${containerName} started with ID ${container.id.slice(0, 12)}.`);
+
+    // Auto-provision Let's Encrypt certificate on host Nginx if AUTO_CERTBOT or PUBLIC_HTTPS is active
+    if (process.env.AUTO_CERTBOT === "true" || process.env.PUBLIC_HTTPS === "true") {
+      try {
+        await provisionHostCertbot({
+          domain: primaryDomain.host,
+          email: process.env.ACME_EMAIL,
+          onLog: log,
+        });
+      } catch (sslErr: any) {
+        await log(`[SSL Auto-Provision] Notice: ${sslErr?.message || "Skipped."}`, "stderr");
+      }
+    }
+
     await log(`-------------------------------------------------------`);
     await log(`🚀 Application deployed successfully and is now LIVE!`);
     await log(`🌐 Public Domain : ${accessUrl}`);
