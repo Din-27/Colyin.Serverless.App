@@ -254,3 +254,4 @@ Gunakan tabel dan perintah ringkas di bawah ini setiap kali melakukan troublesho
 | **6. Tes Koneksi Internal dari Traefik** | `docker exec minipaas-traefik wget -qO- http://<nama_app>:<port>` | Mengembalikan HTML response aplikasi tanpa error. |
 
 Dengan mengikuti panduan di atas, seluruh kendala terkait aplikasi tidak bisa diakses setelah deployment dapat diidentifikasi dan diselesaikan dengan cepat dan terstruktur.
+
