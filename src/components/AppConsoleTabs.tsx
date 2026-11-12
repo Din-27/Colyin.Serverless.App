@@ -1544,9 +1544,3 @@ function EnvVarsManager({ appId }: { appId: string }) {
     </div>
   );
 }
-          })
-        )}
-      </div >
-    </div >
-  );
-}
