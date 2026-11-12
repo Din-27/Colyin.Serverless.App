@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Coffee } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,6 +64,26 @@ export default function RootLayout({
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
             {children}
           </main>
+          <footer className="w-full border-t border-border/70 py-6 text-xs text-muted-foreground mt-auto bg-background/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground">Colyin</span>
+                <span>&bull;</span>
+                <span>Self-Hosted Serverless Engine</span>
+              </div>
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                <a
+                  href="https://sociabuzz.com/herdin27/tribe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 font-semibold text-amber-600 dark:text-amber-400 hover:underline"
+                >
+                  <Coffee className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Trakter Developer (SociaBuzz Tribe)</span>
+                </a>
+              </div>
+            </div>
+          </footer>
         </ThemeProvider>
       </body>
     </html>

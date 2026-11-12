@@ -20,6 +20,7 @@ import {
   Globe,
   ShieldCheck,
   Check,
+  Coffee,
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -938,6 +939,30 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+      {/* Support & Trakter Developer Banner */}
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs mt-6">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+            <Coffee className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">Suka dengan Colyin? Trakter Developer</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Dukung pengembangan berkelanjutan platform Colyin via SociaBuzz Tribe.
+            </p>
+          </div>
+        </div>
+        <a
+          href="https://sociabuzz.com/herdin27/tribe"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition shadow-xs shrink-0 cursor-pointer"
+        >
+          <Coffee className="w-4 h-4" />
+          <span>Trakter di SociaBuzz</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
     </div>
   );
 }

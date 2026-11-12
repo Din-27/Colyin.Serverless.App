@@ -511,6 +511,16 @@ Colyin is 100% open-source software under the **MIT License**. We welcome contri
 
 ---
 
+## ☕ Support the Developer / Buy Me a Coffee
+
+If you find Colyin useful for your self-hosting setups, homelabs, or cloud workflows, please consider supporting ongoing development:
+
+👉 **[Treat the Developer via SociaBuzz Tribe](https://sociabuzz.com/herdin27/tribe)**
+
+Your support helps fund server testing resources, maintenance, and future features!
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) &mdash; feel free to customize, self-host, and distribute.

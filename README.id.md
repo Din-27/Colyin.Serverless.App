@@ -511,6 +511,16 @@ Colyin adalah perangkat lunak open-source 100% di bawah naungan **Lisensi MIT**.
 
 ---
 
+## ☕ Dukung Pengembang / Trakter Kopi
+
+Jika Colyin bermanfaat bagi proyek atau workflow deployment Anda, Anda bisa mendukung pengembangan berkelanjutan dan biaya server dengan mentrakter developer:
+
+👉 **[Trakter Developer via SociaBuzz Tribe](https://sociabuzz.com/herdin27/tribe)**
+
+Dukungan Anda sangat berarti untuk terus menambahkan fitur baru dan menjaga Colyin tetap open-source dan bebas digunakan!
+
+---
+
 ## 📄 Lisensi
 
 Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE) &mdash; bebas digunakan, dimodifikasi, di-self-host, dan didistribusikan.

@@ -12,6 +12,7 @@ import {
   Server,
   Radio,
   FolderKanban,
+  Coffee,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ColyinLogo } from "@/components/ColyinLogo";
@@ -137,6 +138,18 @@ export function Navbar() {
             </span>
             <span>{online ? "Engine Ready" : online === false ? "Engine Offline" : "Checking..."}</span>
           </div>
+
+          {/* Trakter Developer / SociaBuzz Tribe */}
+          <a
+            href="https://sociabuzz.com/herdin27/tribe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition shadow-xs cursor-pointer group"
+            title="Trakter Developer via SociaBuzz Tribe"
+          >
+            <Coffee className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline">Trakter Developer</span>
+          </a>
 
           <ThemeToggle />
 
