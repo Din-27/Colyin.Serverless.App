@@ -47,17 +47,19 @@ import { cn } from "@/lib/utils";
 
 function getClientAccessUrl(host?: string | null): string {
   if (!host) return "";
-  if (host.startsWith("http://") || host.startsWith("https://")) return host;
-  const defaultProto = typeof window !== "undefined" && window.location.protocol ? window.location.protocol : "http:";
-  const portSuffix =
-    typeof window !== "undefined" &&
-      defaultProto === "http:" &&
-      window.location.port &&
-      window.location.port !== "80" &&
-      window.location.port !== "443"
-      ? (window.location.port === "3050" ? ":8080" : `:${window.location.port}`)
-      : "";
-  return `${defaultProto}//${host}${portSuffix}`;
+  // Strip protocol if host already had it
+  const rawWithoutProto = host.replace(/^https?:\/\//i, "");
+  // Completely strip any port (e.g. :8080, :3050, :3000, etc.) and paths
+  const cleanHost = rawWithoutProto.replace(/:\d+.*$/, "").replace(/\/.*$/, "").trim();
+  if (!cleanHost) return "";
+
+  // If host is explicitly localhost or 127.0.0.1, keep http without port
+  if (cleanHost === "localhost" || cleanHost === "127.0.0.1") {
+    return `http://${cleanHost}`;
+  }
+
+  // All public domain URLs must never use any port and always use HTTPS
+  return `https://${cleanHost}`;
 }
 
 export function AppConsoleTabs({
@@ -1205,9 +1207,10 @@ function SettingsAndNetworkingTab({
                       rel="noreferrer"
                       className="font-bold text-white hover:text-indigo-400 flex items-center gap-1.5"
                     >
-                      <span>{dom.host}</span>
+                      <span>{dom.host?.replace(/:\d+.*$/, "")}</span>
                       <ExternalLink className="w-3 h-3 opacity-60" />
                     </a>
+                    <CopyButton text={getClientAccessUrl(dom.host)} label="Copy" />
                     {dom.isPrimary && (
                       <span className="px-1.5 py-0.2 rounded bg-indigo-950 border border-indigo-800 text-indigo-300 text-[10px] font-sans font-semibold">
                         Primary

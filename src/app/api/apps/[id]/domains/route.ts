@@ -39,8 +39,8 @@ export async function POST(
     const body = await req.json().catch(() => ({}));
     let host = (body.host || "").toLowerCase().trim();
 
-    // Strip http:// or https:// if user pasted a URL
-    host = host.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    // Strip http:// or https:// if user pasted a URL, including path and port
+    host = host.replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "");
 
     if (!host || !host.includes(".")) {
       return NextResponse.json(

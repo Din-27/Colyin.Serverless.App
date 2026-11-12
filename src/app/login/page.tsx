@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ColyinLogo } from "@/components/ColyinLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { copyToClipboard } from "@/lib/clipboard";
 import {
   Card,
   CardHeader,
@@ -67,8 +68,8 @@ export default function LoginPage() {
       .catch(() => {});
   }, [router]);
 
-  const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string, field: string) => {
+    await copyToClipboard(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
   };

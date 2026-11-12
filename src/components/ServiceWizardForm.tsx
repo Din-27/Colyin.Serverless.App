@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { RuntimeSelector } from "@/components/RuntimeSelector";
 import { ResourceAllocationSelector } from "@/components/ResourceAllocationSelector";
+import { copyToClipboard } from "@/lib/clipboard";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -1549,9 +1550,9 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 <span className="text-zinc-400 text-[11px] font-medium">Authorization callback URL:</span>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     const cbUrl = `${window.location.origin}/api/github/callback`;
-                    navigator.clipboard.writeText(cbUrl);
+                    await copyToClipboard(cbUrl);
                     setCopiedCallback(true);
                     setTimeout(() => setCopiedCallback(false), 2000);
                   }}
