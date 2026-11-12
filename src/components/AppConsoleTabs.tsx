@@ -51,10 +51,10 @@ function getClientAccessUrl(host?: string | null): string {
   const defaultProto = typeof window !== "undefined" && window.location.protocol ? window.location.protocol : "http:";
   const portSuffix =
     typeof window !== "undefined" &&
-    defaultProto === "http:" &&
-    window.location.port &&
-    window.location.port !== "80" &&
-    window.location.port !== "443"
+      defaultProto === "http:" &&
+      window.location.port &&
+      window.location.port !== "80" &&
+      window.location.port !== "443"
       ? (window.location.port === "3050" ? ":8080" : `:${window.location.port}`)
       : "";
   return `${defaultProto}//${host}${portSuffix}`;
@@ -186,7 +186,7 @@ export function AppConsoleTabs({
         try {
           const payload = JSON.parse(e.data);
           if (payload.status) setCurrentAppStatus(payload.status);
-        } catch {}
+        } catch { }
       });
 
       eventSource.addEventListener("log", (e: any) => {
@@ -198,7 +198,7 @@ export function AppConsoleTabs({
             if (next.length > 1000) return next.slice(-1000);
             return next;
           });
-        } catch {}
+        } catch { }
       });
 
       eventSource.addEventListener("complete", () => {
@@ -231,7 +231,7 @@ export function AppConsoleTabs({
       try {
         const payload = JSON.parse(e.data);
         setLogs((prev) => [...prev, payload.chunk]);
-      } catch {}
+      } catch { }
     });
 
     eventSource.addEventListener("complete", (e: any) => {
@@ -241,7 +241,7 @@ export function AppConsoleTabs({
           setIsJustDeployed(true);
           setCurrentAppStatus("ACTIVE");
         }
-      } catch {}
+      } catch { }
       router.refresh();
       eventSource.close();
     });
@@ -376,11 +376,10 @@ export function AppConsoleTabs({
       {/* Action Feedback Banner */}
       {actionFeedback && (
         <div
-          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in ${
-            actionFeedback.type === "success"
+          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in ${actionFeedback.type === "success"
               ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
               : "border-rose-500/40 bg-rose-950/30 text-rose-300"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-2">
             {actionFeedback.type === "success" ? (
@@ -650,11 +649,10 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setLogMode("runtime")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
-                  logMode === "runtime"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "runtime"
                     ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-500/40 shadow-sm"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Runtime Logs (Live Container Stream)</span>
@@ -663,11 +661,10 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setLogMode("build")}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
-                  logMode === "build"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition ${logMode === "build"
                     ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 shadow-sm"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <GitCommit className="w-3.5 h-3.5" />
                 <span>Build Logs (CI/CD History)</span>
@@ -822,17 +819,16 @@ export function AppConsoleTabs({
                       return (
                         <div
                           key={idx}
-                          className={`leading-relaxed whitespace-pre-wrap break-all ${
-                            isError
+                          className={`leading-relaxed whitespace-pre-wrap break-all ${isError
                               ? "text-rose-400 bg-rose-950/20 px-1 rounded"
                               : isWarn
-                              ? "text-amber-400"
-                              : isHttp
-                              ? "text-cyan-300"
-                              : isSystem
-                              ? "text-indigo-400 font-bold"
-                              : "text-zinc-300"
-                          }`}
+                                ? "text-amber-400"
+                                : isHttp
+                                  ? "text-cyan-300"
+                                  : isSystem
+                                    ? "text-indigo-400 font-bold"
+                                    : "text-zinc-300"
+                            }`}
                         >
                           {line}
                         </div>
@@ -849,15 +845,14 @@ export function AppConsoleTabs({
                   .map((line, idx) => (
                     <div
                       key={idx}
-                      className={`leading-relaxed whitespace-pre-wrap break-all ${
-                        line.includes("ERROR") || line.includes("ERR")
+                      className={`leading-relaxed whitespace-pre-wrap break-all ${line.includes("ERROR") || line.includes("ERR")
                           ? "text-rose-400"
                           : line.includes("WARNING")
-                          ? "text-amber-400"
-                          : line.includes("Simulated")
-                          ? "text-indigo-400"
-                          : "text-zinc-300"
-                      }`}
+                            ? "text-amber-400"
+                            : line.includes("Simulated")
+                              ? "text-indigo-400"
+                              : "text-zinc-300"
+                        }`}
                     >
                       {line}
                     </div>
@@ -1219,11 +1214,10 @@ function SettingsAndNetworkingTab({
                     </span>
                     <span>&bull;</span>
                     <span
-                      className={`font-semibold ${
-                        dom.certificateStatus === "ISSUED"
+                      className={`font-semibold ${dom.certificateStatus === "ISSUED"
                           ? "text-emerald-400"
                           : "text-amber-400"
-                      }`}
+                        }`}
                     >
                       Cert: {dom.certificateStatus}
                     </span>
@@ -1438,7 +1432,7 @@ function EnvVarsManager({ appId }: { appId: string }) {
       if (data.success) {
         setEnvs(data.variables);
       }
-    } catch {}
+    } catch { }
     setLoading(false);
   };
 
@@ -1548,5 +1542,11 @@ function EnvVarsManager({ appId }: { appId: string }) {
         )}
       </div>
     </div>
+  );
+}
+          })
+        )}
+      </div >
+    </div >
   );
 }

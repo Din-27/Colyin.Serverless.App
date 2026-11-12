@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #09090b;
@@ -10,12 +32,12 @@
   --primary: #18181b;
   --primary-foreground: #fafafa;
   --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
+  --secondary-foreground: #09090b;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted-foreground: #52525b;
   --accent: #f4f4f5;
-  --accent-foreground: #18181b;
-  --destructive: #ef4444;
+  --accent-foreground: #09090b;
+  --destructive: #dc2626;
   --destructive-foreground: #fafafa;
   --border: #e4e4e7;
   --input: #e4e4e7;
@@ -38,7 +60,7 @@
   --muted-foreground: #a1a1aa;
   --accent: #1c1c1f;
   --accent-foreground: #fafafa;
-  --destructive: #7f1d1d;
+  --destructive: #991b1b;
   --destructive-foreground: #fafafa;
   --border: #27272a;
   --input: #27272a;
@@ -100,18 +122,23 @@ body {
 }
 
 /* ========================================================
-   SYSTEMIC SHADCN COMPONENT & THEME ALIGNMENT
-   Ensures 100% visual consistency across all legacy and new
-   components, in both Light Mode and Dark Mode.
+   LIGHT THEME HARMONIZATION: SOLID, NON-TRANSPARENT BADGES,
+   CRISP LABELS & ALIGNED BUTTONS
    ======================================================== */
 
 html:not(.dark) {
   color-scheme: light;
 }
 
-/* 1. Surfaces, Panels, Cards in Light Mode */
-html:not(.dark) [class*="bg-zinc-950"]:not(.font-mono):not(pre):not([data-terminal="true"]),
-html:not(.dark) [class*="bg-zinc-900"]:not(.font-mono):not(pre):not([data-terminal="true"]),
+/* 1. All Form Labels in Light Mode - High Contrast Crisp Dark */
+html:not(.dark) label {
+  color: #09090b !important;
+  font-weight: 500;
+}
+
+/* 2. Surfaces, Panels, Cards in Light Mode */
+html:not(.dark) [class*="bg-zinc-950"]:not(.font-mono):not(pre):not([data-terminal="true"]):not(code),
+html:not(.dark) [class*="bg-zinc-900"]:not(.font-mono):not(pre):not([data-terminal="true"]):not(code),
 html:not(.dark) [class*="bg-[#0B0F19]"],
 html:not(.dark) [class*="bg-[#0F172A]"] {
   background-color: #ffffff !important;
@@ -122,7 +149,7 @@ html:not(.dark) [class*="bg-[#0F172A]"] {
 html:not(.dark) .fixed [class*="bg-zinc-900"],
 html:not(.dark) .fixed [class*="bg-zinc-950"] {
   background-color: #ffffff !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Modal Backdrops */
@@ -130,37 +157,96 @@ html:not(.dark) [class*="bg-black/"] {
   background-color: rgba(9, 9, 11, 0.45) !important;
 }
 
-/* 2. Secondary Surfaces & Muted Tracks */
-html:not(.dark) [class*="bg-zinc-800"]:not(pre):not([data-terminal="true"]):not(button.bg-indigo-600),
-html:not(.dark) [class*="bg-zinc-700"]:not(pre):not([data-terminal="true"]) {
+/* 3. Solid Non-Transparent Secondary Surfaces & Muted Buttons in Light Mode */
+html:not(.dark) button[class*="bg-zinc-800"],
+html:not(.dark) button[class*="bg-zinc-900"],
+html:not(.dark) a[class*="bg-zinc-800"],
+html:not(.dark) a[class*="bg-zinc-900"],
+html:not(.dark) [class*="bg-zinc-800"]:not(pre):not([data-terminal="true"]):not(button.bg-indigo-600):not(code),
+html:not(.dark) [class*="bg-zinc-700"]:not(pre):not([data-terminal="true"]):not(code) {
   background-color: #f4f4f5 !important;
   color: #09090b !important;
-}
-
-/* Segmented Control Containers (Tabs background wrapper) */
-html:not(.dark) [class*="p-1"][class*="bg-zinc-950"],
-html:not(.dark) [class*="p-0.5"][class*="bg-zinc-900"],
-html:not(.dark) [class*="p-1"][class*="bg-zinc-900"] {
-  background-color: #f4f4f5 !important;
   border-color: #e4e4e7 !important;
 }
 
-/* 3. High-Contrast Typography Alignment */
-html:not(.dark) [class*="text-white"]:not(pre *):not([data-terminal="true"] *):not(button.bg-indigo-600 *):not(button.bg-primary *) {
+html:not(.dark) button[class*="bg-zinc-800"]:hover,
+html:not(.dark) button[class*="bg-zinc-900"]:hover,
+html:not(.dark) a[class*="bg-zinc-800"]:hover,
+html:not(.dark) a[class*="bg-zinc-900"]:hover {
+  background-color: #e4e4e7 !important;
   color: #09090b !important;
 }
 
-html:not(.dark) [class*="text-zinc-400"]:not(pre *):not([data-terminal="true"] *),
-html:not(.dark) [class*="text-zinc-500"]:not(pre *):not([data-terminal="true"] *) {
-  color: #71717a !important;
+/* 4. Solid, High-Contrast Semantic Badges & Pills in Light Mode (No Washed Out Transparency) */
+html:not(.dark) [class*="bg-emerald-950/"],
+html:not(.dark) [class*="bg-emerald-900/"],
+html:not(.dark) [class*="bg-emerald-500/10"],
+html:not(.dark) [class*="bg-emerald-500/20"] {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
 }
 
-html:not(.dark) [class*="text-zinc-300"]:not(pre *):not([data-terminal="true"] *),
-html:not(.dark) [class*="text-zinc-200"]:not(pre *):not([data-terminal="true"] *) {
-  color: #27272a !important;
+html:not(.dark) [class*="bg-sky-950/"],
+html:not(.dark) [class*="bg-sky-900/"],
+html:not(.dark) [class*="bg-blue-950/"],
+html:not(.dark) [class*="bg-sky-500/10"],
+html:not(.dark) [class*="bg-sky-500/20"] {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
 }
 
-/* 4. Borders & Dividers in Light Mode */
+html:not(.dark) [class*="bg-rose-950/"],
+html:not(.dark) [class*="bg-rose-900/"],
+html:not(.dark) [class*="bg-red-950/"],
+html:not(.dark) [class*="bg-rose-500/10"],
+html:not(.dark) [class*="bg-rose-500/20"] {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+html:not(.dark) [class*="bg-amber-950/"],
+html:not(.dark) [class*="bg-amber-900/"],
+html:not(.dark) [class*="bg-amber-500/10"],
+html:not(.dark) [class*="bg-amber-500/20"] {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) [class*="bg-indigo-950/"],
+html:not(.dark) [class*="bg-indigo-900/"],
+html:not(.dark) [class*="bg-indigo-500/10"],
+html:not(.dark) [class*="bg-indigo-500/20"] {
+  background-color: #eef2ff !important;
+  color: #4338ca !important;
+  border-color: #c7d2fe !important;
+}
+
+html:not(.dark) [class*="bg-cyan-950/"],
+html:not(.dark) [class*="bg-cyan-900/"] {
+  background-color: #ecfeff !important;
+  color: #0e7490 !important;
+  border-color: #a5f3fc !important;
+}
+
+/* 5. Typography Alignment */
+html:not(.dark) [class*="text-white"]:not(pre *):not([data-terminal="true"] *):not(button.bg-indigo-600 *):not(button.bg-primary *):not(button[class*="bg-indigo"] *):not(button[class*="bg-rose-600"] *) {
+  color: #09090b !important;
+}
+
+html:not(.dark) [class*="text-zinc-300"]:not(pre *):not([data-terminal="true"] *):not(code) {
+  color: #09090b !important;
+}
+
+html:not(.dark) [class*="text-zinc-400"]:not(pre *):not([data-terminal="true"] *):not(code),
+html:not(.dark) [class*="text-zinc-500"]:not(pre *):not([data-terminal="true"] *):not(code) {
+  color: #52525b !important;
+}
+
+/* 6. Borders & Dividers in Light Mode */
 html:not(.dark) [class*="border-zinc-800"],
 html:not(.dark) [class*="border-zinc-700"],
 html:not(.dark) [class*="border-slate-800"],
@@ -168,7 +254,7 @@ html:not(.dark) [class*="border-slate-700"] {
   border-color: #e4e4e7 !important;
 }
 
-/* 5. Inputs, Selects, and Textareas */
+/* 7. Inputs, Selects, and Textareas */
 html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 html:not(.dark) select,
 html:not(.dark) textarea {
@@ -179,10 +265,10 @@ html:not(.dark) textarea {
 
 html:not(.dark) input::placeholder,
 html:not(.dark) textarea::placeholder {
-  color: #a1a1aa !important;
+  color: #71717a !important;
 }
 
-/* 6. Terminal & Log Console (Preserves Deep Dark Monospace In Both Themes) */
+/* 8. Terminal & Log Console (Preserves Deep Dark Monospace In Both Themes) */
 pre,
 [data-terminal="true"],
 .font-mono[class*="bg-black"],
@@ -207,12 +293,6 @@ pre *,
 [data-terminal="true"] .text-emerald-400, pre .text-emerald-400 { color: #34d399 !important; }
 [data-terminal="true"] .text-zinc-300, pre .text-zinc-300 { color: #d4d4d8 !important; }
 [data-terminal="true"] .text-zinc-500, pre .text-zinc-500 { color: #71717a !important; }
-
-/* 7. Hover Transitions */
-html:not(.dark) [class*="hover:bg-zinc-900"]:hover,
-html:not(.dark) [class*="hover:bg-zinc-800"]:hover {
-  background-color: #f4f4f5 !important;
-}
 
 html.dark {
   color-scheme: dark;

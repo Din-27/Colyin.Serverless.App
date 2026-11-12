@@ -115,12 +115,12 @@ export function Navbar() {
           {/* Docker Engine Status Indicator */}
           <div
             className={cn(
-              "hidden sm:inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-mono font-medium border transition-colors",
+              "hidden sm:inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-mono font-medium border transition-colors shadow-xs",
               online === true
-                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60"
                 : online === false
-                ? "bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400 dark:border-rose-500/30"
-                : "bg-secondary text-muted-foreground border-border"
+                ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60"
+                : "bg-secondary text-foreground border-border"
             )}
             title={online ? "Docker Engine is connected & healthy" : "Docker Engine unreachable"}
           >
