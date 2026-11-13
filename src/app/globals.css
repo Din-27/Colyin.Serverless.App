@@ -180,55 +180,83 @@ html:not(.dark) [class*="bg-black/"] {
    - Jika background selain hitam (berwarna: indigo, emerald, rose, sky, dll) -> text & icon PUTIH (#ffffff)
 */
 
-/* A. Background BERWARNA (Indigo, Emerald, Rose, Red, Sky, Blue, Cyan, Amber, dll) -> Text & Icon PUTIH */
-button[class*="bg-indigo"],
-button[class*="bg-rose"],
-button[class*="bg-red"],
-button[class*="bg-emerald"],
-button[class*="bg-green"],
-button[class*="bg-sky"],
-button[class*="bg-blue"],
-button[class*="bg-cyan"],
-button[class*="bg-amber"],
-button[class*="bg-orange"],
-button[class*="bg-violet"],
-button[class*="bg-purple"],
-a[class*="bg-indigo"],
-a[class*="bg-rose"],
-a[class*="bg-red"],
-a[class*="bg-emerald"],
-a[class*="bg-green"],
-a[class*="bg-sky"],
-a[class*="bg-blue"],
-a[class*="bg-cyan"],
-a[class*="bg-amber"],
-a[class*="bg-violet"],
-a[class*="bg-purple"] {
+/* A. Background BERWARNA SOLID (Indigo, Emerald, Rose, Red, Sky, Blue, Cyan, Orange, Violet, Purple) -> Text & Icon PUTIH
+   Catatan: Transparan/badge (mengandung '/') atau pastel (-50, -100, -200) atau yang memiliki text-black dikecualikan! */
+button[class*="bg-indigo"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-rose"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-red"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-emerald"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-green"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-sky"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-blue"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-cyan"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-orange"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-violet"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+button[class*="bg-purple"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-indigo"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-rose"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-red"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-emerald"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-green"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-sky"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-blue"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-cyan"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-orange"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-violet"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]),
+a[class*="bg-purple"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="text-black"]) {
   color: #ffffff !important;
 }
 
-button[class*="bg-indigo"] *,
-button[class*="bg-rose"] *,
-button[class*="bg-red"] *,
-button[class*="bg-emerald"] *,
-button[class*="bg-green"] *,
-button[class*="bg-sky"] *,
-button[class*="bg-blue"] *,
-button[class*="bg-cyan"] *,
-button[class*="bg-amber"] *,
-button[class*="bg-violet"] *,
-button[class*="bg-purple"] *,
-a[class*="bg-indigo"] *,
-a[class*="bg-rose"] *,
-a[class*="bg-red"] *,
-a[class*="bg-emerald"] *,
-a[class*="bg-green"] *,
-a[class*="bg-sky"] *,
-a[class*="bg-blue"] *,
-a[class*="bg-cyan"] *,
-a[class*="bg-amber"] * {
+button[class*="bg-indigo"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-rose"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-red"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-emerald"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-green"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-sky"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-blue"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-cyan"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-orange"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-violet"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+button[class*="bg-purple"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-indigo"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-rose"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-red"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-emerald"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-green"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-sky"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-blue"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-cyan"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-orange"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-violet"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]),
+a[class*="bg-purple"]:not([class*="/"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]) *:not([class*="text-"]) {
   color: #ffffff !important;
   stroke: currentColor;
+}
+
+/* Explicit text-black Utility: HARUS SELALU HITAM (#000000) */
+.text-black,
+[class*="text-black"],
+span.text-black,
+span[class*="text-black"],
+html:not(.dark) .text-black,
+html:not(.dark) [class*="text-black"],
+html:not(.dark) span.text-black,
+html:not(.dark) span[class*="text-black"],
+html:not(.dark) a.text-black,
+html:not(.dark) a[class*="text-black"],
+html:not(.dark) button.text-black,
+html:not(.dark) button[class*="text-black"] {
+  color: #000000 !important;
+}
+
+html.dark [class*="dark:text-amber-400"],
+.dark [class*="dark:text-amber-400"] {
+  color: #fbbf24 !important;
+}
+
+html.dark [class*="dark:text-amber-300"],
+.dark [class*="dark:text-amber-300"] {
+  color: #fcd34d !important;
 }
 
 /* B. Background HITAM / GELAP / ZINC (bg-black, bg-zinc-950, bg-zinc-900, bg-zinc-800, dll) -> Background Konsisten GELAP & Text PUTIH */
@@ -361,8 +389,7 @@ a[class*="bg-white"] * {
 /* 4. Solid, High-Contrast Semantic Badges & Pills in Light Mode (No Washed Out Transparency) */
 html:not(.dark) [class*="bg-emerald-950/"],
 html:not(.dark) [class*="bg-emerald-900/"],
-html:not(.dark) [class*="bg-emerald-500/10"],
-html:not(.dark) [class*="bg-emerald-500/20"] {
+html:not(.dark) [class*="bg-emerald-500/"] {
   background-color: #ecfdf5 !important;
   color: #047857 !important;
   border-color: #a7f3d0 !important;
@@ -371,8 +398,7 @@ html:not(.dark) [class*="bg-emerald-500/20"] {
 html:not(.dark) [class*="bg-sky-950/"],
 html:not(.dark) [class*="bg-sky-900/"],
 html:not(.dark) [class*="bg-blue-950/"],
-html:not(.dark) [class*="bg-sky-500/10"],
-html:not(.dark) [class*="bg-sky-500/20"] {
+html:not(.dark) [class*="bg-sky-500/"] {
   background-color: #f0f9ff !important;
   color: #0369a1 !important;
   border-color: #bae6fd !important;
@@ -381,8 +407,7 @@ html:not(.dark) [class*="bg-sky-500/20"] {
 html:not(.dark) [class*="bg-rose-950/"],
 html:not(.dark) [class*="bg-rose-900/"],
 html:not(.dark) [class*="bg-red-950/"],
-html:not(.dark) [class*="bg-rose-500/10"],
-html:not(.dark) [class*="bg-rose-500/20"] {
+html:not(.dark) [class*="bg-rose-500/"] {
   background-color: #fff1f2 !important;
   color: #be123c !important;
   border-color: #fecdd3 !important;
@@ -390,8 +415,7 @@ html:not(.dark) [class*="bg-rose-500/20"] {
 
 html:not(.dark) [class*="bg-amber-950/"],
 html:not(.dark) [class*="bg-amber-900/"],
-html:not(.dark) [class*="bg-amber-500/10"],
-html:not(.dark) [class*="bg-amber-500/20"] {
+html:not(.dark) [class*="bg-amber-500/"] {
   background-color: #fffbeb !important;
   color: #b45309 !important;
   border-color: #fde68a !important;
@@ -399,8 +423,7 @@ html:not(.dark) [class*="bg-amber-500/20"] {
 
 html:not(.dark) [class*="bg-indigo-950/"],
 html:not(.dark) [class*="bg-indigo-900/"],
-html:not(.dark) [class*="bg-indigo-500/10"],
-html:not(.dark) [class*="bg-indigo-500/20"] {
+html:not(.dark) [class*="bg-indigo-500/"] {
   background-color: #eef2ff !important;
   color: #4338ca !important;
   border-color: #c7d2fe !important;
