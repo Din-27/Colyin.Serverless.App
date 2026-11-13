@@ -47,6 +47,8 @@ services:
       - PUBLIC_HTTPS=${PUBLIC_HTTPS:-false}
       - AUTO_CERTBOT=${AUTO_CERTBOT:-true}
       - ACME_EMAIL=${ACME_EMAIL:-}
+      - PUBLIC_IP=${PUBLIC_IP:-}
+      - WILDCARD_DOMAIN=${WILDCARD_DOMAIN:-}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./data:/app/data"

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Shield,
   ExternalLink,
@@ -9,6 +9,9 @@ import {
   Globe,
   Loader2,
   Download,
+  Edit2,
+  Check,
+  RotateCcw,
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { useAddonStudio } from "./AddonStudioContext";
@@ -22,6 +25,29 @@ export function AddonConnectionCard() {
     setShowPassword,
     handleTogglePublic,
   } = useAddonStudio();
+
+  const [customHost, setCustomHost] = useState("");
+  const [isEditingHost, setIsEditingHost] = useState(false);
+  const [inputHost, setInputHost] = useState("");
+
+  const externalHostFromServer = data?.externalConnection?.host;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("colyin_custom_addon_host");
+      if (saved) {
+        setCustomHost(saved);
+      } else if (
+        externalHostFromServer === "localhost" ||
+        externalHostFromServer === "127.0.0.1"
+      ) {
+        const browserHostname = window.location.hostname;
+        if (browserHostname && browserHostname !== "localhost" && browserHostname !== "127.0.0.1") {
+          setCustomHost(browserHostname);
+        }
+      }
+    }
+  }, [externalHostFromServer]);
 
   if (!data) return null;
 
@@ -154,49 +180,121 @@ export function AddonConnectionCard() {
           </div>
         </div>
 
-        {isPublic && externalConnection ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
-                <div>
-                  <span className="text-muted-foreground block text-[11px] font-sans">Public Host</span>
-                  <span className="text-foreground">{externalConnection.host}</span>
+        {isPublic && externalConnection ? (() => {
+          const activeHost = customHost.trim() || externalConnection.host || "localhost";
+          const isPostgres = data.type === "POSTGRESQL";
+          const isMysql = data.type === "MYSQL";
+          const isRedis = data.type === "REDIS";
+          const isRabbit = data.type === "RABBITMQ";
+          const isMinio = data.type === "MINIO";
+          const dbName = externalConnection.database || "main";
+
+          const effectiveConnectionUri = externalConnection.connectionUri
+            ? externalConnection.connectionUri.replace(externalConnection.host, activeHost)
+            : "";
+
+          const effectiveWebManagementUiUrl = webManagementUiUrl
+            ? webManagementUiUrl.replace(externalConnection.host, activeHost)
+            : null;
+
+          const jdbcUrl = isPostgres
+            ? `jdbc:postgresql://${activeHost}:${externalConnection.port}/${dbName}?ssl=false`
+            : isMysql
+            ? `jdbc:mysql://${activeHost}:${externalConnection.port}/${dbName}?useSSL=false&allowPublicKeyRetrieval=true`
+            : null;
+
+          const cliCommand = isPostgres
+            ? `PGPASSWORD="${externalConnection.password}" psql -h ${activeHost} -p ${externalConnection.port} -U ${externalConnection.user} -d ${dbName}`
+            : isMysql
+            ? `mysql -h ${activeHost} -P ${externalConnection.port} -u ${externalConnection.user} -p"${externalConnection.password}" ${dbName}`
+            : isRedis
+            ? `redis-cli -h ${activeHost} -p ${externalConnection.port} -a "${externalConnection.password}"`
+            : null;
+
+          return (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+                {/* Public Host Box with Edit / Override Capability */}
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex flex-col justify-between gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-[11px] font-sans flex items-center gap-1.5">
+                      <Globe className="w-3 h-3 text-indigo-500" />
+                      Public Host (Server IP / Domain)
+                    </span>
+                    {!isEditingHost ? (
+                      <button
+                        onClick={() => {
+                          setInputHost(activeHost);
+                          setIsEditingHost(true);
+                        }}
+                        className="text-[10px] text-muted-foreground hover:text-indigo-500 flex items-center gap-1 cursor-pointer transition-colors"
+                        title="Change Host / Public IP"
+                      >
+                        <Edit2 className="w-2.5 h-2.5" />
+                        <span>Change Host</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setCustomHost("");
+                          if (typeof window !== "undefined") {
+                            localStorage.removeItem("colyin_custom_addon_host");
+                          }
+                          setIsEditingHost(false);
+                        }}
+                        className="text-[10px] text-muted-foreground hover:text-rose-500 flex items-center gap-1 cursor-pointer transition-colors"
+                        title="Reset to server default"
+                      >
+                        <RotateCcw className="w-2.5 h-2.5" />
+                        <span>Reset</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {isEditingHost ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="text"
+                        value={inputHost}
+                        onChange={(e) => setInputHost(e.target.value)}
+                        placeholder="e.g. 103.186.x.x or db.yourdomain.com"
+                        className="flex-1 px-2.5 py-1 text-xs rounded border border-border bg-background text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => {
+                          const val = inputHost.trim();
+                          setCustomHost(val);
+                          if (typeof window !== "undefined") {
+                            if (val) localStorage.setItem("colyin_custom_addon_host", val);
+                            else localStorage.removeItem("colyin_custom_addon_host");
+                          }
+                          setIsEditingHost(false);
+                        }}
+                        className="px-2.5 py-1 rounded bg-indigo-600 text-white text-[11px] font-semibold hover:bg-indigo-500 flex items-center gap-1 cursor-pointer shadow-xs"
+                      >
+                        <Check className="w-3 h-3" />
+                        <span>Apply</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="text-foreground font-bold">{activeHost}</span>
+                      <CopyButton text={activeHost} />
+                    </div>
+                  )}
                 </div>
-                <CopyButton text={externalConnection.host} />
+
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-sans">Public Port</span>
+                    <span className="text-amber-500 font-bold">{externalConnection.port}</span>
+                  </div>
+                  <CopyButton text={externalConnection.port.toString()} />
+                </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
-                <div>
-                  <span className="text-muted-foreground block text-[11px] font-sans">Public Port</span>
-                  <span className="text-amber-500 font-bold">{externalConnection.port}</span>
-                </div>
-                <CopyButton text={externalConnection.port.toString()} />
-              </div>
-            </div>
-
-            {externalConnection.connectionUri && (() => {
-              const isPostgres = data.type === "POSTGRESQL";
-              const isMysql = data.type === "MYSQL";
-              const isRedis = data.type === "REDIS";
-              const isRabbit = data.type === "RABBITMQ";
-              const isMinio = data.type === "MINIO";
-              const dbName = externalConnection.database || "main";
-
-              const jdbcUrl = isPostgres
-                ? `jdbc:postgresql://${externalConnection.host}:${externalConnection.port}/${dbName}?ssl=false`
-                : isMysql
-                ? `jdbc:mysql://${externalConnection.host}:${externalConnection.port}/${dbName}?useSSL=false&allowPublicKeyRetrieval=true`
-                : null;
-
-              const cliCommand = isPostgres
-                ? `PGPASSWORD="${externalConnection.password}" psql -h ${externalConnection.host} -p ${externalConnection.port} -U ${externalConnection.user} -d ${dbName}`
-                : isMysql
-                ? `mysql -h ${externalConnection.host} -P ${externalConnection.port} -u ${externalConnection.user} -p"${externalConnection.password}" ${dbName}`
-                : isRedis
-                ? `redis-cli -h ${externalConnection.host} -p ${externalConnection.port} -a "${externalConnection.password}"`
-                : null;
-
-              return (
+              {effectiveConnectionUri && (
                 <div className="space-y-3">
                   {jdbcUrl && (
                     <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
@@ -225,14 +323,14 @@ export function AddonConnectionCard() {
                       </span>
                       <span className="text-amber-500 font-medium truncate">
                         {showPassword
-                          ? externalConnection.connectionUri
-                          : externalConnection.connectionUri.replace(
+                          ? effectiveConnectionUri
+                          : effectiveConnectionUri.replace(
                               externalConnection.password,
                               "••••••••"
                             )}
                       </span>
                     </div>
-                    <CopyButton text={externalConnection.connectionUri} label="Copy Client URI" />
+                    <CopyButton text={effectiveConnectionUri} label="Copy Client URI" />
                   </div>
 
                   {cliCommand && (
@@ -250,7 +348,7 @@ export function AddonConnectionCard() {
                   )}
 
                   {/* RabbitMQ Management URL Row in External Connection */}
-                  {isRabbit && webManagementUiUrl && (
+                  {isRabbit && effectiveWebManagementUiUrl && (
                     <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs font-mono">
                       <div className="truncate mr-4">
                         <span className="text-orange-500 font-sans font-semibold block text-[11px] flex items-center gap-1.5">
@@ -258,19 +356,19 @@ export function AddonConnectionCard() {
                           RabbitMQ Web Management URL
                         </span>
                         <a
-                          href={webManagementUiUrl}
+                          href={effectiveWebManagementUiUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="text-orange-600 dark:text-orange-300 hover:underline truncate inline-flex items-center gap-1 mt-0.5"
                         >
-                          <span>{webManagementUiUrl}</span>
+                          <span>{effectiveWebManagementUiUrl}</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CopyButton text={webManagementUiUrl} label="Copy Web URL" />
+                        <CopyButton text={effectiveWebManagementUiUrl} label="Copy Web URL" />
                         <a
-                          href={webManagementUiUrl}
+                          href={effectiveWebManagementUiUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition"
@@ -311,10 +409,10 @@ export function AddonConnectionCard() {
                     </div>
                   </div>
                 </div>
-              );
-            })()}
-          </div>
-        ) : (
+              )}
+            </div>
+          );
+        })() : (
           <div className="p-6 rounded-lg bg-muted/30 border border-border text-center text-xs text-muted-foreground">
             Public access is currently disabled for this instance. Turn on the toggle switch above to allocate an external port.
           </div>

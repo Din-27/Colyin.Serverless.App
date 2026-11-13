@@ -38,13 +38,29 @@ export async function GET(
     }
 
     // Resolve public host:
-    // 1. Explicit env PUBLIC_IP
-    // 2. Incoming request Host / Domain / IP
-    // 3. Default to localhost
+    // 1. Explicit env PUBLIC_IP or SERVER_IP
+    // 2. Incoming request Host / Domain / IP (if not localhost)
+    // 3. Extract IP from Wildcard Domain (e.g. 103.x.x.x.sslip.io)
+    // 4. Default to incoming detected host or localhost
     const reqHostHeader = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
     const detectedHost = reqHostHeader.split(":")[0]?.trim();
+
+    let serverIpFromWildcard: string | null = null;
+    try {
+      const { getWildcardBaseDomain } = await import("@/lib/engine/domains");
+      const baseDomain = await getWildcardBaseDomain();
+      const ipMatch = baseDomain.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/);
+      if (ipMatch && ipMatch[1] !== "127.0.0.1" && ipMatch[1] !== "0.0.0.0") {
+        serverIpFromWildcard = ipMatch[1];
+      }
+    } catch {}
+
+    const isLocalhost = !detectedHost || detectedHost === "localhost" || detectedHost === "127.0.0.1" || detectedHost === "0.0.0.0";
     const publicHost =
-      process.env.PUBLIC_IP ||
+      process.env.PUBLIC_IP?.trim() ||
+      process.env.SERVER_IP?.trim() ||
+      (!isLocalhost ? detectedHost : null) ||
+      serverIpFromWildcard ||
       (detectedHost && detectedHost !== "0.0.0.0" ? detectedHost : "localhost");
     const username =
       addon.type === "POSTGRESQL"
