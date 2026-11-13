@@ -16,6 +16,8 @@
   <img src="https://img.shields.io/badge/Docker-Engine-2496ED?style=flat-square&logo=docker" alt="Docker" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS v4" />
   <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/pnpm-v10%2B-orange?style=flat-square&logo=pnpm" alt="pnpm" />
+  <img src="https://img.shields.io/badge/MCP-AI%20Enabled-purple?style=flat-square" alt="MCP AI Enabled" />
 </p>
 
 <p align="center">
@@ -34,24 +36,31 @@ Cukup hubungkan repositori Git Anda, dan Colyin akan menangani proses cloning ko
 
 ## ✨ Fitur Utama
 
-### 🚀 CI/CD Otomatis via Git
+### 🤖 Integrasi AI Model Context Protocol (MCP)
+- **Antarmuka AI Penuh:** Server standar **Model Context Protocol (MCP)** bawaan yang tersedia di `/api/mcp`.
+- **Operasional Mandiri (Otonom):** Memungkinkan tools coding berbasis AI (Cursor, Claude Desktop, Antigravity, ChatGPT) untuk secara otomatis melihat daftar proyek, memeriksa live logs Docker container, melakukan deployment, merestart aplikasi, hingga memonitor telemetri cluster.
+
+### 🚀 CI/CD Otomatis via Git & Docker Logs
 - **Deployment Sekali Klik:** Deploy langsung dari repositori GitHub (Publik maupun Privat).
 - **Git Push Webhooks:** Build dan deployment otomatis setiap kali Anda melakukan push ke branch target.
-- **Telemetri Real-Time:** Streaming log build dan pemantauan status runtime secara langsung via Server-Sent Events (SSE).
+- **Inspeksi Docker Logs:** Pantau log runtime container secara real-time langsung di konsol aplikasi.
+- **Manajemen Versi Aplikasi:** Pelacakan versi rilis dan metadata aktif container aplikasi.
 
 ### 🧠 Deteksi Stack Pintar & Auto-Buildpack
 - Deteksi otomatis bahasa & framework untuk **Node.js (Next.js, Vite, Express, NestJS)**, **Python (FastAPI, Django, Flask)**, **Go**, **PHP**, dan **Static Sites**.
 - **Sintesis Dockerfile Universal:** Menghasilkan multi-stage production Dockerfile secara otomatis apabila repositori Anda belum memilikinya.
 
-### 🗄️ Addon Terisolasi & Managed Database
-Semua addon berjalan sebagai **instance yang terisolasi penuh** (tanpa data bersama, port tersendiri, volume penyimpanan persisten independen, dan kata sandi terenkripsi):
-- 🐘 **PostgreSQL:** Instance database mandiri dengan fitur bawaan **Web SQL Studio** langsung di browser (menjalankan query tanpa perlu menginstal DBeaver atau driver JDBC).
-- ⚡ **Redis:** In-memory cache berkecepatan tinggi dengan fitur bawaan **Web Redis Studio & Cache Inspector** (penjelajah Key-Value, metrik memori real-time, dan konsol CLI RESP langsung).
-- 🐰 **RabbitMQ:** Message broker AMQP pada port `10002` + konsol resmi **Web Management Console** pada port `15672` (`http://localhost:15672`).
+### 🗄️ Addon Terisolasi & Akses Publik Universal
+Semua addon berjalan sebagai **instance yang terisolasi penuh** dengan fitur **Akses Publik & Alokasi Port Eksternal 1-Klik**:
+- 🐘 **PostgreSQL:** Instance database mandiri dengan fitur bawaan **Web SQL Studio**, URL JDBC DBeaver, dan command CLI terminal.
+- ⚡ **Redis:** In-memory cache berkecepatan tinggi dengan **Web Redis Studio**, konsol RESP CLI, dan snippet koneksi `redis-cli`.
+- 🐰 **RabbitMQ:** Message broker AMQP dengan akses 1-klik langsung ke **Web Management Console** resmi (`http://<host>:15672`).
+- 🐬 **MySQL 8:** Database relasional dengan skema otomatis, URL JDBC DBeaver, dan snippet koneksi CLI.
 - 🪣 **MinIO:** Penyimpanan objek berperforma tinggi yang kompatibel dengan protokol S3 lengkap dengan web console.
 
-### ⚡ Arsitektur Smart Dual-Engine
-- **Mode Produksi (Docker Online):** Menjalankan container resmi OCI Docker (`postgres:16-alpine`, `redis:7-alpine`, `rabbitmq:3-management-alpine`), jaringan bridge terisolasi, dan kuota cgroups v2 untuk CPU/RAM.
+### ⚡ Arsitektur Smart Dual-Engine & Standardisasi pnpm
+- **Paket Manajer Ketat `pnpm`:** Terstandarisasi 100% menggunakan `pnpm` di Docker, lingkungan pengembangan lokal, dan server runtime untuk build yang sangat cepat dan bebas duplikasi dependensi.
+- **Mode Produksi (Docker Online):** Menjalankan container resmi OCI Docker (`postgres:16-alpine`, `redis:7-alpine`, `rabbitmq:3-management-alpine`, `mysql:8.0`), jaringan bridge terisolasi, dan kuota cgroups v2 untuk CPU/RAM.
 - **Mode Pengembangan (Local Standalone):** Fallback otomatis ke bare-metal lokal saat Docker offline, memungkinkan pengembangan penuh di laptop tanpa beban memori Docker Desktop.
 
 ### 📈 Telemetri Sistem & Service Real-Time (Overview)
@@ -66,6 +75,7 @@ Semua addon berjalan sebagai **instance yang terisolasi penuh** (tanpa data bers
 
 ### 👥 Kolaborasi Tim & Keamanan RBAC
 - Hak akses berbasis peran yang granular: **Admin**, **Developer**, dan **Viewer**.
+- Halaman login modern single-card dengan pembuatan otomatis file kredensial root host server (`/opt/colyin/colyin-credentials.txt`).
 - Seluruh token rahasia dan kata sandi database dienkripsi saat disimpan (*at rest*) menggunakan algoritma **AES-256-GCM**.
 
 ---
@@ -127,6 +137,9 @@ flowchart TB
 | **Redis** | RESP Wire | `10001` | Port cache mandiri (ioredis / RedisInsight) |
 | **RabbitMQ AMQP** | AMQP 0-9-1 | `10002` | Message queue worker protocol |
 | **RabbitMQ Web UI** | HTTP | `15672` | Konsol Web Manajemen resmi RabbitMQ |
+| **MySQL 8** | Protokol MySQL | `3306` (atau publik dinamis) | Database relasional (DBeaver / mysql-client) |
+| **MinIO S3 / Console** | HTTP | `9000 / 9001` | S3 API & Web Object Browser Console |
+| **Colyin MCP Server** | HTTP / JSON | `:3050/api/mcp` | API Model Context Protocol untuk otomasi agen AI |
 
 ---
 
@@ -222,31 +235,31 @@ Jika server Anda sudah memiliki Docker dan Docker Compose:
 
 ### Opsi 3: Development Lokal (Tanpa Docker)
 
-Anda dapat menjalankan Colyin secara lokal di Windows, macOS, atau Linux tanpa harus menginstal Docker Desktop:
+Anda dapat menjalankan Colyin secara lokal di Windows, macOS, atau Linux tanpa harus menginstal Docker Desktop menggunakan **pnpm**:
 
 1. Clone repositori dan instal dependensi:
    ```bash
    git clone https://github.com/Din-27/Colyin.Serverless.App.git colyin
    cd colyin
-   npm install
+   pnpm install
    ```
 
 2. Inisialisasi skema database:
    ```bash
-   npx prisma generate
-   npx prisma db push
+   pnpm exec prisma generate
+   pnpm exec prisma db push
    ```
 
 3. Jalankan server lokal & daemon pendukung:
    ```bash
    # Terminal 1: Frontend Next.js & REST API
-   npm run dev
+   pnpm dev
 
    # Terminal 2: Background Addons Engine (PostgreSQL, Redis, RabbitMQ)
-   npm run addons
+   pnpm addons
 
    # Terminal 3: Ingress Reverse Proxy (Port 80/443)
-   npm run ingress
+   pnpm ingress
    ```
 
 4. Buka **`http://localhost:3050`** di browser Anda.
@@ -494,6 +507,36 @@ Panduan tersebut mencakup:
 
 ---
 
+## 🤖 Otomasi AI dengan Model Context Protocol (MCP)
+
+Colyin menyediakan endpoint server **Model Context Protocol (MCP)** bawaan di `/api/mcp` yang memungkinkan AI coding assistant dan agent (seperti **Cursor**, **Claude Desktop**, **Antigravity**, **ChatGPT**, dan **GitHub Copilot**) untuk memeriksa, menginspeksi, dan mengelola cluster Anda secara otonom.
+
+### Daftar MCP Tools yang Tersedia:
+| Nama Tool | Deskripsi |
+| :--- | :--- |
+| `colyin_list_projects` | Menampilkan seluruh proyek, jumlah aplikasi, database addon, dan jaringan internal |
+| `colyin_list_applications` | Menampilkan seluruh aplikasi beserta versi, status, dan port aktif |
+| `colyin_get_application` | Inspeksi detail aplikasi mencakup domain, environment keys, dan container aktif |
+| `colyin_get_docker_logs` | Mengambil live runtime logs container Docker secara langsung |
+| `colyin_deploy_application` | Menjalankan pipeline build dan deployment baru dari Git |
+| `colyin_restart_application` | Merestart container Docker aplikasi target secara aman |
+| `colyin_stop_application` | Menghentikan container aplikasi target |
+| `colyin_docker_prune` | Menjalankan pembersihan cache dan builder Docker yang tidak terpakai |
+| `colyin_get_system_telemetry`| Mengambil telemetri real-time CPU, RAM, disk host, dan status daemon |
+
+### Contoh Konfigurasi (Cursor / Claude Desktop / Antigravity):
+```json
+{
+  "mcpServers": {
+    "colyin": {
+      "url": "http://<IP_VPS_ANDA>:3050/api/mcp"
+    }
+  }
+}
+```
+
+---
+
 ## 🤝 Berkontribusi ke Open Source
 
 Colyin adalah perangkat lunak open-source 100% di bawah naungan **Lisensi MIT**. Kami menyambut kontribusi dari para pengembang di seluruh dunia!
@@ -506,8 +549,8 @@ Colyin adalah perangkat lunak open-source 100% di bawah naungan **Lisensi MIT**.
 5. **Buat Pull Request (PR)** dengan menjelaskan rincian perubahan serta pengujian yang telah dilakukan.
 
 ### Panduan Pengembangan:
-- Pastikan standar kode bersih dengan menjalankan `npm run lint`.
-- Verifikasi tipe TypeScript tanpa error menggunakan `npx tsc --noEmit`.
+- Pastikan standar kode bersih dengan menjalankan `pnpm run lint`.
+- Verifikasi tipe TypeScript tanpa error menggunakan `pnpm exec tsc --noEmit`.
 
 ---
 

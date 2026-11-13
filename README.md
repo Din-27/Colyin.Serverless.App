@@ -16,6 +16,8 @@
   <img src="https://img.shields.io/badge/Docker-Engine-2496ED?style=flat-square&logo=docker" alt="Docker" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS v4" />
   <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/pnpm-v10%2B-orange?style=flat-square&logo=pnpm" alt="pnpm" />
+  <img src="https://img.shields.io/badge/MCP-AI%20Enabled-purple?style=flat-square" alt="MCP AI Enabled" />
 </p>
 
 <p align="center">
@@ -34,24 +36,31 @@ Connect your Git repository, and Colyin handles source code cloning, stack detec
 
 ## ✨ Key Features
 
-### 🚀 Automated Git CI/CD
+### 🤖 Model Context Protocol (MCP) AI Integration
+- **Full AI-Agent Interface:** Built-in standard **Model Context Protocol (MCP)** server available at `/api/mcp`.
+- **Autonomous Operations:** Allows AI tools (Cursor, Claude Desktop, Antigravity, ChatGPT) to autonomously list projects, inspect live Docker logs, trigger deployments, restart applications, and monitor cluster telemetry.
+
+### 🚀 Automated Git CI/CD & Docker Logs
 - **One-Click Deployments:** Deploy directly from GitHub repositories (Public and Private).
 - **Git Push Webhooks:** Trigger automated builds and deployments on every push to your target branch.
-- **Real-Time Telemetry:** Stream live build logs and runtime health checks via SSE.
+- **Docker Logs Inspection:** View real-time container runtime logs directly inside the application console.
+- **Application Versioning:** Track deployment versions and active container metadata.
 
 ### 🧠 Smart Stack Detection & Auto-Buildpack
 - Automatic language & framework detection for **Node.js (Next.js, Vite, Express, NestJS)**, **Python (FastAPI, Django, Flask)**, **Go**, **PHP**, and **Static Sites**.
 - **Universal Dockerfile Synthesis:** Automatically generates multi-stage production Dockerfiles if your repository does not include one.
 
-### 🗄️ Dedicated Addons & Managed Databases
-All addons run as **fully dedicated, isolated instances** (no shared data, dedicated ports, unique persistent volumes, and encrypted passwords):
-- 🐘 **PostgreSQL:** Dedicated database instance with built-in **Web SQL Studio** in the browser (execute queries without installing DBeaver or JDBC drivers).
-- ⚡ **Redis:** Ultra-fast in-memory cache with built-in **Web Redis Studio & Cache Inspector** (Key-Value explorer, real-time memory metrics, and live RESP CLI console).
-- 🐰 **RabbitMQ:** AMQP message broker on port `10002` + official **Web Management Console** on port `15672` (`http://localhost:15672`).
+### 🗄️ Dedicated Addons & Universal Public Access
+All addons run as **fully dedicated, isolated instances** with one-click **Public Access & External Port Allocation**:
+- 🐘 **PostgreSQL:** Dedicated database instance with **Web SQL Studio** and DBeaver JDBC connection URLs.
+- ⚡ **Redis:** In-memory cache with **Web Redis Studio**, live RESP CLI console, and external `redis-cli` connection snippets.
+- 🐰 **RabbitMQ:** AMQP message broker with one-click access to the official **Web Management Console** (`http://<host>:15672`).
+- 🐬 **MySQL 8:** Relational database with automatic schema provisioning, JDBC URLs, and CLI connection snippets.
 - 🪣 **MinIO:** High-performance S3-compatible object storage with web management console.
 
-### ⚡ Smart Dual-Engine Architecture
-- **Production Mode (Docker Online):** Deploys official OCI Docker containers (`postgres:16-alpine`, `redis:7-alpine`, `rabbitmq:3-management-alpine`), isolated bridge networks, and CPU/RAM cgroups v2 quotas.
+### ⚡ Smart Dual-Engine & Strict pnpm Architecture
+- **Strict `pnpm` Package Manager:** Standardized 100% on `pnpm` across Docker, local dev, and runtime for ultra-fast, zero-duplicate builds.
+- **Production Mode (Docker Online):** Deploys official OCI Docker containers (`postgres:16-alpine`, `redis:7-alpine`, `rabbitmq:3-management-alpine`, `mysql:8.0`), isolated bridge networks, and CPU/RAM cgroups v2 quotas.
 - **Development Mode (Local Standalone):** Seamless bare-metal fallback when Docker is offline, enabling full development on laptops without the memory overhead of Docker Desktop.
 
 ### 📈 Real-Time System & Service Telemetry (Overview)
@@ -66,6 +75,7 @@ All addons run as **fully dedicated, isolated instances** (no shared data, dedic
 
 ### 👥 Team Collaboration & RBAC Security
 - Granular permissions with **Admin**, **Developer**, and **Viewer** roles.
+- Single-card modern login page with automated server host credential generation (`/opt/colyin/colyin-credentials.txt`).
 - All sensitive tokens and database passwords are encrypted at rest using **AES-256-GCM**.
 
 ---
@@ -127,6 +137,9 @@ flowchart TB
 | **Redis** | RESP Wire | `10001` | Dedicated cache port (ioredis / RedisInsight) |
 | **RabbitMQ AMQP** | AMQP 0-9-1 | `10002` | Message queue worker protocol |
 | **RabbitMQ Web UI** | HTTP | `15672` | Official RabbitMQ Web Management Console |
+| **MySQL 8** | MySQL Protocol | `3306` (or dynamic public) | Relational database (DBeaver / mysql-client) |
+| **MinIO S3 / Console** | HTTP | `9000 / 9001` | S3 API & Web Object Browser Console |
+| **Colyin MCP Server** | HTTP / JSON | `:3050/api/mcp` | Model Context Protocol API for AI agent automation |
 
 ---
 
@@ -222,31 +235,31 @@ If you already have Docker and Docker Compose installed:
 
 ### Option 3: Local Development (Without Docker)
 
-You can run Colyin locally on Windows, macOS, or Linux without installing Docker Desktop:
+You can run Colyin locally on Windows, macOS, or Linux without installing Docker Desktop using **pnpm**:
 
 1. Clone and install dependencies:
    ```bash
    git clone https://github.com/Din-27/Colyin.Serverless.App.git colyin
    cd colyin
-   npm install
+   pnpm install
    ```
 
 2. Initialize database schema:
    ```bash
-   npx prisma generate
-   npx prisma db push
+   pnpm exec prisma generate
+   pnpm exec prisma db push
    ```
 
 3. Start local development server & daemons:
    ```bash
    # Terminal 1: Next.js Frontend & API
-   npm run dev
+   pnpm dev
 
    # Terminal 2: Background Addons Engine (PostgreSQL, Redis, RabbitMQ)
-   npm run addons
+   pnpm addons
 
    # Terminal 3: Ingress Reverse Proxy (Ports 80/443)
-   npm run ingress
+   pnpm ingress
    ```
 
 4. Open **`http://localhost:3050`** in your browser.
@@ -494,6 +507,36 @@ Key covered topics include:
 
 ---
 
+## 🤖 AI Automation with Model Context Protocol (MCP)
+
+Colyin features a built-in **Model Context Protocol (MCP)** server endpoint at `/api/mcp` that allows modern AI agents and coding tools (such as **Cursor**, **Claude Desktop**, **Antigravity**, **ChatGPT**, and **GitHub Copilot**) to query, inspect, and manage your cluster autonomously.
+
+### Available MCP Tools:
+| Tool Name | Description |
+| :--- | :--- |
+| `colyin_list_projects` | Lists all projects, apps count, addons, and internal networks |
+| `colyin_list_applications` | Lists all applications with their versions, status, and ports |
+| `colyin_get_application` | Detailed application inspection including domains and environment keys |
+| `colyin_get_docker_logs` | Fetches live Docker runtime logs from the active container |
+| `colyin_deploy_application` | Triggers a fresh git build and deployment pipeline |
+| `colyin_restart_application` | Restarts the target application's active Docker container |
+| `colyin_stop_application` | Stops an active application container safely |
+| `colyin_docker_prune` | Runs system/builder prune to clean up unused Docker caches |
+| `colyin_get_system_telemetry`| Queries real-time host CPU, RAM, disk, and daemon status |
+
+### Configuration Example (Cursor / Claude Desktop / Antigravity):
+```json
+{
+  "mcpServers": {
+    "colyin": {
+      "url": "http://<YOUR_VPS_IP>:3050/api/mcp"
+    }
+  }
+}
+```
+
+---
+
 ## 🤝 Contributing to Open Source
 
 Colyin is 100% open-source software under the **MIT License**. We welcome contributions from developers worldwide!
@@ -506,8 +549,8 @@ Colyin is 100% open-source software under the **MIT License**. We welcome contri
 5. **Open a Pull Request** describing your changes and test coverage.
 
 ### Development Guidelines:
-- Ensure clean code standards with `npm run lint`.
-- Verify TypeScript types without errors using `npx tsc --noEmit`.
+- Ensure clean code standards with `pnpm run lint`.
+- Verify TypeScript types without errors using `pnpm exec tsc --noEmit`.
 
 ---
 
