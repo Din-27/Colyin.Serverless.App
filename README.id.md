@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" alt="Prisma" />
   <img src="https://img.shields.io/badge/pnpm-v10%2B-orange?style=flat-square&logo=pnpm" alt="pnpm" />
   <img src="https://img.shields.io/badge/MCP-AI%20Enabled-purple?style=flat-square" alt="MCP AI Enabled" />
+  <a href="https://github.com/Din-27/Colyin.Serverless.App/releases"><img src="https://img.shields.io/badge/Release-v1.1.0-blue?style=flat-square&logo=github" alt="Release Tag v1.1.0" /></a>
 </p>
 
 <p align="center">
@@ -77,6 +78,31 @@ Semua addon berjalan sebagai **instance yang terisolasi penuh** dengan fitur **A
 - Hak akses berbasis peran yang granular: **Admin**, **Developer**, dan **Viewer**.
 - Halaman login modern single-card dengan pembuatan otomatis file kredensial root host server (`/opt/colyin/colyin-credentials.txt`).
 - Seluruh token rahasia dan kata sandi database dienkripsi saat disimpan (*at rest*) menggunakan algoritma **AES-256-GCM**.
+
+---
+
+## 🏷️ Riwayat Release Tags & Changelog
+
+| Tag | Status | Sorotan Fitur | Catatan Rilis |
+| :--- | :--- | :--- | :--- |
+| [**`v1.1.0`**](https://github.com/Din-27/Colyin.Serverless.App/releases/tag/v1.1.0) | **Rilis Terbaru** | AI Server Model Context Protocol (MCP), Akses Publik Universal Addon, Docker Logs, Standarisasi `pnpm` | [Lihat Catatan](#-v110---mcp-ai-server-akses-publik-universal-addon--migrasi-pnpm) |
+| [**`v1.0.0`**](https://github.com/Din-27/Colyin.Serverless.App/releases/tag/v1.0.0) | Stabil | Rilis Produksi Resmi dengan Inti PaaS, Ingress Traefik v3, Git CI/CD | [Lihat Catatan](#-v100---rilis-produksi-resmi) |
+
+### 🚀 v1.1.0 - MCP AI Server, Akses Publik Universal Addon & Migrasi pnpm
+- **Model Context Protocol (MCP) Server (`/api/mcp`):** Antarmuka AI native yang memungkinkan Cursor, Claude, Antigravity, dan ChatGPT untuk menginspeksi proyek, membaca live Docker logs, melakukan deploy, dan merestart service secara otonom.
+- **Akses Publik Universal untuk Addon:** Alokasi port publik 1-klik (`0.0.0.0:{publicPort}`) untuk PostgreSQL, Redis, RabbitMQ, MySQL 8, dan MinIO S3 dengan URL JDBC DBeaver, command CLI terminal siap copy, dan Web Console RabbitMQ.
+- **Inspeksi Docker Container Logs:** Penampil log runtime container langsung di dalam console dashboard aplikasi.
+- **Manajemen Versi Aplikasi:** Pelacakan nomor versi deployment aktif dan metadata container.
+- **Standarisasi Penuh `pnpm`:** Standarisasi 100% menggunakan `pnpm` di Docker, environment lokal, dan CI/CD pipeline.
+- **Arsitektur Bersih React Context:** Pemisahan komponen monolitik besar ke dalam sub-direktori bersih berbasis `useContext`.
+- **Desain Modern Tailwind & Shadcn UI:** Tampilan halaman login single-card yang rapi dengan auto-generasi kredensial host (`/opt/colyin/colyin-credentials.txt`).
+
+### 📦 v1.0.0 - Rilis Produksi Resmi
+- **Inti Mesin PaaS:** Kloning repositori Git otomatis, deteksi stack teknologi, dan sintesis buildpack container.
+- **Routing Edge & SSL:** Reverse proxy otomatis Traefik v3 dengan sertifikat Let's Encrypt dan subdomain wildcard `*.sslip.io`.
+- **Smart Dual-Engine:** Orkestrasi container OCI Docker di server dengan fallback lokal standalone.
+- **Telemetri Sistem:** Grafik gelombang real-time utilisasi CPU, RAM, dan disk host di `/overview`.
+- **RBAC & Keamanan:** Enkripsi AES-256-GCM untuk seluruh token rahasia dan kata sandi database.
 
 ---
 

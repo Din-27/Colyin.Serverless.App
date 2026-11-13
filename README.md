@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" alt="Prisma" />
   <img src="https://img.shields.io/badge/pnpm-v10%2B-orange?style=flat-square&logo=pnpm" alt="pnpm" />
   <img src="https://img.shields.io/badge/MCP-AI%20Enabled-purple?style=flat-square" alt="MCP AI Enabled" />
+  <a href="https://github.com/Din-27/Colyin.Serverless.App/releases"><img src="https://img.shields.io/badge/Release-v1.1.0-blue?style=flat-square&logo=github" alt="Release Tag v1.1.0" /></a>
 </p>
 
 <p align="center">
@@ -77,6 +78,31 @@ All addons run as **fully dedicated, isolated instances** with one-click **Publi
 - Granular permissions with **Admin**, **Developer**, and **Viewer** roles.
 - Single-card modern login page with automated server host credential generation (`/opt/colyin/colyin-credentials.txt`).
 - All sensitive tokens and database passwords are encrypted at rest using **AES-256-GCM**.
+
+---
+
+## 🏷️ Release Tags & Version History
+
+| Tag | Status | Highlights | Release Notes |
+| :--- | :--- | :--- | :--- |
+| [**`v1.1.0`**](https://github.com/Din-27/Colyin.Serverless.App/releases/tag/v1.1.0) | **Latest Release** | Model Context Protocol (MCP) AI Server, Universal Public Addons, Docker Logs, Strict `pnpm` | [View Notes](#-v110---mcp-ai-server-universal-public-addons--pnpm-migration) |
+| [**`v1.0.0`**](https://github.com/Din-27/Colyin.Serverless.App/releases/tag/v1.0.0) | Stable | Official Production Release with Core PaaS, Traefik v3 Ingress, Git CI/CD | [View Notes](#-v100---official-production-release) |
+
+### 🚀 v1.1.0 - MCP AI Server, Universal Public Addons & pnpm Migration
+- **Model Context Protocol (MCP) Server (`/api/mcp`):** Native AI interface allowing Cursor, Claude, Antigravity, and ChatGPT to inspect projects, read live Docker logs, trigger builds, and restart services autonomously.
+- **Universal Public Access for Addons:** One-click external port allocation (`0.0.0.0:{publicPort}`) for PostgreSQL, Redis, RabbitMQ, MySQL 8, and MinIO S3 with direct DBeaver JDBC URLs, copy-paste terminal CLI commands, and RabbitMQ Management Web Console.
+- **Docker Container Logs Inspection:** Dedicated live runtime container logs viewer directly inside the application console.
+- **Application Versioning:** Track active deployment versions and container metadata.
+- **Strict `pnpm` Package Manager:** Standardized 100% on `pnpm` across Docker, local development, and CI/CD pipelines.
+- **Clean React Context Architecture:** Modularized monolithic components into clean sub-directories with `useContext`.
+- **Refined Tailwind & Shadcn UI:** Unified single-card login layout with auto-generated host credentials (`/opt/colyin/colyin-credentials.txt`).
+
+### 📦 v1.0.0 - Official Production Release
+- **Core PaaS Engine:** Automated Git repository cloning, stack detection, and container buildpack synthesis.
+- **Edge Routing & SSL:** Automated Traefik v3 reverse proxy with Let's Encrypt certificates and wildcard `*.sslip.io` subdomains.
+- **Smart Dual-Engine:** Production OCI Docker container orchestration with standalone local fallback.
+- **System Telemetry:** Real-time host CPU, RAM, and disk utilization waveforms at `/overview`.
+- **RBAC & Security:** AES-256-GCM encryption for all secrets, tokens, and credentials.
 
 ---
 
