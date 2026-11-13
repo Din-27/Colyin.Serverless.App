@@ -51,8 +51,11 @@ async function main() {
     console.log(`[Updated] Password successfully updated for Admin: ${admin.email}`);
   }
 
-  // Update colyin-credentials.txt
+  // Update colyin-credentials.txt in both root and persistent data directory
   const credPath = path.join(process.cwd(), "colyin-credentials.txt");
+  const dataDir = path.join(process.cwd(), "data");
+  const dataCredPath = path.join(dataDir, "colyin-credentials.txt");
+
   const content = `================================================================================
 COLYIN - MASTER ADMIN CREDENTIALS
 Updated at: ${new Date().toISOString()}
@@ -67,6 +70,9 @@ Web Console: http://localhost:3050/login
 `;
   try {
     fs.writeFileSync(credPath, content, { encoding: "utf-8" });
+    if (fs.existsSync(dataDir)) {
+      fs.writeFileSync(dataCredPath, content, { encoding: "utf-8" });
+    }
   } catch (err) {
     console.warn("Could not write colyin-credentials.txt:", err.message);
   }

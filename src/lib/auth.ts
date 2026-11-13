@@ -148,6 +148,9 @@ export function generateUniqueMasterPassword(): string {
 export function saveMasterCredentialsFile(email: string, password: string): void {
   try {
     const credPath = path.join(process.cwd(), "colyin-credentials.txt");
+    const dataDir = path.join(process.cwd(), "data");
+    const dataCredPath = path.join(dataDir, "colyin-credentials.txt");
+
     const content = `================================================================================
 COLYIN - INITIAL MASTER ADMIN CREDENTIALS
 Generated at: ${new Date().toISOString()}
@@ -158,16 +161,24 @@ Password : ${password}
 Role     : ADMIN (Full Cluster Authority)
 
 IMPORTANT SECURITY NOTICE:
-1. Access your web console at: http://localhost:3000/login
+1. Access your web console at: http://localhost:3050/login
 2. This unique password was generated specifically for this server/VPS installation.
 3. Once logged in as Admin, you can invite and create other team members (Collaborators)
    with granular roles (ADMIN, DEVELOPER, VIEWER) under "Settings & Team" (RBAC).
 4. You can change your password anytime inside the "Settings & Team" dashboard.
 5. If you ever forget your password, refer to this file on your VPS or run:
-   node scripts/reset-admin-password.js <newPassword>
+   docker compose exec controller node scripts/reset-admin-password.js <newPassword>
 ================================================================================
 `;
+    // Write to root process dir
     fs.writeFileSync(credPath, content, { encoding: "utf-8", mode: 0o600 });
+
+    // Also write to persistent ./data volume (which is directly mounted to host ./data)
+    try {
+      if (fs.existsSync(dataDir)) {
+        fs.writeFileSync(dataCredPath, content, { encoding: "utf-8", mode: 0o600 });
+      }
+    } catch {}
   } catch (err) {
     console.warn("Could not write colyin-credentials.txt:", err);
   }

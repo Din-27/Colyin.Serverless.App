@@ -73,6 +73,8 @@ echo "[4/5] Preparing persistent data directories and configuration..."
 INSTALL_DIR=$(pwd)
 mkdir -p data apps-storage
 chmod 700 data apps-storage 2>/dev/null || true
+touch colyin-credentials.txt
+chmod 600 colyin-credentials.txt 2>/dev/null || true
 
 if [ -f data/prod.db ]; then
   echo "[Info] Existing Colyin database detected in ./data/prod.db."
@@ -126,9 +128,41 @@ echo "[5/5] Launching Colyin via Docker Compose..."
 docker compose pull || true
 docker compose up -d --build
 
+# 7. Ensure Master Administrator Credentials file is generated on host
+echo "[Info] Initializing Master Administrator credentials file..."
+for i in {1..20}; do
+  if docker compose ps | grep -qE "minipaas-controller.*(Up|running)"; then
+    break
+  fi
+  sleep 1
+done
+
+# Initialize credentials via script if not yet populated
+if [ ! -s "${INSTALL_DIR}/colyin-credentials.txt" ]; then
+  docker compose exec -T controller node scripts/reset-admin-password.js >/dev/null 2>&1 || true
+  if [ -s "${INSTALL_DIR}/data/colyin-credentials.txt" ]; then
+    cp "${INSTALL_DIR}/data/colyin-credentials.txt" "${INSTALL_DIR}/colyin-credentials.txt"
+  else
+    docker compose cp controller:/app/colyin-credentials.txt "${INSTALL_DIR}/colyin-credentials.txt" 2>/dev/null || true
+  fi
+fi
+
+chmod 600 "${INSTALL_DIR}/colyin-credentials.txt" 2>/dev/null || true
+chmod 600 "${INSTALL_DIR}/data/colyin-credentials.txt" 2>/dev/null || true
+
 echo ""
 echo "=========================================================="
 echo "    Colyin is successfully deployed and running!          "
 echo "    Dashboard: http://${SERVER_IP:-localhost}:${COLYIN_PORT}        "
 echo "    Ingress  : Ports 80 and 443 (Traefik v3)              "
 echo "=========================================================="
+if [ -s "${INSTALL_DIR}/colyin-credentials.txt" ]; then
+  echo ""
+  echo ">>> Master Admin Credentials (saved to ${INSTALL_DIR}/colyin-credentials.txt):"
+  echo "----------------------------------------------------------"
+  grep -E "^Email|^Password|^Role" "${INSTALL_DIR}/colyin-credentials.txt" || cat "${INSTALL_DIR}/colyin-credentials.txt"
+  echo "----------------------------------------------------------"
+  echo ">>> View full file anytime on VPS host with:"
+  echo "    cat ${INSTALL_DIR}/colyin-credentials.txt"
+  echo ""
+fi

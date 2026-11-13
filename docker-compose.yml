@@ -51,6 +51,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./data:/app/data"
       - "./apps-storage:/app/apps-storage"
+      - "./colyin-credentials.txt:/app/colyin-credentials.txt"
     ports:
       - "${PORT:-${COLYIN_PORT:-3050}}:3000"
     labels:
