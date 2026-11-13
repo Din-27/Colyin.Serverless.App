@@ -545,7 +545,7 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
         docker: {
           online: dockerStatus.online,
           totalContainers: dockerContainersCount,
-          version: dockerStatus.version || "Unknown",
+          version: (dockerStatus.info as any)?.ServerVersion || "Unknown",
         },
         stats: {
           totalApplications: appsCount,
