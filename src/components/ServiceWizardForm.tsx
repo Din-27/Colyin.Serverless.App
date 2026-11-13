@@ -31,6 +31,17 @@ import {
 import { RuntimeSelector } from "@/components/RuntimeSelector";
 import { ResourceAllocationSelector } from "@/components/ResourceAllocationSelector";
 import { copyToClipboard } from "@/lib/clipboard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -1524,122 +1535,111 @@ export function ServiceWizardForm({ project }: { project: any }) {
       )}
 
       {/* GitHub OAuth Configuration Modal */}
-      {showOauthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 space-y-5 shadow-2xl relative text-foreground">
-            <button
-              type="button"
-              onClick={() => setShowOauthModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground p-1 rounded-lg transition"
-            >
-              ✕
-            </button>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-foreground font-bold text-sm sm:text-base">
-                <GithubIcon className="w-5 h-5 text-indigo-500" />
-                <span>Setup GitHub OAuth (1-Click Login)</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Agar tombol <strong>Login ke GitHub</strong> dapat bekerja di server Anda, daftarkan OAuth App gratis di GitHub (hanya 1 menit, berlaku untuk seluruh server).
-              </p>
+      <Dialog open={showOauthModal} onOpenChange={setShowOauthModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <GithubIcon className="w-5 h-5 text-indigo-500" />
+              <DialogTitle>Setup GitHub OAuth (1-Click Login)</DialogTitle>
             </div>
+            <DialogDescription>
+              Agar tombol <strong>Login ke GitHub</strong> dapat bekerja di server Anda, daftarkan OAuth App gratis di GitHub (hanya 1 menit, berlaku untuk seluruh server).
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-3 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-[11px] font-medium">Authorization callback URL:</span>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const cbUrl = `${window.location.origin}/api/github/callback`;
-                    await copyToClipboard(cbUrl);
-                    setCopiedCallback(true);
-                    setTimeout(() => setCopiedCallback(false), 2000);
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground font-mono text-[11px] transition cursor-pointer"
-                >
-                  {copiedCallback ? (
-                    <>
-                      <Check className="w-3 h-3 text-emerald-500" />
-                      <span className="text-emerald-500">Tersalin!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3 opacity-60" />
-                      <span>Salin URL</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <div className="p-2.5 rounded bg-background border border-border font-mono text-foreground text-[11px] break-all select-all">
-                {typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "/api/github/callback"}
-              </div>
-
-              <a
-                href={`https://github.com/settings/applications/new?oauth_application[name]=Colyin+PaaS&oauth_application[url]=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}&oauth_application[callback_url]=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition"
+          <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-[11px] font-medium">Authorization callback URL:</span>
+              <button
+                type="button"
+                onClick={async () => {
+                  const cbUrl = `${window.location.origin}/api/github/callback`;
+                  await copyToClipboard(cbUrl);
+                  setCopiedCallback(true);
+                  setTimeout(() => setCopiedCallback(false), 2000);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground font-mono text-[11px] transition cursor-pointer"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Buka Form Buat OAuth App di GitHub</span>
-              </a>
+                {copiedCallback ? (
+                  <>
+                    <Check className="w-3 h-3 text-emerald-500" />
+                    <span className="text-emerald-500">Tersalin!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3 opacity-60" />
+                    <span>Salin URL</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="p-2.5 rounded bg-background border border-border font-mono text-foreground text-[11px] break-all select-all">
+              {typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "/api/github/callback"}
             </div>
 
-            <form onSubmit={handleSaveAndLoginOauth} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-foreground font-semibold mb-1">
-                  Client ID
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Ov23li..."
-                  value={oauthClientId}
-                  onChange={(e) => setOauthClientId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-foreground font-semibold mb-1">
-                  Client Secret
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••••••••••••••••••"
-                  value={oauthClientSecret}
-                  onChange={(e) => setOauthClientSecret(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowOauthModal(false)}
-                  className="px-4 py-2 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground text-foreground transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingOauth}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow disabled:opacity-50"
-                >
-                  {savingOauth ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <GithubIcon className="w-4 h-4" />
-                  )}
-                  <span>Simpan &amp; Login ke GitHub</span>
-                </button>
-              </div>
-            </form>
+            <a
+              href={`https://github.com/settings/applications/new?oauth_application[name]=Colyin+PaaS&oauth_application[url]=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}&oauth_application[callback_url]=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Buka Form Buat OAuth App di GitHub</span>
+            </a>
           </div>
-        </div>
-      )}
+
+          <form onSubmit={handleSaveAndLoginOauth} className="space-y-4 text-xs">
+            <div className="space-y-1">
+              <Label htmlFor="oauth-client-id">Client ID</Label>
+              <Input
+                id="oauth-client-id"
+                type="text"
+                required
+                placeholder="e.g. Ov23li..."
+                value={oauthClientId}
+                onChange={(e) => setOauthClientId(e.target.value)}
+                className="font-mono text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="oauth-client-secret">Client Secret</Label>
+              <Input
+                id="oauth-client-secret"
+                type="password"
+                required
+                placeholder="••••••••••••••••••••••••"
+                value={oauthClientSecret}
+                onChange={(e) => setOauthClientSecret(e.target.value)}
+                className="font-mono text-xs"
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowOauthModal(false)}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                variant="brand"
+                disabled={savingOauth}
+                className="gap-2"
+              >
+                {savingOauth ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <GithubIcon className="w-4 h-4" />
+                )}
+                <span>Simpan &amp; Login ke GitHub</span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
