@@ -23,7 +23,7 @@ export async function GET(
       orderBy: { key: "asc" },
     });
 
-    const decrypted = envs.map((e) => ({
+    const decrypted = envs.map((e: any) => ({
       id: e.id,
       key: e.key,
       value: decryptSecret(e.encryptedVal, e.iv, e.authTag),

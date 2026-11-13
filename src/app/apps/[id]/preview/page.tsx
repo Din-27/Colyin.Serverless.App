@@ -48,12 +48,12 @@ export default async function AppPreviewPage({
 
   if (!app) notFound();
 
-  const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
+  const primaryDomain = app.domains.find((d: any) => d.isPrimary) || app.domains[0];
   const accessUrl = formatAccessUrl(primaryDomain?.host, app.internalPort);
   const localDirectUrl = `http://localhost:${app.internalPort}`;
 
   const dockerStatus = await getDockerDaemonStatus();
-  const latestDeploy = app.deployments.find((d) => d.id === app.activeDeployId) || app.deployments[0];
+  const latestDeploy = app.deployments.find((d: any) => d.id === app.activeDeployId) || app.deployments[0];
   const isPortOccupied = !(await validatePort(app.internalPort, { excludeAppId: app.id })).available;
 
   return (

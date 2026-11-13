@@ -312,3 +312,4 @@ export function TabDockerLogs() {
     </div>
   );
 }
+

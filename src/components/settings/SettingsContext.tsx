@@ -444,3 +444,4 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     </SettingsContext.Provider>
   );
 }
+

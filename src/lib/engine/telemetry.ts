@@ -121,10 +121,10 @@ export async function getServicesTelemetry() {
   ]);
 
   // Map Applications
-  const services = apps.map((app) => {
+  const services = apps.map((app: any) => {
     const lastDeploy = app.deployments[0];
     const status = lastDeploy?.status || "STOPPED";
-    const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
+    const primaryDomain = app.domains.find((d: any) => d.isPrimary) || app.domains[0];
 
     return {
       id: app.id,
@@ -144,7 +144,7 @@ export async function getServicesTelemetry() {
   });
 
   // Map Addons
-  const addonServices = addons.map((addon) => ({
+  const addonServices = addons.map((addon: any) => ({
     id: addon.id,
     name: addon.name,
     slug: addon.type.toLowerCase(),

@@ -157,7 +157,7 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
 
       return {
         total: projects.length,
-        projects: projects.map((p) => ({
+        projects: projects.map((p: any) => ({
           id: p.id,
           name: p.name,
           slug: p.slug,
@@ -193,7 +193,7 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
 
       return {
         total: apps.length,
-        applications: apps.map((app) => {
+        applications: apps.map((app: any) => {
           const latestDeploy = app.deployments[0];
           return {
             id: app.id,
@@ -204,7 +204,7 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
             projectId: app.project.id,
             projectName: app.project.name,
             internalPort: app.internalPort,
-            primaryDomain: app.domains.find((d) => d.isPrimary)?.host || app.domains[0]?.host || null,
+            primaryDomain: app.domains.find((d: any) => d.isPrimary)?.host || app.domains[0]?.host || null,
             cpuLimit: app.cpuLimit,
             memoryLimitMb: app.memoryLimitMb,
             buildPack: app.buildPack,
@@ -259,12 +259,12 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
         cpuLimit: app.cpuLimit,
         memoryLimitMb: app.memoryLimitMb,
         containerId: activeDeploy?.containerId || null,
-        domains: app.domains.map((d) => ({
+        domains: app.domains.map((d: any) => ({
           host: d.host,
           isPrimary: d.isPrimary,
           sslEnabled: d.sslEnabled,
         })),
-        environmentVariableKeys: app.envVariables.map((e) => e.key),
+        environmentVariableKeys: app.envVariables.map((e: any) => e.key),
         recentDeployments: app.deployments,
       };
     }

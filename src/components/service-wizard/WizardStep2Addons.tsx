@@ -87,3 +87,4 @@ export function WizardStep2Addons() {
     </div>
   );
 }
+

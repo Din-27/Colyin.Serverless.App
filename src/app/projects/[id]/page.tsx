@@ -131,9 +131,9 @@ export default async function ProjectDetailPage({
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {project.applications.map((app) => {
+            {project.applications.map((app: any) => {
               const latestDeploy = app.deployments[0];
-              const primaryDomain = app.domains.find((d) => d.isPrimary) || app.domains[0];
+              const primaryDomain = app.domains.find((d: any) => d.isPrimary) || app.domains[0];
               const appAccessUrl = formatAccessUrl(primaryDomain?.host, app.internalPort);
               const displayLabel = primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`;
 
@@ -234,7 +234,7 @@ export default async function ProjectDetailPage({
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {project.addons.map((addon) => (
+            {project.addons.map((addon: any) => (
               <Link
                 key={addon.id}
                 href={`/addons/${addon.id}`}
