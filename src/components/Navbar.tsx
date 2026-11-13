@@ -144,11 +144,13 @@ export function Navbar() {
             href="https://sociabuzz.com/herdin27/tribe"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex text-black items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 dark:text-amber-400 border border-amber-500/30 transition shadow-xs cursor-pointer group"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 transition shadow-xs cursor-pointer group"
             title="Trakter Developer via SociaBuzz Tribe"
           >
-            <Coffee className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
-            <span className="hidden sm:inline">Trakter Developer</span>
+            <Coffee className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline text-black dark:text-amber-400">
+              Trakter Developer
+            </span>
           </a>
 
           <ThemeToggle />
