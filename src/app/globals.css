@@ -138,13 +138,18 @@ label,
 }
 
 html:not(.dark) label,
-html:not(.dark) .form-label {
+html:not(.dark) label *,
+html:not(.dark) .form-label,
+html:not(.dark) .form-label * {
   color: #09090b !important;
 }
 
 html.dark label,
+html.dark label *,
 html.dark .form-label,
-.dark label {
+html.dark .form-label *,
+.dark label,
+.dark label * {
   color: #f4f4f5 !important;
 }
 
@@ -474,18 +479,19 @@ html.dark [class*="bg-cyan-900/"],
   border-color: rgba(6, 182, 212, 0.6) !important;
 }
 
-/* 5. Typography Alignment for Cards & Static Texts (Does Not Affect Buttons) */
-html:not(.dark) h1.text-white,
-html:not(.dark) h2.text-white,
-html:not(.dark) h3.text-white,
-html:not(.dark) h4.text-white,
-html:not(.dark) p.text-white,
-html:not(.dark) div.text-white:not(button *):not(a[class*="bg-"] *),
-html:not(.dark) span.text-white:not(button *):not(a[class*="bg-"] *):not(.badge *):not([class*="badge"] *) {
-  color: #09090b !important;
-}
-
-html:not(.dark) [class*="text-zinc-300"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *) {
+/* 5. Typography Alignment for Cards & Static Texts (Does Not Affect Dark/Colored Buttons) */
+html:not(.dark) h1[class*="text-white"],
+html:not(.dark) h2[class*="text-white"],
+html:not(.dark) h3[class*="text-white"],
+html:not(.dark) h4[class*="text-white"],
+html:not(.dark) p[class*="text-white"],
+html:not(.dark) strong[class*="text-white"],
+html:not(.dark) b[class*="text-white"],
+html:not(.dark) div[class*="text-white"]:not(button *):not(a[class*="bg-"] *):not(pre *):not([data-terminal="true"] *):not(.font-mono[class*="bg-black"] *),
+html:not(.dark) span[class*="text-white"]:not(button *):not(a[class*="bg-"] *):not(pre *):not([data-terminal="true"] *):not(.font-mono[class*="bg-black"] *),
+html:not(.dark) [class*="text-zinc-100"]:not(button *):not(a[class*="bg-"] *):not(pre *):not([data-terminal="true"] *):not(.font-mono[class*="bg-black"] *),
+html:not(.dark) [class*="text-zinc-200"]:not(button *):not(a[class*="bg-"] *):not(pre *):not([data-terminal="true"] *):not(.font-mono[class*="bg-black"] *),
+html:not(.dark) [class*="text-zinc-300"]:not(button *):not(a[class*="bg-"] *):not(pre *):not([data-terminal="true"] *):not(code):not(.font-mono[class*="bg-black"] *) {
   color: #09090b !important;
 }
 

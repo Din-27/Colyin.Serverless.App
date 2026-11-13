@@ -23,6 +23,9 @@ import {
   Coffee,
   HardDrive,
   Terminal,
+  Database,
+  Download,
+  Archive,
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -70,6 +73,46 @@ export default function SettingsPage() {
   const [wildcardSaved, setWildcardSaved] = useState(false);
   const [savingWildcard, setSavingWildcard] = useState(false);
   const [wildcardFeedback, setWildcardFeedback] = useState("");
+
+  // Database Backup State
+  const [dbBackupStats, setDbBackupStats] = useState<any>(null);
+  const [dbBackupsList, setDbBackupsList] = useState<any[]>([]);
+  const [loadingBackups, setLoadingBackups] = useState(false);
+  const [creatingBackup, setCreatingBackup] = useState(false);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+
+  const loadDatabaseBackupData = async () => {
+    setLoadingBackups(true);
+    try {
+      const res = await fetch("/api/system/backup");
+      const data = await res.json();
+      if (data.success) {
+        setDbBackupStats(data.stats);
+        setDbBackupsList(data.backups || []);
+      }
+    } catch {}
+    setLoadingBackups(false);
+  };
+
+  const handleCreateStoredBackup = async () => {
+    setCreatingBackup(true);
+    setBackupMessage(null);
+    try {
+      const res = await fetch("/api/system/backup", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setBackupMessage("Backup successfully created!");
+        await loadDatabaseBackupData();
+      } else {
+        setBackupMessage(data.error || "Failed to create backup");
+      }
+    } catch (err: any) {
+      setBackupMessage(err.message || "Failed to create backup");
+    } finally {
+      setCreatingBackup(false);
+      setTimeout(() => setBackupMessage(null), 4000);
+    }
+  };
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -122,6 +165,12 @@ export default function SettingsPage() {
         router.replace("/login");
       });
   }, [router]);
+
+  useEffect(() => {
+    if (activeTab === "maintenance") {
+      loadDatabaseBackupData();
+    }
+  }, [activeTab]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -288,7 +337,7 @@ export default function SettingsPage() {
           { id: "alerts", label: "Alerts", icon: Bell },
           { id: "oauth", label: "GitHub OAuth", icon: KeyRound },
           { id: "ingress", label: "Domain & SSL", icon: Globe },
-          { id: "maintenance", label: "Maintenance & Docker", icon: HardDrive },
+          { id: "maintenance", label: "Maintenance & Database", icon: HardDrive },
           { id: "appearance", label: "Appearance", icon: Palette },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -894,58 +943,176 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* Tab 5: Maintenance & Docker Clean */}
+      {/* Tab 5: Maintenance, Database & Docker Clean */}
       {activeTab === "maintenance" && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
-          <div>
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <HardDrive className="w-4 h-4 text-rose-400" />
-              Docker System &amp; Build Cache Maintenance
-            </h3>
-            <p className="text-xs text-zinc-400 mt-1">
-              Prune unused Docker resources and BuildKit layers to prevent disk exhaustion on your VPS host.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+        <div className="space-y-6">
+          {/* Section A: Core Database Backup & Recovery */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-sm font-semibold text-white block">Automated Disk Reclaim</span>
-                <span className="text-xs text-zinc-400 block max-w-xl">
-                  Executes <code className="text-emerald-400 font-mono">docker builder prune -af</code> to remove build cache and <code className="text-cyan-400 font-mono">docker system prune -af</code> to remove dangling images and stopped builder containers.
+              <div>
+                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                  <Database className="w-4 h-4 text-emerald-400" />
+                  Core Platform Database Backup &amp; Recovery
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Download atomic snapshots of the Colyin SQLite database (<code className="text-emerald-300 font-mono">prod.db</code>) containing all applications, deployments, domains, settings, and users.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleCreateStoredBackup}
+                  disabled={creatingBackup}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                  title="Create a timestamped backup in ./data/backups"
+                >
+                  {creatingBackup ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+                  ) : (
+                    <Archive className="w-3.5 h-3.5 text-indigo-400" />
+                  )}
+                  <span>{creatingBackup ? "Backing up..." : "Create Snapshot"}</span>
+                </button>
+
+                <a
+                  href="/api/system/backup?download=1"
+                  download
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+                  title="Download instantaneous database copy"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Backup (.db)</span>
+                </a>
+              </div>
+            </div>
+
+            {backupMessage && (
+              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{backupMessage}</span>
+              </div>
+            )}
+
+            {/* Database Metadata Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs font-mono">
+              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+                <span className="text-[11px] text-zinc-500 block">Database File Size</span>
+                <span className="text-base font-bold text-emerald-400 block">
+                  {dbBackupStats?.sizeFormatted || "Loading..."}
+                </span>
+                <span className="text-[10px] text-zinc-500 block truncate">
+                  {dbBackupStats?.filePath || "data/prod.db"}
                 </span>
               </div>
 
-              <DockerPruneButton />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-zinc-800/80 text-xs text-zinc-300">
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="flex items-center gap-2 font-mono text-emerald-400 font-semibold">
-                  <Terminal className="w-3.5 h-3.5" />
-                  <span>docker builder prune -af</span>
-                </div>
-                <p className="text-[11px] text-zinc-400">
-                  Cleans intermediate BuildKit caching layers created during container compilation and Next.js / Node / Python builds.
-                </p>
+              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+                <span className="text-[11px] text-zinc-500 block">Active Record Counts</span>
+                <span className="text-sm font-semibold text-zinc-200 block truncate">
+                  {dbBackupStats?.counts
+                    ? `${dbBackupStats.counts.applications} Apps • ${dbBackupStats.counts.deployments} Deploys`
+                    : "Counting..."}
+                </span>
+                <span className="text-[10px] text-zinc-400 block truncate">
+                  {dbBackupStats?.counts
+                    ? `${dbBackupStats.counts.addons} Addons • ${dbBackupStats.counts.domains} Domains • ${dbBackupStats.counts.users} Users`
+                    : "..."}
+                </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="flex items-center gap-2 font-mono text-cyan-400 font-semibold">
-                  <Terminal className="w-3.5 h-3.5" />
-                  <span>docker system prune -af</span>
-                </div>
-                <p className="text-[11px] text-zinc-400">
-                  Cleans untagged / dangling Docker images, stopped build runners, and unattached bridge networks.
-                </p>
+              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+                <span className="text-[11px] text-zinc-500 block">Backup Engine Mechanism</span>
+                <span className="text-sm font-semibold text-indigo-400 block">
+                  Atomic SQLite VACUUM
+                </span>
+                <span className="text-[10px] text-zinc-400 block">
+                  Zero locks • Safe against active writes
+                </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>
-                <strong>Safe Execution Guarantee:</strong> Database volumes (SQLite/PostgreSQL) and currently running production application containers are never removed.
-              </span>
+            {/* Stored Snapshots History */}
+            {dbBackupsList.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-semibold text-zinc-300 block">
+                  Stored Snapshots in <code className="text-zinc-400 font-mono">./data/backups/</code> ({dbBackupsList.length})
+                </span>
+                <div className="divide-y divide-zinc-800 rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden text-xs">
+                  {dbBackupsList.slice(0, 5).map((b) => (
+                    <div key={b.filename} className="p-3 flex items-center justify-between font-mono gap-3">
+                      <div className="truncate">
+                        <span className="text-zinc-200 font-semibold block truncate">{b.filename}</span>
+                        <span className="text-[10px] text-zinc-500 block">
+                          Size: {b.sizeFormatted} &bull; Created: {new Date(b.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <a
+                        href="/api/system/backup?download=1"
+                        download
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer text-xs shrink-0"
+                      >
+                        <Download className="w-3 h-3 text-emerald-400" />
+                        <span>Download</span>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section B: Docker System & Build Cache Maintenance */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+            <div>
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-rose-400" />
+                Docker System &amp; Build Cache Maintenance
+              </h3>
+              <p className="text-xs text-zinc-400 mt-1">
+                Prune unused Docker resources and BuildKit layers to prevent disk exhaustion on your VPS host.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-sm font-semibold text-white block">Automated Disk Reclaim</span>
+                  <span className="text-xs text-zinc-400 block max-w-xl">
+                    Executes <code className="text-emerald-400 font-mono">docker builder prune -af</code> to remove build cache and <code className="text-cyan-400 font-mono">docker system prune -af</code> to remove dangling images and stopped builder containers.
+                  </span>
+                </div>
+
+                <DockerPruneButton />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-zinc-800/80 text-xs text-zinc-300">
+                <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                  <div className="flex items-center gap-2 font-mono text-emerald-400 font-semibold">
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>docker builder prune -af</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    Cleans intermediate BuildKit caching layers created during container compilation and Next.js / Node / Python builds.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                  <div className="flex items-center gap-2 font-mono text-cyan-400 font-semibold">
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>docker system prune -af</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    Cleans untagged / dangling Docker images, stopped build runners, and unattached bridge networks.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>
+                  <strong>Safe Execution Guarantee:</strong> Database volumes (SQLite/PostgreSQL) and currently running production application containers are never removed.
+                </span>
+              </div>
             </div>
           </div>
         </div>

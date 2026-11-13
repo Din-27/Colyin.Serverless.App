@@ -18,6 +18,8 @@ import {
   Key,
   Layers,
   Zap,
+  Download,
+  Database,
 } from "lucide-react";
 
 export function AddonConnectClient({ addonId }: { addonId: string }) {
@@ -86,7 +88,17 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <a
+            href={`/api/addons/${addonId}/backup`}
+            download
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-xs cursor-pointer"
+            title="Download SQL dump and database schema backup"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Download SQL Backup</span>
+          </a>
+
           <button
             onClick={handleTogglePublic}
             disabled={toggling}

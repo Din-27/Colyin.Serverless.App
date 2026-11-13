@@ -276,13 +276,13 @@ export function AppConsoleTabs({
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-white">Application is Live &amp; Reachable</span>
+                <span className="text-xs font-bold text-foreground">Application is Live &amp; Reachable</span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-600/80 shadow-xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   ONLINE
                 </span>
                 {isJustDeployed && (
-                  <span className="text-[10px] text-emerald-200 font-semibold px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-500/50 shadow-xs">
+                  <span className="text-[10px] text-emerald-800 dark:text-emerald-200 font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-500/50 shadow-xs">
                     Just Deployed!
                   </span>
                 )}
@@ -292,14 +292,14 @@ export function AppConsoleTabs({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs">
                 {primaryDomain && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-semibold text-zinc-200 bg-zinc-900/90 border border-zinc-700/80 px-2 py-0.5 rounded shadow-xs">
+                    <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-200 dark:bg-zinc-900/90 border border-zinc-300 dark:border-zinc-700/80 px-2 py-0.5 rounded shadow-xs">
                       Domain:
                     </span>
                     <a
                       href={accessUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-mono font-bold text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1"
+                      className="font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 hover:underline flex items-center gap-1"
                     >
                       <span>{accessUrl}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -526,12 +526,12 @@ export function AppConsoleTabs({
 
           <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 font-bold text-white">
-                <Globe className="w-4 h-4 text-amber-400" />
+              <span className="flex items-center gap-1.5 font-bold text-foreground">
+                <Globe className="w-4 h-4 text-amber-500 dark:text-amber-400" />
                 Access Endpoint
               </span>
               {!isHttps && (
-                <span className="font-mono text-zinc-200 bg-zinc-800/90 px-2 py-0.5 rounded border border-zinc-700 text-[11px] font-semibold">
+                <span className="font-mono text-zinc-800 dark:text-zinc-200 bg-zinc-200 dark:bg-zinc-800/90 px-2 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 text-[11px] font-semibold">
                   Port {app.internalPort}
                 </span>
               )}
@@ -541,15 +541,15 @@ export function AppConsoleTabs({
                 href={accessUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs font-mono font-bold text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1.5 truncate"
+                className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 hover:underline flex items-center gap-1.5 truncate"
                 title={`Open ${accessUrl}`}
               >
                 <span className="truncate">{accessUrl}</span>
                 <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" />
               </a>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1">
-              <span className="font-semibold text-zinc-300">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+              <span className="font-semibold text-foreground">
                 {primaryDomain ? (isHttps ? "Secure HTTPS (Let's Encrypt)" : "Auto TLS (Let's Encrypt)") : "Local container bridge"}
               </span>
               <CopyButton text={accessUrl} label="Copy Link" />
@@ -573,7 +573,7 @@ export function AppConsoleTabs({
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-white">
+                    <span className="font-mono font-semibold text-zinc-900 dark:text-white">
                       {dep.commitHash || "manual"}
                     </span>
                     <span className="text-zinc-500">&bull;</span>
@@ -621,23 +621,23 @@ export function AppConsoleTabs({
         <div className="space-y-4">
           {/* Post-deploy Access Notification Card */}
           {(activeDeployment?.status === "ACTIVE" || isJustDeployed) && (
-            <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in">
+            <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-950/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="font-semibold text-emerald-300 flex items-center gap-2">
+                  <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
                     <span>Deployment Complete &amp; Running!</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                   </div>
-                  <div className="text-[11px] text-zinc-300 font-mono mt-0.5">
+                  <div className="text-[11px] text-zinc-700 dark:text-zinc-300 font-mono mt-0.5">
                     Live endpoint:{" "}
                     <a
                       href={accessUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white font-bold underline hover:text-emerald-300"
+                      className="text-zinc-900 dark:text-white font-bold underline hover:text-emerald-600 dark:hover:text-emerald-300"
                     >
                       {accessUrl}
                     </a>
@@ -1142,7 +1142,7 @@ function SettingsAndNetworkingTab({
       {/* 2. Public Domains & SSL Management */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
         <div>
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Globe className="w-4 h-4 text-indigo-400" />
             Public Domain Routes &amp; SSL Certificates
           </h3>
@@ -1213,7 +1213,7 @@ function SettingsAndNetworkingTab({
                       href={getClientAccessUrl(dom.host)}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-bold text-white hover:text-indigo-400 flex items-center gap-1.5"
+                      className="font-bold text-foreground hover:text-indigo-500 flex items-center gap-1.5"
                     >
                       <span>{dom.host?.replace(/:\d+.*$/, "")}</span>
                       <ExternalLink className="w-3 h-3 opacity-60" />
@@ -1274,7 +1274,7 @@ function SettingsAndNetworkingTab({
       {/* 3. Network Mesh & Resource Settings */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
         <div>
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Sliders className="w-4 h-4 text-indigo-400" />
             Network Configuration &amp; cgroups Quotas
           </h3>
@@ -1420,7 +1420,7 @@ function SettingsAndNetworkingTab({
 
         <div className="flex items-center justify-between pt-2 border-t border-rose-900/30">
           <div>
-            <div className="text-xs font-semibold text-white">Delete {app.name}</div>
+            <div className="text-xs font-semibold text-foreground">Delete {app.name}</div>
             <div className="text-[11px] text-zinc-500">
               Irreversible action. Cannot be recovered once confirmed.
             </div>
@@ -1487,7 +1487,7 @@ function EnvVarsManager({ appId }: { appId: string }) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-white">Environment Variables</h3>
+        <h3 className="text-base font-semibold text-foreground">Environment Variables</h3>
         <p className="text-xs text-zinc-400 mt-1">
           All secrets are encrypted at rest using AES-256-GCM. Decrypted only inside container memory.
         </p>
