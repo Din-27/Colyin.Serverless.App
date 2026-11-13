@@ -9,17 +9,11 @@ import {
   Loader2,
   KeyRound,
   ArrowLeft,
-  Sparkles,
-  Copy,
-  Check,
-  Eye,
-  EyeOff,
   AlertCircle,
   ShieldCheck,
 } from "lucide-react";
 import { ColyinLogo } from "@/components/ColyinLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { copyToClipboard } from "@/lib/clipboard";
 import {
   Card,
   CardHeader,
@@ -38,12 +32,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isProduction, setIsProduction] = useState(false);
-  const [initialMasterCreds, setInitialMasterCreds] = useState<{
-    email: string;
-    password: string;
-  } | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,30 +44,10 @@ export default function LoginPage() {
           router.replace("/setup");
         } else {
           setIsProduction(!!data.isProduction);
-          const count = typeof data.userCount === "number" ? data.userCount : 1;
-
-          if (count === 1 && data.initialMasterCredentials) {
-            setInitialMasterCreds(data.initialMasterCredentials);
-          } else {
-            setInitialMasterCreds(null);
-          }
         }
       })
       .catch(() => {});
   }, [router]);
-
-  const handleCopy = async (text: string, field: string) => {
-    await copyToClipboard(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  const handleDismissInitialNotice = async () => {
-    setInitialMasterCreds(null);
-    try {
-      await fetch("/api/auth/dismiss-credentials", { method: "POST" });
-    } catch {}
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,100 +106,6 @@ export default function LoginPage() {
             Self-Hosted Serverless Engine & Ingress Controller
           </p>
         </div>
-
-        {/* First-Time Master Credentials Notice */}
-        {initialMasterCreds && (
-          <Card className="border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/20 shadow-sm animate-zoom-in">
-            <CardHeader className="pb-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                  Initial Admin Credentials
-                </span>
-                <Badge variant="brand" className="text-[10px]">VPS Master</Badge>
-              </div>
-              <CardDescription className="text-xs">
-                Generated upon initial deployment. Also saved to <code className="font-mono text-foreground font-semibold">colyin-credentials.txt</code> on your host.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-2 pt-0 pb-3">
-              <div className="p-2.5 rounded-lg bg-background border border-border text-xs font-mono space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-[11px]">Email:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-foreground font-semibold">{initialMasterCreds.email}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(initialMasterCreds.email, "email")}
-                      className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-                      title="Copy Email"
-                    >
-                      {copiedField === "email" ? (
-                        <Check className="w-3 h-3 text-emerald-500" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-1 border-t border-border/60">
-                  <span className="text-muted-foreground text-[11px]">Password:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                      {showPassword ? initialMasterCreds.password : "••••••••••••••••"}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(initialMasterCreds.password, "password")}
-                      className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-                      title="Copy Password"
-                    >
-                      {copiedField === "password" ? (
-                        <Check className="w-3 h-3 text-emerald-500" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <Button
-                  type="button"
-                  variant="brand"
-                  size="sm"
-                  onClick={() => {
-                    setEmail(initialMasterCreds.email);
-                    setPassword(initialMasterCreds.password);
-                  }}
-                  className="flex-1 gap-1.5 text-xs h-8"
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  <span>Auto-Fill</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDismissInitialNotice}
-                  className="text-xs h-8"
-                >
-                  Dismiss
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Main Login Card */}
         <Card className="shadow-lg border-border">

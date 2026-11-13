@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser, ensureDefaultAdmin, getInitialMasterCredentials } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export async function GET() {
@@ -8,7 +8,6 @@ export async function GET() {
     const needsSetup = userCount === 0;
 
     const session = await getSessionUser();
-    const initialMasterCredentials = await getInitialMasterCredentials();
     const isProduction = process.env.NODE_ENV === "production";
 
     if (!session) {
@@ -18,7 +17,6 @@ export async function GET() {
         user: null,
         userCount,
         isProduction,
-        initialMasterCredentials,
       });
     }
 
