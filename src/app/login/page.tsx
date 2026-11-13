@@ -80,10 +80,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate-fade-in">
-      <div className="max-w-md w-full space-y-6">
-        {/* Top Navigation & Settings */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+    <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8 animate-fade-in">
+      <div className="max-w-md w-full space-y-4">
+        {/* Top Navigation & Environment Badge */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group"
@@ -91,7 +91,7 @@ export default function LoginPage() {
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Home</span>
           </Link>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Badge variant="outline" className="font-mono text-[10px]">
               {isProduction ? "Production" : "Development"}
             </Badge>
@@ -99,24 +99,25 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center mb-1">
-            <ColyinLogo size={42} showText={false} animated={true} />
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Sign In to Colyin
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Self-Hosted Serverless Engine & Ingress Controller
-          </p>
-        </div>
+        {/* Unified Login Card */}
+        <Card className="shadow-xl border-border overflow-hidden">
+          {/* Card Header with Brand Logo */}
+          <CardHeader className="text-center space-y-2 pb-4 pt-6">
+            <div className="inline-flex items-center justify-center mb-1 mx-auto">
+              <ColyinLogo size={46} showText={false} animated={true} />
+            </div>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
+              Sign In to Colyin
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              Self-Hosted Serverless Engine &amp; Ingress Controller
+            </CardDescription>
+          </CardHeader>
 
-        {/* Main Login Card */}
-        <Card className="shadow-lg border-border">
-          <CardContent className="pt-6">
+          {/* Card Content with Form */}
+          <CardContent className="space-y-4 pt-0">
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium flex items-center gap-2 animate-fade-in">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium flex items-center gap-2 animate-fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -166,7 +167,7 @@ export default function LoginPage() {
                 type="submit"
                 variant="brand"
                 disabled={loading || !email || !password}
-                className="w-full gap-2 mt-2 h-10"
+                className="w-full gap-2 mt-2 h-10 font-semibold cursor-pointer transition"
               >
                 {loading ? (
                   <>
@@ -182,51 +183,51 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-        </Card>
 
-        {/* Server Host Admin Credentials Location */}
-        <div className="p-3.5 rounded-xl bg-card border border-border shadow-xs space-y-2 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 font-medium text-foreground text-xs">
-              <Terminal className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Lokasi Kredensial Root Admin di Server</span>
-            </span>
-            <Badge variant="outline" className="font-mono text-[10px]">
-              VPS Host
-            </Badge>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Email dan password default administrator tersimpan di server host VPS Anda. Jalankan perintah ini di terminal server untuk melihatnya:
-          </p>
-          <div className="p-2 rounded-lg bg-muted/60 border border-border font-mono text-[11px] text-foreground flex items-center justify-between gap-2">
-            <span className="truncate select-all font-semibold">cat /opt/colyin/colyin-credentials.txt</span>
-            <button
-              type="button"
-              onClick={async () => {
-                await copyToClipboard("cat /opt/colyin/colyin-credentials.txt");
-                setCopiedPath(true);
-                setTimeout(() => setCopiedPath(false), 2000);
-              }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground text-[10px] font-sans font-medium transition cursor-pointer shrink-0 border border-border"
-              title="Salin perintah"
-            >
-              {copiedPath ? (
-                <>
-                  <Check className="w-3 h-3 text-emerald-500" />
-                  <span className="text-emerald-500">Tersalin!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3 h-3 opacity-60" />
-                  <span>Salin</span>
-                </>
-              )}
-            </button>
-          </div>
-          <p className="text-[10px] text-muted-foreground">
-            Lupa password? Reset via terminal VPS: <code className="font-mono text-foreground font-semibold">docker compose exec controller node scripts/reset-admin-password.js &lt;passwordBaru&gt;</code>
-          </p>
-        </div>
+          {/* Card Footer with Host Credentials Access Info */}
+          <CardFooter className="flex-col items-stretch pt-4 border-t border-border/80 bg-muted/20 gap-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-foreground text-[11px]">
+                <Terminal className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Kredensial Root Admin di Server</span>
+              </span>
+              <Badge variant="outline" className="font-mono text-[9px] py-0 px-1.5">
+                VPS Host
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Email &amp; password default tersimpan di server VPS host. Jalankan perintah ini di terminal server untuk melihatnya:
+            </p>
+            <div className="p-2 rounded-lg bg-background border border-border font-mono text-[11px] text-foreground flex items-center justify-between gap-2 shadow-xs">
+              <span className="truncate select-all font-semibold">cat /opt/colyin/colyin-credentials.txt</span>
+              <button
+                type="button"
+                onClick={async () => {
+                  await copyToClipboard("cat /opt/colyin/colyin-credentials.txt");
+                  setCopiedPath(true);
+                  setTimeout(() => setCopiedPath(false), 2000);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground text-[10px] font-sans font-medium transition cursor-pointer shrink-0 border border-border"
+                title="Salin perintah"
+              >
+                {copiedPath ? (
+                  <>
+                    <Check className="w-3 h-3 text-emerald-500" />
+                    <span className="text-emerald-500 font-bold">Tersalin!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3 opacity-60" />
+                    <span>Salin</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-normal">
+              Lupa password? Reset via terminal VPS: <code className="font-mono text-foreground font-semibold">docker compose exec controller node scripts/reset-admin-password.js &lt;passwordBaru&gt;</code>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
