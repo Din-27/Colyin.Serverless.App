@@ -137,15 +137,20 @@ export async function provisionDedicatedAddon(params: {
     envs.push(`REDIS_ARGS=--requirepass ${password}`);
   }
 
-  const portBindings: Record<string, Array<{ HostPort: string }>> = {};
+  const portBindings: Record<string, Array<{ HostIp?: string; HostPort: string }>> = {};
+  const exposedPorts: Record<string, {}> = {
+    [`${template.defaultInternalPort}/tcp`]: {},
+  };
+
   if (params.publicPort) {
     portBindings[`${template.defaultInternalPort}/tcp`] = [
-      { HostPort: params.publicPort.toString() },
+      { HostIp: "0.0.0.0", HostPort: params.publicPort.toString() },
     ];
   }
   if (template.uiPort) {
+    exposedPorts[`${template.uiPort}/tcp`] = {};
     portBindings[`${template.uiPort}/tcp`] = [
-      { HostPort: template.uiPort.toString() },
+      { HostIp: "0.0.0.0", HostPort: template.uiPort.toString() },
     ];
   }
 
@@ -160,6 +165,7 @@ export async function provisionDedicatedAddon(params: {
     name: internalHost,
     Image: template.image,
     Env: envs,
+    ExposedPorts: exposedPorts,
     HostConfig: hostConfig,
     NetworkingConfig: {
       EndpointsConfig: {

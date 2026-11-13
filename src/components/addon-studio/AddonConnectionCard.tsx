@@ -408,6 +408,13 @@ export function AddonConnectionCard() {
                       {isRabbit && <>AMQP Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Web UI: <strong className="text-orange-500">15672</strong></>}
                     </div>
                   </div>
+
+                  <div className="px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-600 dark:text-amber-400 flex items-start gap-2">
+                    <span className="font-semibold shrink-0">⚠️ Firewall Note:</span>
+                    <span>
+                      Jika koneksi gagal dengan <em>&quot;Connection attempt timed out&quot;</em>, pastikan port <strong>{externalConnection.port}</strong> diizinkan (Inbound Allow) di Security Group / Firewall Cloud VPS Anda (atau jalankan <code className="px-1 py-0.5 rounded bg-amber-500/20 font-mono text-[10px]">sudo ufw allow {externalConnection.port}/tcp</code> di VPS).
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

@@ -33,44 +33,50 @@ export async function POST(
       data: { publicPort },
     });
 
-    // 1. Docker container reconfiguration (if containerId exists or Docker engine is active)
-    if (addon.containerId) {
-      try {
-        const { docker } = await import("@/lib/engine/docker");
-        const { provisionDedicatedAddon } = await import("@/lib/engine/addons");
-        const { decryptSecret } = await import("@/lib/engine/crypto");
+    // 1. Docker container reconfiguration (provision dedicated Docker container with publicPort binding)
+    try {
+      const { docker } = await import("@/lib/engine/docker");
+      const { provisionDedicatedAddon } = await import("@/lib/engine/addons");
+      const { decryptSecret } = await import("@/lib/engine/crypto");
 
+      if (addon.containerId) {
         // Stop & remove old container while keeping volume intact
         try {
           const oldContainer = docker.getContainer(addon.containerId);
           await oldContainer.stop({ t: 2 }).catch(() => {});
           await oldContainer.remove().catch(() => {});
         } catch (e) {}
-
-        const decryptedPass = decryptSecret(updated.encryptedPass, updated.iv, updated.authTag);
-        const res = await provisionDedicatedAddon({
-          addonId: updated.id,
-          type: updated.type,
-          networkName: addon.project?.networkName || "bridge",
-          password: decryptedPass,
-          publicPort: updated.publicPort || undefined,
-        });
-
-        await db.addon.update({
-          where: { id: updated.id },
-          data: { containerId: res.containerId },
-        });
-      } catch (dockerErr) {
-        console.warn("[TogglePublic] Docker container reconfiguration fallback:", dockerErr);
+      } else {
+        // Also clean up by internalHost if exists
+        try {
+          const namedContainer = docker.getContainer(addon.internalHost);
+          await namedContainer.stop({ t: 2 }).catch(() => {});
+          await namedContainer.remove().catch(() => {});
+        } catch (e) {}
       }
-    }
 
-    // 2. Start or re-bind native instance (runs natively or fallback if Docker not used)
-    try {
-      const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-      await startNativeAddon(updated);
-    } catch (nativeErr) {
-      console.warn("[TogglePublic] Native runner re-bind notice:", nativeErr);
+      const decryptedPass = decryptSecret(updated.encryptedPass, updated.iv, updated.authTag);
+      const res = await provisionDedicatedAddon({
+        addonId: updated.id,
+        type: updated.type,
+        networkName: addon.project?.networkName || "bridge",
+        password: decryptedPass,
+        publicPort: updated.publicPort || undefined,
+      });
+
+      await db.addon.update({
+        where: { id: updated.id },
+        data: { containerId: res.containerId },
+      });
+    } catch (dockerErr) {
+      console.warn("[TogglePublic] Docker container reconfiguration fallback:", dockerErr);
+      // 2. Fallback to native runner only if Docker is offline
+      try {
+        const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
+        await startNativeAddon(updated);
+      } catch (nativeErr) {
+        console.warn("[TogglePublic] Native runner re-bind notice:", nativeErr);
+      }
     }
 
     return NextResponse.json({

@@ -94,36 +94,27 @@ export async function POST(req: Request) {
       },
     });
 
-    // Provision addon using real native runner or Docker container
-    if (type.toUpperCase() === "POSTGRESQL") {
-      try {
-        const { startNativePostgres } = await import("@/lib/engine/nativeAddonRunner");
-        await startNativePostgres(addon);
-      } catch (nativeErr: any) {
-        console.error("Failed to start native postgres instance:", nativeErr);
-      }
-    } else {
-      try {
-        const res = await provisionDedicatedAddon({
-          addonId: addon.id,
-          type: type.toUpperCase(),
-          networkName: project.networkName,
-          password: generatedPassword,
-          publicPort: publicPort || undefined,
-        });
+    // Provision addon using real Docker container (or native runner fallback if Docker is offline)
+    try {
+      const res = await provisionDedicatedAddon({
+        addonId: addon.id,
+        type: type.toUpperCase(),
+        networkName: project.networkName,
+        password: generatedPassword,
+        publicPort: publicPort || undefined,
+      });
 
-        await db.addon.update({
-          where: { id: addon.id },
-          data: { containerId: res.containerId },
-        });
-      } catch (dockerErr) {
-        console.warn("Docker is offline. Attempting native runner fallback:", dockerErr);
-        try {
-          const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-          await startNativeAddon(addon);
-        } catch (nativeErr) {
-          console.warn("Native addon runner notice:", nativeErr);
-        }
+      await db.addon.update({
+        where: { id: addon.id },
+        data: { containerId: res.containerId },
+      });
+    } catch (dockerErr) {
+      console.warn("Docker is offline. Attempting native runner fallback:", dockerErr);
+      try {
+        const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
+        await startNativeAddon(addon);
+      } catch (nativeErr) {
+        console.warn("Native addon runner notice:", nativeErr);
       }
     }
 
