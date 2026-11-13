@@ -46,6 +46,23 @@ export const ADDON_TEMPLATES: Record<string, AddonTemplate> = {
     externalUriBuilder: ({ host, port, user, password, dbName }) =>
       `postgresql://${user}:${password}@${host}:${port}/${dbName}`,
   },
+  MYSQL: {
+    type: "MYSQL",
+    name: "MySQL 8 Database",
+    image: "mysql:8.0",
+    defaultInternalPort: 3306,
+    defaultVolumePath: "/var/lib/mysql",
+    envBuilder: ({ password, dbName, username }) => [
+      `MYSQL_ROOT_PASSWORD=${password}`,
+      `MYSQL_DATABASE=${dbName}`,
+      `MYSQL_USER=${username}`,
+      `MYSQL_PASSWORD=${password}`,
+    ],
+    internalUriBuilder: ({ host, port, user, password, dbName }) =>
+      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
+    externalUriBuilder: ({ host, port, user, password, dbName }) =>
+      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
+  },
   REDIS: {
     type: "REDIS",
     name: "Redis In-Memory Cache",

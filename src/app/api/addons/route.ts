@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { projectId, name, type } = body;
+    const { projectId, name, type, isPublic } = body;
 
     if (!projectId || !name || !type) {
       return NextResponse.json(
@@ -66,6 +66,12 @@ export async function POST(req: Request) {
       );
     }
 
+    let publicPort: number | null = null;
+    if (isPublic) {
+      const { allocateUniqueAddonPublicPort } = await import("@/lib/engine/ports");
+      publicPort = await allocateUniqueAddonPublicPort("addon_" + Date.now().toString(36));
+    }
+
     const generatedPassword = crypto.randomBytes(12).toString("hex");
     const encrypted = encryptSecret(generatedPassword);
 
@@ -79,6 +85,7 @@ export async function POST(req: Request) {
         type: type.toUpperCase(),
         internalHost,
         internalPort: template.defaultInternalPort,
+        publicPort,
         volumeName,
         encryptedPass: encrypted.ciphertext,
         iv: encrypted.iv,
@@ -102,6 +109,7 @@ export async function POST(req: Request) {
           type: type.toUpperCase(),
           networkName: project.networkName,
           password: generatedPassword,
+          publicPort: publicPort || undefined,
         });
 
         await db.addon.update({
@@ -109,7 +117,13 @@ export async function POST(req: Request) {
           data: { containerId: res.containerId },
         });
       } catch (dockerErr) {
-        console.warn("Docker is offline. Addon simulated for development:", dockerErr);
+        console.warn("Docker is offline. Attempting native runner fallback:", dockerErr);
+        try {
+          const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
+          await startNativeAddon(addon);
+        } catch (nativeErr) {
+          console.warn("Native addon runner notice:", nativeErr);
+        }
       }
     }
 

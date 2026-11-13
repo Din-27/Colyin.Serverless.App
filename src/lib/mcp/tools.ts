@@ -149,7 +149,7 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
             select: { id: true, name: true, slug: true, internalPort: true },
           },
           addons: {
-            select: { id: true, name: true, type: true, status: true },
+            select: { id: true, name: true, type: true, status: true, publicPort: true, internalPort: true },
           },
         },
         orderBy: { createdAt: "desc" },

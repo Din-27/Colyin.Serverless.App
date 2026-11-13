@@ -176,11 +176,24 @@ export function AddonConnectionCard() {
 
             {externalConnection.connectionUri && (() => {
               const isPostgres = data.type === "POSTGRESQL";
+              const isMysql = data.type === "MYSQL";
               const isRedis = data.type === "REDIS";
               const isRabbit = data.type === "RABBITMQ";
+              const isMinio = data.type === "MINIO";
               const dbName = externalConnection.database || "main";
+
               const jdbcUrl = isPostgres
                 ? `jdbc:postgresql://${externalConnection.host}:${externalConnection.port}/${dbName}?ssl=false`
+                : isMysql
+                ? `jdbc:mysql://${externalConnection.host}:${externalConnection.port}/${dbName}?useSSL=false&allowPublicKeyRetrieval=true`
+                : null;
+
+              const cliCommand = isPostgres
+                ? `PGPASSWORD="${externalConnection.password}" psql -h ${externalConnection.host} -p ${externalConnection.port} -U ${externalConnection.user} -d ${dbName}`
+                : isMysql
+                ? `mysql -h ${externalConnection.host} -P ${externalConnection.port} -u ${externalConnection.user} -p"${externalConnection.password}" ${dbName}`
+                : isRedis
+                ? `redis-cli -h ${externalConnection.host} -p ${externalConnection.port} -a "${externalConnection.password}"`
                 : null;
 
               return (
@@ -188,10 +201,12 @@ export function AddonConnectionCard() {
                   {jdbcUrl && (
                     <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
                       <div className="truncate mr-4">
-                        <span className="text-muted-foreground block text-[11px] font-sans">DBeaver JDBC URL (PostgreSQL)</span>
+                        <span className="text-muted-foreground block text-[11px] font-sans">
+                          {isPostgres ? "DBeaver JDBC URL (PostgreSQL)" : "DBeaver JDBC URL (MySQL)"}
+                        </span>
                         <span className="text-emerald-500 font-medium truncate">{jdbcUrl}</span>
                       </div>
-                      <CopyButton text={jdbcUrl} label="Copy DBeaver URL" />
+                      <CopyButton text={jdbcUrl} label="Copy JDBC URL" />
                     </div>
                   )}
 
@@ -202,6 +217,10 @@ export function AddonConnectionCard() {
                           ? "Redis Connection URI"
                           : isRabbit
                           ? "AMQP Connection URI"
+                          : isMysql
+                          ? "MySQL Connection URI"
+                          : isPostgres
+                          ? "PostgreSQL Connection URI"
                           : "Client Connection URI"}
                       </span>
                       <span className="text-amber-500 font-medium truncate">
@@ -215,6 +234,20 @@ export function AddonConnectionCard() {
                     </div>
                     <CopyButton text={externalConnection.connectionUri} label="Copy Client URI" />
                   </div>
+
+                  {cliCommand && (
+                    <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
+                      <div className="truncate mr-4">
+                        <span className="text-muted-foreground block text-[11px] font-sans">Terminal CLI Command</span>
+                        <span className="text-cyan-600 dark:text-cyan-400 font-medium truncate">
+                          {showPassword
+                            ? cliCommand
+                            : cliCommand.replace(externalConnection.password, "••••••••")}
+                        </span>
+                      </div>
+                      <CopyButton text={cliCommand} label="Copy CLI Command" />
+                    </div>
+                  )}
 
                   {/* RabbitMQ Management URL Row in External Connection */}
                   {isRabbit && webManagementUiUrl && (
@@ -252,17 +285,27 @@ export function AddonConnectionCard() {
                   <div className="p-2.5 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="text-emerald-500 font-bold shrink-0">
-                        {isPostgres ? "DBeaver Tip:" : isRedis ? "Redis Tip:" : isRabbit ? "RabbitMQ Tip:" : "Connection Tip:"}
+                        {isPostgres
+                          ? "Postgres Tip:"
+                          : isMysql
+                          ? "MySQL Tip:"
+                          : isRedis
+                          ? "Redis Tip:"
+                          : isRabbit
+                          ? "RabbitMQ Tip:"
+                          : "Connection Tip:"}
                       </span>
                       <span>
-                        {isPostgres && "Pilih driver PostgreSQL di DBeaver. Tab SSL diatur ke disabled/uncheck."}
+                        {isPostgres && "Pilih driver PostgreSQL di DBeaver/TablePlus. SSL disetel ke disabled/uncheck."}
+                        {isMysql && "Gunakan driver MySQL 8 di DBeaver/TablePlus. allowPublicKeyRetrieval=true."}
                         {isRedis && "Gunakan redis-cli, RedisInsight, atau client library ioredis/redis untuk terhubung langsung."}
                         {isRabbit && "Gunakan AMQP library (amqplib) untuk worker queue atau akses Web Console di bawah."}
-                        {!isPostgres && !isRedis && !isRabbit && "Gunakan credential ini untuk terhubung dari aplikasi lokal atau cloud."}
+                        {isMinio && "Gunakan S3 SDK (AWS S3 / minio-js) dengan endpoint URL dan root credentials di atas."}
+                        {!isPostgres && !isMysql && !isRedis && !isRabbit && !isMinio && "Gunakan credential ini untuk terhubung dari aplikasi lokal atau cloud."}
                       </span>
                     </div>
                     <div className="text-muted-foreground font-mono text-[10px]">
-                      {isPostgres && <>Database: <strong className="text-foreground">{dbName}</strong> &bull; User: <strong className="text-foreground">{externalConnection.user}</strong></>}
+                      {(isPostgres || isMysql) && <>Database: <strong className="text-foreground">{dbName}</strong> &bull; User: <strong className="text-foreground">{externalConnection.user}</strong></>}
                       {isRedis && <>Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Auth: <strong className="text-foreground">Password protected</strong></>}
                       {isRabbit && <>AMQP Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Web UI: <strong className="text-orange-500">15672</strong></>}
                     </div>

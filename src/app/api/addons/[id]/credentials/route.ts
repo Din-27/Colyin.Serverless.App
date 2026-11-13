@@ -49,6 +49,8 @@ export async function GET(
     const username =
       addon.type === "POSTGRESQL"
         ? "postgres"
+        : addon.type === "MYSQL"
+        ? "root"
         : addon.type === "RABBITMQ"
         ? "guest"
         : addon.type === "REDIS"

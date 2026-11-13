@@ -7,6 +7,7 @@ import {
   Plus,
   Loader2,
   Check,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +65,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("POSTGRESQL");
   const [name, setName] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -71,6 +73,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
   const handleOpen = (addonType: string, defaultName: string) => {
     setType(addonType);
     setName(defaultName);
+    setIsPublic(true);
     setError("");
     setOpen(true);
   };
@@ -86,7 +89,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
       const res = await fetch("/api/addons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, name, type }),
+        body: JSON.stringify({ projectId, name, type, isPublic }),
       });
 
       const data = await res.json();
@@ -190,6 +193,26 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
             <p className="text-[11px] text-muted-foreground">
               Will be accessible by other containers in this project as <code className="font-mono text-foreground font-medium">{name || "instance-name"}</code>.
             </p>
+          </div>
+
+          {/* Public Access Toggle */}
+          <div className="p-3 rounded-lg border border-border bg-card/60 flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="addon-is-public"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+            />
+            <div className="flex-1">
+              <label htmlFor="addon-is-public" className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                Enable Public Access (Port Publik Luar)
+              </label>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Buka port publik otomatis agar database/cache ini bisa langsung dihubungkan dari luar (DBeaver, TablePlus, redis-cli, dsb).
+              </p>
+            </div>
           </div>
 
           <DialogFooter className="pt-3 border-t border-border/60">

@@ -152,11 +152,12 @@ export async function getServicesTelemetry() {
     framework: addon.type,
     projectName: addon.project.name,
     port: addon.internalPort,
+    publicPort: addon.publicPort || null,
     status: addon.status || "RUNNING",
     containerId: addon.containerId || null,
     cpuQuota: "1.0 Core",
     memoryQuota: "512 MB",
-    url: `http://${addon.internalHost}:${addon.internalPort}`,
+    url: addon.publicPort ? `localhost:${addon.publicPort}` : `${addon.internalHost}:${addon.internalPort}`,
     updatedAt: addon.updatedAt,
   }));
 
