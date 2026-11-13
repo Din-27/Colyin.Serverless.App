@@ -11,9 +11,13 @@ import {
   ArrowLeft,
   AlertCircle,
   ShieldCheck,
+  Terminal,
+  Copy,
+  Check,
 } from "lucide-react";
 import { ColyinLogo } from "@/components/ColyinLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { copyToClipboard } from "@/lib/clipboard";
 import {
   Card,
   CardHeader,
@@ -32,6 +36,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isProduction, setIsProduction] = useState(false);
+  const [copiedPath, setCopiedPath] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -178,6 +183,50 @@ export default function LoginPage() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Server Host Admin Credentials Location */}
+        <div className="p-3.5 rounded-xl bg-card border border-border shadow-xs space-y-2 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-medium text-foreground text-xs">
+              <Terminal className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Lokasi Kredensial Root Admin di Server</span>
+            </span>
+            <Badge variant="outline" className="font-mono text-[10px]">
+              VPS Host
+            </Badge>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Email dan password default administrator tersimpan di server host VPS Anda. Jalankan perintah ini di terminal server untuk melihatnya:
+          </p>
+          <div className="p-2 rounded-lg bg-muted/60 border border-border font-mono text-[11px] text-foreground flex items-center justify-between gap-2">
+            <span className="truncate select-all font-semibold">cat /opt/colyin/colyin-credentials.txt</span>
+            <button
+              type="button"
+              onClick={async () => {
+                await copyToClipboard("cat /opt/colyin/colyin-credentials.txt");
+                setCopiedPath(true);
+                setTimeout(() => setCopiedPath(false), 2000);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground text-[10px] font-sans font-medium transition cursor-pointer shrink-0 border border-border"
+              title="Salin perintah"
+            >
+              {copiedPath ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-500" />
+                  <span className="text-emerald-500">Tersalin!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 opacity-60" />
+                  <span>Salin</span>
+                </>
+              )}
+            </button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            Lupa password? Reset via terminal VPS: <code className="font-mono text-foreground font-semibold">docker compose exec controller node scripts/reset-admin-password.js &lt;passwordBaru&gt;</code>
+          </p>
+        </div>
       </div>
     </div>
   );
