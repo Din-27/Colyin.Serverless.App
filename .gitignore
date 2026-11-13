@@ -26,6 +26,8 @@
 *credentials.txt
 /apps-storage
 /addons-storage
+*.db
+*.db-journal
 
 # debug
 npm-debug.log*

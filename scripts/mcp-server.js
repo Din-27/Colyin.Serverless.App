@@ -244,3 +244,4 @@ main().catch((err) => {
   console.error("Fatal MCP error:", err);
   process.exit(1);
 });
+

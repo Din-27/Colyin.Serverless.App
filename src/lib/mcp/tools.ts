@@ -558,3 +558,4 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
       throw new Error(`Unknown MCP Tool: '${name}'. Available tools: ${COLYIN_MCP_TOOLS.map((t) => t.name).join(", ")}`);
   }
 }
+
