@@ -21,8 +21,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Radio,
+  Trash2,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DockerPruneButton } from "@/components/DockerPruneButton";
 import { cn } from "@/lib/utils";
 
 interface MetricPoint {
@@ -214,6 +216,8 @@ export function SystemTelemetryDashboard() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <DockerPruneButton variant="compact" onSuccess={fetchMetrics} />
+
           <button
             onClick={() => setIsLive(!isLive)}
             className={cn(
@@ -601,6 +605,20 @@ export function SystemTelemetryDashboard() {
                   ./data &bull; Host Bind Mount
                 </span>
               </div>
+            </div>
+
+            {/* Docker Prune Maintenance Action */}
+            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Trash2 className="w-4 h-4 text-rose-400" />
+                  Docker Build Cache &amp; System Maintenance
+                </h4>
+                <p className="text-[11px] text-zinc-400">
+                  Prune accumulated BuildKit layers and dangling containers to reclaim disk storage (<code className="text-emerald-400 font-mono">docker builder prune -af</code> &amp; <code className="text-cyan-400 font-mono">docker system prune -af</code>).
+                </p>
+              </div>
+              <DockerPruneButton onSuccess={fetchMetrics} />
             </div>
           </div>
         </div>

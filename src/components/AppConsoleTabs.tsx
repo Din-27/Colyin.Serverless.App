@@ -277,12 +277,12 @@ export function AppConsoleTabs({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-bold text-white">Application is Live &amp; Reachable</span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-400 border border-emerald-700/80">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-600/80 shadow-xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   ONLINE
                 </span>
                 {isJustDeployed && (
-                  <span className="text-[10px] text-emerald-300 font-semibold px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
+                  <span className="text-[10px] text-emerald-200 font-semibold px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-500/50 shadow-xs">
                     Just Deployed!
                   </span>
                 )}
@@ -292,7 +292,9 @@ export function AppConsoleTabs({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs">
                 {primaryDomain && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-zinc-400 font-medium">Domain:</span>
+                    <span className="text-[11px] font-semibold text-zinc-200 bg-zinc-900/90 border border-zinc-700/80 px-2 py-0.5 rounded shadow-xs">
+                      Domain:
+                    </span>
                     <a
                       href={accessUrl}
                       target="_blank"
@@ -523,12 +525,16 @@ export function AppConsoleTabs({
           </div>
 
           <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
-            <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="flex items-center gap-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 font-bold text-white">
                 <Globe className="w-4 h-4 text-amber-400" />
                 Access Endpoint
               </span>
-              {!isHttps && <span className="font-mono text-zinc-300">Port {app.internalPort}</span>}
+              {!isHttps && (
+                <span className="font-mono text-zinc-200 bg-zinc-800/90 px-2 py-0.5 rounded border border-zinc-700 text-[11px] font-semibold">
+                  Port {app.internalPort}
+                </span>
+              )}
             </div>
             <div>
               <a
@@ -542,8 +548,10 @@ export function AppConsoleTabs({
                 <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" />
               </a>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
-              <span>{primaryDomain ? (isHttps ? "Secure HTTPS (Let's Encrypt)" : "Auto TLS (Let's Encrypt)") : "Local container bridge"}</span>
+            <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1">
+              <span className="font-semibold text-zinc-300">
+                {primaryDomain ? (isHttps ? "Secure HTTPS (Let's Encrypt)" : "Auto TLS (Let's Encrypt)") : "Local container bridge"}
+              </span>
               <CopyButton text={accessUrl} label="Copy Link" />
             </div>
           </div>

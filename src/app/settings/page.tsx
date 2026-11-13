@@ -21,14 +21,17 @@ import {
   ShieldCheck,
   Check,
   Coffee,
+  HardDrive,
+  Terminal,
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { DockerPruneButton } from "@/components/DockerPruneButton";
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<
-    "rbac" | "alerts" | "oauth" | "ingress" | "appearance"
+    "rbac" | "alerts" | "oauth" | "ingress" | "maintenance" | "appearance"
   >("rbac");
 
   // Users / RBAC State
@@ -285,6 +288,7 @@ export default function SettingsPage() {
           { id: "alerts", label: "Alerts", icon: Bell },
           { id: "oauth", label: "GitHub OAuth", icon: KeyRound },
           { id: "ingress", label: "Domain & SSL", icon: Globe },
+          { id: "maintenance", label: "Maintenance & Docker", icon: HardDrive },
           { id: "appearance", label: "Appearance", icon: Palette },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -887,6 +891,63 @@ export default function SettingsPage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Tab 5: Maintenance & Docker Clean */}
+      {activeTab === "maintenance" && (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+          <div>
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <HardDrive className="w-4 h-4 text-rose-400" />
+              Docker System &amp; Build Cache Maintenance
+            </h3>
+            <p className="text-xs text-zinc-400 mt-1">
+              Prune unused Docker resources and BuildKit layers to prevent disk exhaustion on your VPS host.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-sm font-semibold text-white block">Automated Disk Reclaim</span>
+                <span className="text-xs text-zinc-400 block max-w-xl">
+                  Executes <code className="text-emerald-400 font-mono">docker builder prune -af</code> to remove build cache and <code className="text-cyan-400 font-mono">docker system prune -af</code> to remove dangling images and stopped builder containers.
+                </span>
+              </div>
+
+              <DockerPruneButton />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-zinc-800/80 text-xs text-zinc-300">
+              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                <div className="flex items-center gap-2 font-mono text-emerald-400 font-semibold">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>docker builder prune -af</span>
+                </div>
+                <p className="text-[11px] text-zinc-400">
+                  Cleans intermediate BuildKit caching layers created during container compilation and Next.js / Node / Python builds.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                <div className="flex items-center gap-2 font-mono text-cyan-400 font-semibold">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>docker system prune -af</span>
+                </div>
+                <p className="text-[11px] text-zinc-400">
+                  Cleans untagged / dangling Docker images, stopped build runners, and unattached bridge networks.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>
+                <strong>Safe Execution Guarantee:</strong> Database volumes (SQLite/PostgreSQL) and currently running production application containers are never removed.
+              </span>
+            </div>
+          </div>
         </div>
       )}
 

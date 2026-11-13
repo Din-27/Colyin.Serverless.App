@@ -130,10 +130,22 @@ html:not(.dark) {
   color-scheme: light;
 }
 
-/* 1. All Form Labels in Light Mode - High Contrast Crisp Dark */
-html:not(.dark) label {
+/* 1. All Form Labels in Light & Dark Mode - High Contrast Crisp Text (No Blending with BG) */
+label,
+.form-label {
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+html:not(.dark) label,
+html:not(.dark) .form-label {
   color: #09090b !important;
-  font-weight: 500;
+}
+
+html.dark label,
+html.dark .form-label,
+.dark label {
+  color: #f4f4f5 !important;
 }
 
 /* 2. Surfaces, Panels, Cards in Light Mode */
@@ -396,6 +408,72 @@ html:not(.dark) [class*="bg-cyan-900/"] {
   border-color: #a5f3fc !important;
 }
 
+/* Dark Mode Semantic Badges & Pills - High Contrast (No Blending with Dark BG) */
+html.dark [class*="bg-emerald-950/"],
+html.dark [class*="bg-emerald-900/"],
+.dark [class*="bg-emerald-950/"],
+.dark [class*="bg-emerald-900/"] {
+  background-color: rgba(6, 78, 59, 0.5) !important;
+  color: #a7f3d0 !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+}
+
+html.dark [class*="bg-emerald-950/"] *,
+html.dark [class*="bg-emerald-900/"] *,
+.dark [class*="bg-emerald-950/"] *,
+.dark [class*="bg-emerald-900/"] * {
+  color: #a7f3d0 !important;
+}
+
+html.dark [class*="bg-sky-950/"],
+html.dark [class*="bg-sky-900/"],
+html.dark [class*="bg-blue-950/"],
+.dark [class*="bg-sky-950/"],
+.dark [class*="bg-sky-900/"],
+.dark [class*="bg-blue-950/"] {
+  background-color: rgba(12, 74, 110, 0.5) !important;
+  color: #bae6fd !important;
+  border-color: rgba(14, 165, 233, 0.6) !important;
+}
+
+html.dark [class*="bg-rose-950/"],
+html.dark [class*="bg-rose-900/"],
+html.dark [class*="bg-red-950/"],
+.dark [class*="bg-rose-950/"],
+.dark [class*="bg-rose-900/"],
+.dark [class*="bg-red-950/"] {
+  background-color: rgba(136, 19, 55, 0.5) !important;
+  color: #fecdd3 !important;
+  border-color: rgba(244, 63, 94, 0.6) !important;
+}
+
+html.dark [class*="bg-amber-950/"],
+html.dark [class*="bg-amber-900/"],
+.dark [class*="bg-amber-950/"],
+.dark [class*="bg-amber-900/"] {
+  background-color: rgba(120, 53, 15, 0.5) !important;
+  color: #fde68a !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+}
+
+html.dark [class*="bg-indigo-950/"],
+html.dark [class*="bg-indigo-900/"],
+.dark [class*="bg-indigo-950/"],
+.dark [class*="bg-indigo-900/"] {
+  background-color: rgba(49, 46, 129, 0.5) !important;
+  color: #c7d2fe !important;
+  border-color: rgba(99, 102, 241, 0.6) !important;
+}
+
+html.dark [class*="bg-cyan-950/"],
+html.dark [class*="bg-cyan-900/"],
+.dark [class*="bg-cyan-950/"],
+.dark [class*="bg-cyan-900/"] {
+  background-color: rgba(22, 78, 99, 0.5) !important;
+  color: #a5f3fc !important;
+  border-color: rgba(6, 182, 212, 0.6) !important;
+}
+
 /* 5. Typography Alignment for Cards & Static Texts (Does Not Affect Buttons) */
 html:not(.dark) h1.text-white,
 html:not(.dark) h2.text-white,
@@ -413,7 +491,17 @@ html:not(.dark) [class*="text-zinc-300"]:not(pre *):not([data-terminal="true"] *
 
 html:not(.dark) [class*="text-zinc-400"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *),
 html:not(.dark) [class*="text-zinc-500"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *) {
-  color: #52525b !important;
+  color: #3f3f46 !important;
+}
+
+html.dark [class*="text-zinc-400"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *),
+.dark [class*="text-zinc-400"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *) {
+  color: #e4e4e7 !important;
+}
+
+html.dark [class*="text-zinc-500"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *),
+.dark [class*="text-zinc-500"]:not(pre *):not([data-terminal="true"] *):not(code):not(button *):not(a[class*="bg-"] *) {
+  color: #a1a1aa !important;
 }
 
 /* 6. Borders & Dividers in Light Mode */

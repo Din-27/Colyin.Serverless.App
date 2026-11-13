@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat git openssh-client curl
+RUN apk add --no-cache libc6-compat git openssh-client curl docker-cli
 
 # Install dependencies only when needed
 FROM base AS deps
