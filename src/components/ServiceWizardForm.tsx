@@ -510,7 +510,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
   return (
     <div className="space-y-6">
       {/* Step Indicators */}
-      <div className="flex items-center justify-between pb-4 border-b border-zinc-800 text-xs">
+      <div className="flex items-center justify-between pb-4 border-b border-border text-xs">
         {[
           { num: 1, label: "Repository Source" },
           { num: 2, label: "Attach Resources" },
@@ -520,19 +520,19 @@ export function ServiceWizardForm({ project }: { project: any }) {
             key={s.num}
             className={`flex items-center gap-2 ${
               step === s.num
-                ? "text-indigo-400 font-semibold"
+                ? "text-indigo-600 dark:text-indigo-400 font-semibold"
                 : step > s.num
-                ? "text-emerald-400"
-                : "text-zinc-600"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-muted-foreground/60"
             }`}
           >
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
                 step === s.num
-                  ? "border-indigo-500 bg-indigo-950/60"
+                  ? "border-indigo-500 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                   : step > s.num
-                  ? "border-emerald-500 bg-emerald-950/60"
-                  : "border-zinc-800 bg-zinc-900"
+                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "border-border bg-muted/50 text-muted-foreground/60"
               }`}
             >
               {step > s.num ? <Check className="w-3.5 h-3.5" /> : s.num}
@@ -552,14 +552,14 @@ export function ServiceWizardForm({ project }: { project: any }) {
       {step === 1 && (
         <div className="space-y-6">
           {/* Source Tabs: GitHub Account vs Direct Git URL */}
-          <div className="flex items-center gap-2 p-1 rounded-lg bg-zinc-950 border border-zinc-800 max-w-sm">
+          <div className="flex items-center gap-2 p-1 rounded-lg bg-muted border border-border max-w-sm">
             <button
               type="button"
               onClick={() => setSourceMode("github")}
-              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition ${
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition cursor-pointer ${
                 sourceMode === "github"
-                  ? "bg-zinc-800 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-background text-foreground shadow-xs border border-border/60"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <GithubIcon className="w-3.5 h-3.5" />
@@ -568,10 +568,10 @@ export function ServiceWizardForm({ project }: { project: any }) {
             <button
               type="button"
               onClick={() => setSourceMode("direct")}
-              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition ${
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-semibold transition cursor-pointer ${
                 sourceMode === "direct"
-                  ? "bg-zinc-800 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-background text-foreground shadow-xs border border-border/60"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <LinkIcon className="w-3.5 h-3.5" />
@@ -582,11 +582,11 @@ export function ServiceWizardForm({ project }: { project: any }) {
           {sourceMode === "direct" ? (
             /* Direct Git URL Form */
             <form onSubmit={handleNextStep1} className="space-y-4">
-              <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/70 space-y-4">
+              <div className="p-4 rounded-xl border border-border bg-card shadow-xs space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-foreground mb-1.5 flex items-center justify-between">
                     <span>Git Repository URL</span>
-                    <span className="text-[10px] text-zinc-500 font-normal">Public or Private (.git)</span>
+                    <span className="text-[10px] text-muted-foreground font-normal">Public or Private (.git)</span>
                   </label>
                   <input
                     type="url"
@@ -601,36 +601,36 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         if (last) setName(last);
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     Supports any Git repository URL (GitHub, GitLab, Bitbucket, self-hosted).
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-foreground mb-1.5 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-zinc-400" />
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
                       <span>Git Access Token / PAT (Optional for Private Repos)</span>
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-normal">Encrypted at rest</span>
+                    <span className="text-[10px] text-muted-foreground font-normal">Encrypted at rest</span>
                   </label>
                   <input
                     type="password"
                     placeholder="ghp_xxxx or personal access token (leave blank if public or connected via GitHub)"
                     value={directGitToken}
                     onChange={(e) => setDirectGitToken(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     If this repository is on GitHub and your GitHub account has an active token, it will authenticate automatically even if left blank.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">
                       Service Name
                     </label>
                     <input
@@ -639,12 +639,12 @@ export function ServiceWizardForm({ project }: { project: any }) {
                       placeholder="my-backend-api"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">
                       Branch
                     </label>
                     <input
@@ -653,16 +653,16 @@ export function ServiceWizardForm({ project }: { project: any }) {
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
                       placeholder="main"
-                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-foreground mb-1.5 flex items-center justify-between">
                       <span>Internal Port</span>
-                      <span className="text-[10px] text-zinc-500 font-normal">Must be unique &amp; unoccupied</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">Must be unique &amp; unoccupied</span>
                     </label>
                     <input
                       type="number"
@@ -673,17 +673,17 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         setInternalPort(p);
                         checkPortAvailability(p);
                       }}
-                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                     {portStatus.checking ? (
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-1">
-                        <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
                         <span>Verifying port availability...</span>
                       </div>
                     ) : !portStatus.available ? (
-                      <div className="mt-1.5 p-2 rounded bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-300">
+                      <div className="mt-1.5 p-2 rounded bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-500">
                         <div className="flex items-center gap-1.5">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                           <span>{portStatus.reason || `Port ${internalPort} is already in use`}</span>
                         </div>
                         {portStatus.suggestedPort && (
@@ -693,28 +693,28 @@ export function ServiceWizardForm({ project }: { project: any }) {
                               setInternalPort(portStatus.suggestedPort!);
                               checkPortAvailability(portStatus.suggestedPort!);
                             }}
-                            className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition"
+                            className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-300 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition cursor-pointer"
                           >
                             Use free port :{portStatus.suggestedPort}
                           </button>
                         )}
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-500 mt-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                         <span>Port {internalPort} is free and unique</span>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-foreground mb-1.5">
                       Buildpack Strategy
                     </label>
                     <select
                       value={buildPack}
                       onChange={(e) => setBuildPack(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                       <option value="NIXPACKS">Auto Detect (C, C++, Rust, Zig, Go, Node, Python, PHP, Java, .NET, Ruby, Bun, Deno, Static)</option>
                       <option value="DOCKERFILE">Dockerfile in Repository Root</option>
@@ -723,7 +723,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 </div>
 
                 {buildPack === "NIXPACKS" && (
-                  <div className="pt-2 border-t border-zinc-800/80">
+                  <div className="pt-2 border-t border-border">
                     <RuntimeSelector
                       value={runtimeVersion}
                       onChange={setRuntimeVersion}
@@ -732,7 +732,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 )}
 
                 {/* Core & Memory Resource Quota */}
-                <div className="pt-3 border-t border-zinc-800/80">
+                <div className="pt-3 border-t border-border">
                   <ResourceAllocationSelector
                     cpuLimit={cpuLimit}
                     memoryLimitMb={memoryLimitMb}
@@ -748,7 +748,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   <span>Continue to Resources</span>
                   <ArrowRight className="w-4 h-4" />
@@ -756,29 +756,29 @@ export function ServiceWizardForm({ project }: { project: any }) {
               </div>
             </form>
           ) : checkingGithub ? (
-            <div className="p-12 text-center text-xs text-zinc-500">
-              <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" />
+            <div className="p-12 text-center text-xs text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-500" />
               Checking GitHub integration...
             </div>
           ) : !githubAccount ? (
             /* Connect GitHub State with 1-Click Login ke GitHub */
             <div className="space-y-4">
               {/* Primary 1-Click Login Card (OAuth Flow) */}
-              <div className="p-6 sm:p-7 rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-950/40 via-zinc-950 to-zinc-950 space-y-5 shadow-2xl">
+              <div className="p-6 sm:p-7 rounded-2xl border border-indigo-500/40 bg-card space-y-5 shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-inner shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground shadow-xs shrink-0">
                       <GithubIcon className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-bold text-white">Login ke GitHub</h3>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] sm:text-[11px] text-emerald-400 font-medium">
-                          <Shield className="w-3 h-3 text-emerald-400" />
+                        <h3 className="text-sm sm:text-base font-bold text-foreground">Login ke GitHub</h3>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] sm:text-[11px] text-emerald-500 font-medium">
+                          <Shield className="w-3 h-3 text-emerald-500" />
                           Repositori Publik &amp; Private
                         </span>
                       </div>
-                      <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                         Hubungkan akun GitHub Anda secara instan untuk mendeploy seluruh repositori tanpa perlu repot membuat token manual.
                       </p>
                     </div>
@@ -790,24 +790,24 @@ export function ServiceWizardForm({ project }: { project: any }) {
                   type="button"
                   onClick={handleLoginWithGithub}
                   disabled={loading}
-                  className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-50 text-zinc-950 text-xs sm:text-sm font-bold transition shadow-lg hover:shadow-indigo-500/20 cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs sm:text-sm font-bold transition shadow-xs cursor-pointer"
                 >
-                  <GithubIcon className="w-5 h-5 text-zinc-950" />
+                  <GithubIcon className="w-5 h-5 text-primary-foreground" />
                   <span>Login ke GitHub (1-Click OAuth)</span>
-                  <ArrowRight className="w-4 h-4 text-zinc-600 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </button>
 
                 {/* If local CLI accounts detected (e.g. dev environment) */}
                 {cliAccounts.length > 0 && (
-                  <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <span className="text-zinc-400 text-[11px]">Akun GitHub CLI Lokal Terdeteksi:</span>
+                  <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="text-muted-foreground text-[11px]">Akun GitHub CLI Lokal Terdeteksi:</span>
                     <div className="flex items-center gap-2">
                       {cliAccounts.map((acc: any) => (
                         <button
                           key={acc.username}
                           type="button"
                           onClick={() => handleConnectWithCli(acc.username)}
-                          className="px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono transition"
+                          className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground text-xs font-mono transition cursor-pointer"
                         >
                           Hubungkan @{acc.username}
                         </button>
@@ -817,11 +817,11 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 )}
 
                 {/* Bottom Toggle for Manual Fallback */}
-                <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs">
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
                   <button
                     type="button"
                     onClick={() => setShowManualForm(!showManualForm)}
-                    className="text-[11px] text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono transition"
+                    className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 font-mono transition cursor-pointer"
                   >
                     <span>{showManualForm ? "- Sembunyikan form manual" : "+ Alternatif: Hubungkan via Personal Access Token manual"}</span>
                   </button>
@@ -829,7 +829,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                   <button
                     type="button"
                     onClick={() => setShowOauthModal(true)}
-                    className="text-[11px] text-zinc-500 hover:text-indigo-400 flex items-center gap-1 transition"
+                    className="text-[11px] text-muted-foreground hover:text-indigo-500 flex items-center gap-1 transition cursor-pointer"
                   >
                     <KeyRound className="w-3 h-3" />
                     <span>Konfigurasi OAuth App</span>
@@ -839,23 +839,23 @@ export function ServiceWizardForm({ project }: { project: any }) {
 
               {/* Optional Manual Token Form (Hidden by default, expandable as fallback) */}
               {showManualForm && (
-                <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
-                  <div className="text-xs font-semibold text-zinc-300">
+                <div className="p-6 rounded-xl border border-border bg-card shadow-xs space-y-4">
+                  <div className="text-xs font-semibold text-foreground">
                     Hubungkan via Personal Access Token (Alternatif Manual)
                   </div>
 
                   <form onSubmit={handleConnectGithub} className="space-y-4">
-                    <div className="p-3.5 rounded-lg bg-indigo-950/20 border border-indigo-500/30 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-semibold text-indigo-300">
+                    <div className="p-3.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-semibold text-indigo-500">
                         <span className="flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-amber-400" />
+                          <Lock className="w-3.5 h-3.5 text-amber-500" />
                           Personal Access Token (with 'repo' scope)
                         </span>
                         <a
                           href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Deployment"
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-normal"
+                          className="text-[11px] text-indigo-500 hover:underline flex items-center gap-1 font-normal"
                         >
                           <span>Generate Token</span>
                           <ExternalLink className="w-3 h-3" />
@@ -866,22 +866,22 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         placeholder="ghp_xxxxxxxxxxxx or github_pat_xxxxxxxxxxxx"
                         value={inputToken}
                         onChange={(e) => setInputToken(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">
                         Or GitHub Username (Public Repositories Only)
                       </label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+                        <User className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
                         <input
                           type="text"
                           placeholder="e.g. your-github-username"
                           value={inputUsername}
                           onChange={(e) => setInputUsername(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                          className="w-full pl-9 pr-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                         />
                       </div>
                     </div>
@@ -890,7 +890,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                       <button
                         type="submit"
                         disabled={loading || (!inputUsername.trim() && !inputToken.trim())}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-xs cursor-pointer"
                       >
                         {loading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -908,36 +908,36 @@ export function ServiceWizardForm({ project }: { project: any }) {
             /* Connected GitHub Repository Selector (Real Data with Private Repo Support) */
             <form onSubmit={handleNextStep1} className="space-y-5">
               {/* Account Header */}
-              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3 text-xs">
+              <div className="p-4 rounded-xl bg-card border border-border shadow-xs space-y-3 text-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {githubAccount.avatarUrl ? (
                       <img
                         src={githubAccount.avatarUrl}
                         alt={githubAccount.username}
-                        className="w-8 h-8 rounded-full border border-zinc-700"
+                        className="w-8 h-8 rounded-full border border-border"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-300">
+                      <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-500">
                         <GithubIcon className="w-4 h-4" />
                       </div>
                     )}
                     <div>
                       <div className="flex items-center gap-2">
-                        <strong className="text-white text-xs font-mono">@{githubAccount.username}</strong>
+                        <strong className="text-foreground text-xs font-mono">@{githubAccount.username}</strong>
                         {githubAccount.hasToken ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-medium">
-                            <Shield className="w-3 h-3 text-emerald-400" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-500 font-medium">
+                            <Shield className="w-3 h-3 text-emerald-500" />
                             Private &amp; Public Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-800 text-[10px] text-amber-400 font-medium">
-                            <Lock className="w-3 h-3 text-amber-400" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-500 font-medium">
+                            <Lock className="w-3 h-3 text-amber-500" />
                             Public Repos Only
                           </span>
                         )}
                       </div>
-                      <span className="text-zinc-500 text-[11px] block mt-0.5">
+                      <span className="text-muted-foreground text-[11px] block mt-0.5">
                         {githubAccount.hasToken
                           ? "Connected via Personal Access Token. Private repositories are accessible."
                           : "Connected without token. Add a Personal Access Token with 'repo' scope to load private repositories."}
@@ -950,7 +950,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                       <button
                         type="button"
                         onClick={() => setShowAddTokenForm(!showAddTokenForm)}
-                        className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1"
+                        className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
                       >
                         <Lock className="w-3 h-3" />
                         <span>{showAddTokenForm ? "Cancel" : "Enable Private Repos"}</span>
@@ -960,14 +960,14 @@ export function ServiceWizardForm({ project }: { project: any }) {
                       type="button"
                       onClick={loadRepos}
                       disabled={loadingRepos}
-                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-medium transition"
+                      className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground text-[11px] font-medium transition cursor-pointer"
                     >
                       Refresh
                     </button>
                     <button
                       type="button"
                       onClick={handleDisconnectGithub}
-                      className="text-zinc-500 hover:text-rose-400 text-[11px] px-2 py-1 transition"
+                      className="text-muted-foreground hover:text-rose-500 text-[11px] px-2 py-1 transition cursor-pointer"
                     >
                       Disconnect
                     </button>
@@ -976,24 +976,24 @@ export function ServiceWizardForm({ project }: { project: any }) {
 
                 {/* Inline Add Token Form */}
                 {showAddTokenForm && !githubAccount.hasToken && (
-                  <div className="pt-3 border-t border-zinc-800/80 mt-2">
-                    <div className="p-3 rounded-lg bg-zinc-900 border border-indigo-500/40 space-y-2">
+                  <div className="pt-3 border-t border-border mt-2">
+                    <div className="p-3 rounded-lg bg-card border border-indigo-500/40 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-indigo-300">
+                        <span className="text-xs font-semibold text-indigo-500">
                           Add Personal Access Token for Private Repositories
                         </span>
                         <a
                           href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Private-Repos"
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[11px] text-indigo-400 hover:underline flex items-center gap-1"
+                          className="text-[11px] text-indigo-500 hover:underline flex items-center gap-1"
                         >
                           <span>Generate Token on GitHub</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </div>
-                      <p className="text-[11px] text-zinc-400">
-                        Paste a classic or fine-grained GitHub token with the <code className="text-amber-300 font-mono">repo</code> scope enabled. It will be encrypted with AES-256-GCM.
+                      <p className="text-[11px] text-muted-foreground">
+                        Paste a classic or fine-grained GitHub token with the <code className="text-amber-500 font-mono">repo</code> scope enabled. It will be encrypted with AES-256-GCM.
                       </p>
                       <div className="flex items-center gap-2">
                         <input
@@ -1001,13 +1001,13 @@ export function ServiceWizardForm({ project }: { project: any }) {
                           placeholder="ghp_xxxxxxxxxxxx or github_pat_xxxxxxxxxxxx"
                           value={inlineToken}
                           onChange={(e) => setInlineToken(e.target.value)}
-                          className="flex-1 px-3 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                          className="flex-1 px-3 py-1.5 rounded bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                         />
                         <button
                           type="button"
                           onClick={handleUpdateToken}
                           disabled={inlineTokenLoading || !inlineToken.trim()}
-                          className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
                         >
                           {inlineTokenLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                           Save &amp; Unlock
@@ -1022,23 +1022,23 @@ export function ServiceWizardForm({ project }: { project: any }) {
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-zinc-200">
+                    <label className="text-xs font-semibold text-foreground">
                       Select Repository to Deploy
                     </label>
-                    <span className="text-[11px] text-zinc-500">
+                    <span className="text-[11px] text-muted-foreground">
                       ({repos.length} total fetched)
                     </span>
                   </div>
 
                   {/* Filter Tabs: All, Private, Public */}
-                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px]">
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted border border-border text-[11px]">
                     <button
                       type="button"
                       onClick={() => setRepoFilter("all")}
-                      className={`px-2.5 py-1 rounded transition font-medium ${
+                      className={`px-2.5 py-1 rounded transition font-medium cursor-pointer ${
                         repoFilter === "all"
-                          ? "bg-zinc-800 text-white"
-                          : "text-zinc-400 hover:text-zinc-200"
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       All ({repos.length})
@@ -1046,32 +1046,32 @@ export function ServiceWizardForm({ project }: { project: any }) {
                     <button
                       type="button"
                       onClick={() => setRepoFilter("private")}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium ${
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium cursor-pointer ${
                         repoFilter === "private"
-                          ? "bg-amber-950/70 border border-amber-800 text-amber-300"
-                          : "text-zinc-400 hover:text-zinc-200"
+                          ? "bg-amber-500/10 border border-amber-500/30 text-amber-500"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <Lock className="w-3 h-3 text-amber-400" />
+                      <Lock className="w-3 h-3 text-amber-500" />
                       <span>Private ({privateCount})</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setRepoFilter("public")}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium ${
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded transition font-medium cursor-pointer ${
                         repoFilter === "public"
-                          ? "bg-zinc-800 text-white"
-                          : "text-zinc-400 hover:text-zinc-200"
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <Globe className="w-3 h-3 text-zinc-400" />
+                      <Globe className="w-3 h-3 text-muted-foreground" />
                       <span>Public ({publicCount})</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="relative">
-                  <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+                  <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
                   <input
                     type="text"
                     placeholder={
@@ -1083,19 +1083,19 @@ export function ServiceWizardForm({ project }: { project: any }) {
                     }
                     value={repoSearch}
                     onChange={(e) => setRepoSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-background border border-input text-foreground placeholder:text-muted-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
 
                 {loadingRepos ? (
-                  <div className="p-8 text-center text-xs text-zinc-500">
-                    <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-400" />
+                  <div className="p-8 text-center text-xs text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-500" />
                     Fetching repositories from GitHub API...
                   </div>
                 ) : (
-                  <div className="max-h-64 overflow-y-auto space-y-2 rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-2">
+                  <div className="max-h-64 overflow-y-auto space-y-2 rounded-lg border border-border bg-card p-2">
                     {filteredRepos.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-zinc-500 space-y-2">
+                      <div className="p-6 text-center text-xs text-muted-foreground space-y-2">
                         <div>
                           {repoFilter === "private" && !githubAccount.hasToken
                             ? "No private repositories visible because your account is connected without a token."
@@ -1109,7 +1109,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                           <button
                             type="button"
                             onClick={() => setShowAddTokenForm(true)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer"
                           >
                             <Lock className="w-3.5 h-3.5" />
                             <span>Add Personal Access Token</span>
@@ -1124,42 +1124,42 @@ export function ServiceWizardForm({ project }: { project: any }) {
                             key={repo.fullName}
                             type="button"
                             onClick={() => handleSelectRepo(repo)}
-                            className={`w-full p-3 rounded-lg border text-left transition flex items-center justify-between ${
+                            className={`w-full p-3 rounded-lg border text-left transition flex items-center justify-between cursor-pointer ${
                               isSelected
-                                ? "bg-indigo-950/50 border-indigo-500 text-white"
+                                ? "bg-primary/10 border-primary text-foreground ring-1 ring-primary/40"
                                 : repo.isPrivate
-                                ? "bg-amber-950/10 border-amber-900/40 text-zinc-300 hover:bg-amber-950/20 hover:border-amber-700"
-                                : "bg-zinc-900/40 border-zinc-800/80 text-zinc-300 hover:bg-zinc-900 hover:border-zinc-700"
+                                ? "bg-amber-500/5 border-amber-500/20 text-foreground hover:bg-amber-500/10"
+                                : "bg-card border-border text-foreground hover:bg-accent/40"
                             }`}
                           >
                             <div className="pr-4">
                               <div className="text-xs font-semibold flex items-center gap-2">
                                 <span>{repo.fullName}</span>
                                 {repo.isPrivate && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950/70 border border-amber-800/80 text-[10px] text-amber-300 font-mono">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-500 font-mono">
                                     <Lock className="w-2.5 h-2.5" />
                                     <span>Private</span>
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">
+                              <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
                                 {repo.description || "No description"}
                               </div>
                             </div>
 
                             <div className="flex items-center gap-3 text-right shrink-0">
                               {repo.stars > 0 && (
-                                <span className="flex items-center gap-1 text-[11px] text-amber-400 font-mono">
-                                  <Star className="w-3 h-3 fill-amber-400" />
+                                <span className="flex items-center gap-1 text-[11px] text-amber-500 font-mono">
+                                  <Star className="w-3 h-3 fill-amber-500" />
                                   {repo.stars}
                                 </span>
                               )}
                               {repo.language && (
-                                <span className="text-[11px] text-zinc-400 font-mono">
+                                <span className="text-[11px] text-muted-foreground font-mono">
                                   {repo.language}
                                 </span>
                               )}
-                              {isSelected && <Check className="w-4 h-4 text-indigo-400" />}
+                              {isSelected && <Check className="w-4 h-4 text-primary" />}
                             </div>
                           </button>
                         );
@@ -1170,14 +1170,14 @@ export function ServiceWizardForm({ project }: { project: any }) {
               </div>
 
               {selectedRepoFullName && (
-                <div className="p-4 rounded-xl border border-indigo-500/40 bg-indigo-950/20 space-y-4">
-                  <div className="text-xs font-semibold text-indigo-300">
+                <div className="p-4 rounded-xl border border-indigo-500/40 bg-indigo-500/10 space-y-4">
+                  <div className="text-xs font-semibold text-indigo-500">
                     Selected Service Configuration
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-foreground mb-1">
                         Service Name
                       </label>
                       <input
@@ -1185,11 +1185,11 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-foreground mb-1">
                         Deploy Branch
                       </label>
                       <input
@@ -1197,16 +1197,16 @@ export function ServiceWizardForm({ project }: { project: any }) {
                         required
                         value={branch}
                         onChange={(e) => setBranch(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1 flex items-center justify-between">
+                      <label className="block text-xs font-medium text-foreground mb-1 flex items-center justify-between">
                         <span>Internal Port</span>
-                        <span className="text-[10px] text-zinc-500 font-normal">Must be unique</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Must be unique</span>
                       </label>
                       <input
                         type="number"
@@ -1217,17 +1217,17 @@ export function ServiceWizardForm({ project }: { project: any }) {
                           setInternalPort(p);
                           checkPortAvailability(p);
                         }}
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                       />
                       {portStatus.checking ? (
-                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-1">
-                          <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-1">
+                          <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
                           <span>Verifying port availability...</span>
                         </div>
                       ) : !portStatus.available ? (
-                        <div className="mt-1.5 p-2 rounded bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-300">
+                        <div className="mt-1.5 p-2 rounded bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-500">
                           <div className="flex items-center gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                             <span>{portStatus.reason || `Port ${internalPort} is in use`}</span>
                           </div>
                           {portStatus.suggestedPort && (
@@ -1237,27 +1237,27 @@ export function ServiceWizardForm({ project }: { project: any }) {
                                 setInternalPort(portStatus.suggestedPort!);
                                 checkPortAvailability(portStatus.suggestedPort!);
                               }}
-                              className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition"
+                              className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-300 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition cursor-pointer"
                             >
                               Use free port :{portStatus.suggestedPort}
                             </button>
                           )}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 text-[11px] text-emerald-500 mt-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                           <span>Port {internalPort} is free and unique</span>
                         </div>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-foreground mb-1">
                         Buildpack Protocol
                       </label>
                       <select
                         value={buildPack}
                         onChange={(e) => setBuildPack(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                       >
                         <option value="NIXPACKS">Auto Detect (C, C++, Rust, Zig, Go, Node, Python, PHP, Java, .NET, Ruby, Bun, Deno, Static)</option>
                         <option value="DOCKERFILE">Dockerfile in Root</option>
@@ -1293,7 +1293,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 <button
                   type="submit"
                   disabled={!selectedRepoFullName}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   <span>Continue to Resources</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1308,8 +1308,8 @@ export function ServiceWizardForm({ project }: { project: any }) {
       {step === 2 && (
         <div className="space-y-6">
           <div>
-            <h3 className="text-base font-semibold text-white">Attach Project Addons</h3>
-            <p className="text-xs text-zinc-400 mt-1">
+            <h3 className="text-base font-semibold text-foreground">Attach Project Addons</h3>
+            <p className="text-xs text-muted-foreground mt-1">
               Select existing database or queue addons in project '{project.name}' to auto-inject connection credentials.
             </p>
           </div>
@@ -1319,17 +1319,17 @@ export function ServiceWizardForm({ project }: { project: any }) {
               onClick={() => setSelectedAddonId("")}
               className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
                 selectedAddonId === ""
-                  ? "bg-indigo-950/40 border-indigo-500 text-white"
-                  : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:bg-zinc-900"
+                  ? "bg-indigo-500/10 border-indigo-500 text-foreground"
+                  : "bg-card border-border text-muted-foreground hover:bg-accent/50"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full border flex items-center justify-center">
-                  {selectedAddonId === "" && <div className="w-2 h-2 rounded-full bg-indigo-400" />}
+                <div className="w-4 h-4 rounded-full border border-border flex items-center justify-center">
+                  {selectedAddonId === "" && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
                 </div>
                 <div>
-                  <div className="text-xs font-semibold">Standalone Service (No Addons)</div>
-                  <div className="text-[11px] text-zinc-500">Do not bind any internal project database</div>
+                  <div className="text-xs font-semibold text-foreground">Standalone Service (No Addons)</div>
+                  <div className="text-[11px] text-muted-foreground">Do not bind any internal project database</div>
                 </div>
               </div>
             </label>
@@ -1340,22 +1340,22 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 onClick={() => setSelectedAddonId(addon.id)}
                 className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
                   selectedAddonId === addon.id
-                    ? "bg-indigo-950/40 border-indigo-500 text-white"
-                    : "bg-zinc-950 border-zinc-800 text-zinc-300 hover:bg-zinc-900"
+                    ? "bg-indigo-500/10 border-indigo-500 text-foreground"
+                    : "bg-card border-border text-foreground hover:bg-accent/50"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full border flex items-center justify-center">
-                    {selectedAddonId === addon.id && <div className="w-2 h-2 rounded-full bg-indigo-400" />}
+                  <div className="w-4 h-4 rounded-full border border-border flex items-center justify-center">
+                    {selectedAddonId === addon.id && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
                   </div>
                   <div>
                     <div className="text-xs font-semibold flex items-center gap-2">
-                      <span>{addon.name}</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-indigo-300">
+                      <span className="text-foreground">{addon.name}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-indigo-500">
                         {addon.type}
                       </span>
                     </div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5 font-mono">
+                    <div className="text-[11px] text-muted-foreground mt-0.5 font-mono">
                       Host: {addon.internalHost}:{addon.internalPort}
                     </div>
                   </div>
@@ -1364,11 +1364,11 @@ export function ServiceWizardForm({ project }: { project: any }) {
             ))}
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -1376,7 +1376,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer transition"
             >
               <span>Continue to Environment</span>
               <ArrowRight className="w-4 h-4" />
@@ -1389,38 +1389,38 @@ export function ServiceWizardForm({ project }: { project: any }) {
       {step === 3 && (
         <div className="space-y-6">
           <div>
-            <h3 className="text-base font-semibold text-white">Environment Variables &amp; Launch</h3>
-            <p className="text-xs text-zinc-400 mt-1">
+            <h3 className="text-base font-semibold text-foreground">Environment Variables &amp; Launch</h3>
+            <p className="text-xs text-muted-foreground mt-1">
               Add custom environment variables (.env format). All values are encrypted at rest using AES-256-GCM.
             </p>
           </div>
 
           {/* Domain & Automatic HTTPS Provisioning */}
-          <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/70 space-y-4">
+          <div className="p-4 rounded-xl border border-border bg-card space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-bold text-white">Domain &amp; Automatic HTTPS</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800">
-                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  <Globe className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-bold text-foreground">Domain &amp; Automatic HTTPS</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    <ShieldCheck className="w-3 h-3 text-emerald-500" />
                     SSL Active
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-0.5">
+                <p className="text-[11px] text-muted-foreground mt-0.5">
                   Every deployment automatically receives a production HTTPS domain managed by Traefik.
                 </p>
               </div>
 
               {/* Mode Toggle Buttons */}
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 self-start sm:self-auto text-xs">
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted border border-border self-start sm:self-auto text-xs">
                 <button
                   type="button"
                   onClick={() => setDomainMode("auto")}
-                  className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+                  className={`px-3 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
                     domainMode === "auto"
-                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Automatic (Vercel Style)
@@ -1428,10 +1428,10 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 <button
                   type="button"
                   onClick={() => setDomainMode("custom")}
-                  className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+                  className={`px-3 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
                     domainMode === "custom"
-                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Custom Domain
@@ -1440,34 +1440,34 @@ export function ServiceWizardForm({ project }: { project: any }) {
             </div>
 
             {domainMode === "auto" ? (
-              <div className="p-3.5 rounded-lg border border-emerald-500/30 bg-emerald-950/10 space-y-2">
+              <div className="p-3.5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
-                    <Lock className="w-3 h-3 text-emerald-400" />
+                  <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                    <Lock className="w-3 h-3 text-emerald-500" />
                     Assigned Public HTTPS Domain:
                   </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">
+                  <span className="text-[10px] text-muted-foreground font-mono">
                     Wildcard: *.{wildcardDomain}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-md bg-zinc-900 border border-emerald-500/30 flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-mono text-xs font-bold text-emerald-400">
-                    <Lock className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                <div className="p-2.5 rounded-md bg-background border border-emerald-500/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <Lock className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                     <span className="truncate">
                       https://{(name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "app")}-{autoSlugSuffix}.{wildcardDomain}
                     </span>
                   </div>
-                  <span className="text-[10px] text-zinc-400 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 font-sans font-medium">
+                  <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded bg-muted border border-border font-sans font-medium">
                     Auto-Provisioned
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-400">
+                <p className="text-[11px] text-muted-foreground">
                   Ready immediately upon launch. Traefik automatically routes traffic and terminates TLS encryption without DNS configuration.
                 </p>
               </div>
             ) : (
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-300">
+                <label className="block text-xs font-medium text-foreground">
                   Your Custom Domain FQDN
                 </label>
                 <input
@@ -1475,23 +1475,23 @@ export function ServiceWizardForm({ project }: { project: any }) {
                   placeholder="e.g. app.mycompany.com"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                 />
-                <div className="p-2.5 rounded-md bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 flex items-center justify-between font-mono">
+                <div className="p-2.5 rounded-md bg-muted/50 border border-border text-[11px] text-muted-foreground flex items-center justify-between font-mono">
                   <span>
                     Endpoint:{" "}
-                    <span className="text-emerald-400 font-bold">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                       https://{domain.trim().replace(/^https?:\/\//, "") || `app-${autoSlugSuffix}.${wildcardDomain}`}
                     </span>
                   </span>
-                  <span className="text-zinc-500 text-[10px] font-sans">Point CNAME to server IP</span>
+                  <span className="text-muted-foreground text-[10px] font-sans">Point CNAME to server IP</span>
                 </div>
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Environment Variables (.env format)
             </label>
             <textarea
@@ -1499,15 +1499,15 @@ export function ServiceWizardForm({ project }: { project: any }) {
               placeholder={`NODE_ENV=production\nAPI_KEY=secret_key_12345\nPORT=3000`}
               value={envText}
               onChange={(e) => setEnvText(e.target.value)}
-              className="w-full p-3 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full p-3 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -1516,7 +1516,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
               type="button"
               disabled={loading}
               onClick={handleFinishDeploy}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow transition"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow-xs transition cursor-pointer"
             >
               {loading ? (
                 <>

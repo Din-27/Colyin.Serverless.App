@@ -61,7 +61,7 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-xs text-zinc-500">
+      <div className="p-12 text-center text-xs text-muted-foreground">
         <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" />
         Decrypting connection credentials...
       </div>
@@ -77,13 +77,13 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
   return (
     <div className="space-y-6">
       {/* Transparency Banner */}
-      <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-4 rounded-xl border border-border bg-card shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Shield className="w-4 h-4 text-emerald-500" />
             Transparent Connection & No Black-Box Access
           </h3>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             You have direct, unrestricted access to this engine from your local tools (DBeaver, TablePlus, pgAdmin, RedisInsight).
           </p>
         </div>
@@ -102,10 +102,10 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
           <button
             onClick={handleTogglePublic}
             disabled={toggling}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
               isPublic
-                ? "bg-amber-950/60 border-amber-800 text-amber-300 hover:bg-amber-900/60"
-                : "bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700"
+                ? "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-300 hover:bg-amber-500/25"
+                : "bg-secondary border-border text-foreground hover:bg-secondary/80"
             }`}
           >
             {toggling && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -115,52 +115,52 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
       </div>
 
       {/* Internal Connection Details */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
         <div>
-          <h4 className="text-sm font-semibold text-white">
+          <h4 className="text-sm font-semibold text-foreground">
             Internal Network Connection (Inside Server)
           </h4>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Use these credentials inside backend services running in the same project network.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
             <div>
-              <span className="text-zinc-500 block text-[11px]">Hostname</span>
-              <span className="text-zinc-200">{internalConnection.host}</span>
+              <span className="text-muted-foreground block text-[11px] font-sans">Hostname</span>
+              <span className="text-foreground">{internalConnection.host}</span>
             </div>
             <CopyButton text={internalConnection.host} />
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
             <div>
-              <span className="text-zinc-500 block text-[11px]">Internal Port</span>
-              <span className="text-zinc-200">{internalConnection.port}</span>
+              <span className="text-muted-foreground block text-[11px] font-sans">Internal Port</span>
+              <span className="text-foreground">{internalConnection.port}</span>
             </div>
             <CopyButton text={internalConnection.port.toString()} />
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
             <div>
-              <span className="text-zinc-500 block text-[11px]">Username</span>
-              <span className="text-zinc-200">{internalConnection.user}</span>
+              <span className="text-muted-foreground block text-[11px] font-sans">Username</span>
+              <span className="text-foreground">{internalConnection.user}</span>
             </div>
             <CopyButton text={internalConnection.user} />
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
             <div>
-              <span className="text-zinc-500 block text-[11px]">Password</span>
-              <span className="text-zinc-200">
+              <span className="text-muted-foreground block text-[11px] font-sans">Password</span>
+              <span className="text-foreground">
                 {showPassword ? internalConnection.password : "••••••••••••••••"}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setShowPassword(!showPassword)}
-                className="p-1 text-zinc-500 hover:text-white"
+                className="p-1 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
@@ -170,10 +170,10 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
         </div>
 
         {internalConnection.connectionUri && (
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
             <div className="truncate mr-4">
-              <span className="text-zinc-500 block text-[11px]">Internal Connection URI</span>
-              <span className="text-emerald-400 truncate">
+              <span className="text-muted-foreground block text-[11px] font-sans">Internal Connection URI</span>
+              <span className="text-emerald-500 font-medium truncate">
                 {showPassword
                   ? internalConnection.connectionUri
                   : internalConnection.connectionUri.replace(
@@ -188,14 +188,14 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
       </div>
 
       {/* External / Public Remote Connection */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Globe className="w-4 h-4 text-indigo-400" />
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Globe className="w-4 h-4 text-indigo-500" />
               External / Remote Connection (DBeaver, TablePlus, Laptop)
             </h4>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Direct connection credentials for your desktop client.
             </p>
           </div>
@@ -204,18 +204,18 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
         {isPublic && externalConnection ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
                 <div>
-                  <span className="text-zinc-500 block text-[11px]">Public Host</span>
-                  <span className="text-zinc-200">{externalConnection.host}</span>
+                  <span className="text-muted-foreground block text-[11px] font-sans">Public Host</span>
+                  <span className="text-foreground">{externalConnection.host}</span>
                 </div>
                 <CopyButton text={externalConnection.host} />
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
                 <div>
-                  <span className="text-zinc-500 block text-[11px]">Public Port</span>
-                  <span className="text-amber-400 font-bold">{externalConnection.port}</span>
+                  <span className="text-muted-foreground block text-[11px] font-sans">Public Port</span>
+                  <span className="text-amber-500 font-bold">{externalConnection.port}</span>
                 </div>
                 <CopyButton text={externalConnection.port.toString()} />
               </div>
@@ -233,25 +233,25 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
               return (
                 <div className="space-y-3">
                   {jdbcUrl && (
-                    <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs font-mono">
+                    <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
                       <div className="truncate mr-4">
-                        <span className="text-zinc-500 block text-[11px]">DBeaver JDBC URL (PostgreSQL)</span>
-                        <span className="text-emerald-400 truncate">{jdbcUrl}</span>
+                        <span className="text-muted-foreground block text-[11px] font-sans">DBeaver JDBC URL (PostgreSQL)</span>
+                        <span className="text-emerald-500 font-medium truncate">{jdbcUrl}</span>
                       </div>
                       <CopyButton text={jdbcUrl} label="Copy DBeaver URL" />
                     </div>
                   )}
 
-                  <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs font-mono">
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs font-mono">
                     <div className="truncate mr-4">
-                      <span className="text-zinc-500 block text-[11px]">
+                      <span className="text-muted-foreground block text-[11px] font-sans">
                         {isRedis
                           ? "Redis Connection URI"
                           : isRabbit
                           ? "AMQP Connection URI"
                           : "Client Connection URI"}
                       </span>
-                      <span className="text-amber-400 truncate">
+                      <span className="text-amber-500 font-medium truncate">
                         {showPassword
                           ? externalConnection.connectionUri
                           : externalConnection.connectionUri.replace(
@@ -265,17 +265,17 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
 
                     {/* RabbitMQ Management URL Row in External Connection */}
                     {isRabbit && webManagementUiUrl && (
-                      <div className="p-3 rounded-lg bg-zinc-950 border border-orange-900/40 flex items-center justify-between text-xs font-mono">
+                      <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs font-mono">
                         <div className="truncate mr-4">
-                          <span className="text-orange-400 font-sans font-semibold block text-[11px] flex items-center gap-1.5">
-                            <Globe className="w-3.5 h-3.5 text-orange-400" />
+                          <span className="text-orange-500 font-sans font-semibold block text-[11px] flex items-center gap-1.5">
+                            <Globe className="w-3.5 h-3.5 text-orange-500" />
                             RabbitMQ Web Management URL
                           </span>
                           <a
                             href={webManagementUiUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-orange-300 hover:text-orange-200 hover:underline truncate inline-flex items-center gap-1 mt-0.5"
+                            className="text-orange-600 dark:text-orange-300 hover:underline truncate inline-flex items-center gap-1 mt-0.5"
                           >
                             <span>{webManagementUiUrl}</span>
                             <ExternalLink className="w-3 h-3" />
@@ -296,9 +296,9 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
                       </div>
                     )}
 
-                    <div className="p-2.5 rounded bg-zinc-950/80 border border-zinc-800/80 text-[11px] text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="p-2.5 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-400 font-bold shrink-0">
+                        <span className="text-emerald-500 font-bold shrink-0">
                           {isPostgres ? "DBeaver Tip:" : isRedis ? "Redis Tip:" : isRabbit ? "RabbitMQ Tip:" : "Connection Tip:"}
                         </span>
                         <span>
@@ -308,10 +308,10 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
                           {!isPostgres && !isRedis && !isRabbit && "Gunakan credential ini untuk terhubung dari aplikasi lokal atau cloud."}
                         </span>
                       </div>
-                      <div className="text-zinc-500 font-mono text-[10px]">
-                        {isPostgres && <>Database: <strong className="text-zinc-300">{dbName}</strong> &bull; User: <strong className="text-zinc-300">{externalConnection.user}</strong></>}
-                        {isRedis && <>Port: <strong className="text-zinc-300">{externalConnection.port}</strong> &bull; Auth: <strong className="text-zinc-300">Password protected</strong></>}
-                        {isRabbit && <>AMQP Port: <strong className="text-zinc-300">{externalConnection.port}</strong> &bull; Web UI: <strong className="text-orange-400">15672</strong></>}
+                      <div className="text-muted-foreground font-mono text-[10px]">
+                        {isPostgres && <>Database: <strong className="text-foreground">{dbName}</strong> &bull; User: <strong className="text-foreground">{externalConnection.user}</strong></>}
+                        {isRedis && <>Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Auth: <strong className="text-foreground">Password protected</strong></>}
+                        {isRabbit && <>AMQP Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Web UI: <strong className="text-orange-500">15672</strong></>}
                       </div>
                     </div>
                   </div>
@@ -319,7 +319,7 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
               })()}
             </div>
           ) : (
-            <div className="p-6 rounded-lg bg-zinc-950/60 border border-zinc-800 text-center text-xs text-zinc-500">
+            <div className="p-6 rounded-lg bg-muted/30 border border-border text-center text-xs text-muted-foreground">
               Public access is currently disabled for this instance. Turn on the toggle switch above to allocate an external port.
             </div>
           )}
@@ -337,19 +337,19 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
 
         {/* Web GUI Launcher for RabbitMQ / MinIO */}
         {webManagementUiUrl && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-zinc-800">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-border">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-orange-400" />
+                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-orange-500" />
                     RabbitMQ Web Management Console & Website
                   </h4>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/20">
                     Port 15672
                   </span>
                 </div>
-                <p className="text-xs text-zinc-400 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Pantau queue message broker, laju konsumsi pesan, exchanges, dan active consumer secara visual di browser Anda.
                 </p>
               </div>
@@ -358,7 +358,7 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
                 href={webManagementUiUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm transition shrink-0"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-xs transition shrink-0 cursor-pointer"
               >
                 <span>Launch Web Console</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -366,14 +366,14 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
                 <div>
-                  <span className="text-zinc-500 block text-[11px] font-sans">Website URL</span>
+                  <span className="text-muted-foreground block text-[11px] font-sans">Website URL</span>
                   <a
                     href={webManagementUiUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-orange-400 hover:underline flex items-center gap-1 mt-0.5"
+                    className="text-orange-500 hover:underline flex items-center gap-1 mt-0.5"
                   >
                     {webManagementUiUrl}
                     <ExternalLink className="w-3 h-3" />
@@ -382,11 +382,11 @@ export function AddonConnectClient({ addonId }: { addonId: string }) {
                 <CopyButton text={webManagementUiUrl} label="Copy URL" />
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
                 <div>
-                  <span className="text-zinc-500 block text-[11px] font-sans">Default Web Login</span>
-                  <span className="text-zinc-300 mt-0.5 block">
-                    User: <strong className="text-orange-400">guest</strong> &bull; Pass: <strong className="text-orange-400">guest</strong>
+                  <span className="text-muted-foreground block text-[11px] font-sans">Default Web Login</span>
+                  <span className="text-foreground mt-0.5 block">
+                    User: <strong className="text-orange-500">guest</strong> &bull; Pass: <strong className="text-orange-500">guest</strong>
                   </span>
                 </div>
                 <CopyButton text="guest" label="Copy User" />
@@ -433,19 +433,19 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
   };
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-zinc-800">
+    <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-emerald-500" />
               Web SQL Studio (PostgreSQL)
             </h4>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
               Zero Driver Required
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Query and manage your database directly inside your browser without installing DBeaver or JDBC drivers.
           </p>
         </div>
@@ -454,7 +454,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
           <button
             onClick={() => handleRunQuery()}
             disabled={running}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
           >
             {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
             <span>Execute Query</span>
@@ -464,7 +464,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
 
       {/* Snippet Shortcuts */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-zinc-500 text-[11px]">Quick Queries:</span>
+        <span className="text-muted-foreground text-[11px]">Quick Queries:</span>
         <button
           type="button"
           onClick={() => {
@@ -472,7 +472,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
             setQuery(sql);
             handleRunQuery(sql);
           }}
-          className="px-2 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-mono text-[11px] transition"
+          className="px-2 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground font-mono text-[11px] transition cursor-pointer"
         >
           _minipaas_meta
         </button>
@@ -483,7 +483,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
             setQuery(sql);
             handleRunQuery(sql);
           }}
-          className="px-2 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-mono text-[11px] transition"
+          className="px-2 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground font-mono text-[11px] transition cursor-pointer"
         >
           List Tables
         </button>
@@ -494,7 +494,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
             setQuery(sql);
             handleRunQuery(sql);
           }}
-          className="px-2 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-mono text-[11px] transition"
+          className="px-2 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground font-mono text-[11px] transition cursor-pointer"
         >
           Check Version
         </button>
@@ -507,7 +507,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Write your SQL statement here (e.g. SELECT * FROM users;)"
-          className="w-full px-3 py-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-200 font-mono text-xs focus:outline-none focus:border-indigo-500 leading-relaxed resize-y"
+          className="w-full px-3 py-2.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring leading-relaxed resize-y"
           onKeyDown={(e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
               e.preventDefault();
@@ -515,10 +515,10 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
             }
           }}
         />
-        <div className="flex items-center justify-between text-[11px] text-zinc-500 mt-1">
-          <span>Press <kbd className="px-1 py-0.5 rounded bg-zinc-800 border border-zinc-700 font-mono text-[10px]">Ctrl+Enter</kbd> to run</span>
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1">
+          <span>Press <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">Ctrl+Enter</kbd> to run</span>
           {result && (
-            <span className="text-zinc-400 font-mono">
+            <span className="text-muted-foreground font-mono">
               Executed in {result.executionTimeMs}ms &bull; {result.rowCount} row(s)
             </span>
           )}
@@ -527,22 +527,22 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
 
       {/* Query Error Notice */}
       {error && (
-        <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/80 text-rose-300 text-xs font-mono">
+        <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-mono">
           <span className="font-bold">Error:</span> {error}
         </div>
       )}
 
       {/* Tabular Query Results */}
       {result && result.rows && (
-        <div className="border border-zinc-800 rounded-lg overflow-hidden bg-zinc-950/80">
+        <div className="border border-border rounded-lg overflow-hidden bg-card">
           {result.rows.length === 0 ? (
-            <div className="p-6 text-center text-xs text-zinc-500">
+            <div className="p-6 text-center text-xs text-muted-foreground">
               Query completed successfully with 0 rows returned.
             </div>
           ) : (
             <div className="overflow-x-auto max-h-[360px]">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-zinc-900 border-b border-zinc-800 text-zinc-400 text-[11px] uppercase tracking-wider sticky top-0">
+                <thead className="bg-muted border-b border-border text-muted-foreground text-[11px] uppercase tracking-wider sticky top-0">
                   <tr>
                     {result.fields.map((f: string, i: number) => (
                       <th key={i} className="px-4 py-2 font-medium">
@@ -551,9 +551,9 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-850 text-zinc-200">
+                <tbody className="divide-y divide-border text-foreground">
                   {result.rows.map((row: any, rIdx: number) => (
-                    <tr key={rIdx} className="hover:bg-zinc-900/60 transition">
+                    <tr key={rIdx} className="hover:bg-accent/40 transition">
                       {result.fields.map((f: string, cIdx: number) => {
                         const val = row[f];
                         const displayVal =
@@ -567,7 +567,7 @@ function WebSqlStudio({ addonId }: { addonId: string }) {
                           <td
                             key={cIdx}
                             className={`px-4 py-2 truncate max-w-[320px] ${
-                              val === null ? "text-zinc-600 italic" : ""
+                              val === null ? "text-muted-foreground italic" : ""
                             }`}
                             title={displayVal}
                           >
@@ -749,20 +749,20 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
   );
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+    <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
       {/* Header & Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-rose-400" />
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Layers className="w-4 h-4 text-rose-500" />
               Web Redis Studio & Cache Inspector
             </h4>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/20">
               Zero Driver Required
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Manage your in-memory cache, inspect stored keys, and execute raw RESP Redis commands directly in your browser.
           </p>
         </div>
@@ -770,20 +770,20 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab("keys")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
               activeTab === "keys"
-                ? "bg-rose-600 text-white shadow-sm"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-rose-600 text-white shadow-xs"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
           >
             Key-Value Explorer
           </button>
           <button
             onClick={() => setActiveTab("cli")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
               activeTab === "cli"
-                ? "bg-rose-600 text-white shadow-sm"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-rose-600 text-white shadow-xs"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
@@ -792,10 +792,10 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
           <button
             onClick={fetchRedis}
             disabled={loading}
-            className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition"
+            className="p-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border text-foreground transition cursor-pointer"
             title="Refresh Cache"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-rose-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-rose-500" : ""}`} />
           </button>
         </div>
       </div>
@@ -803,27 +803,27 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
       {/* Metrics Row */}
       {redisData?.stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-            <span className="text-zinc-500 block text-[11px]">Total Keys Stored</span>
-            <span className="text-white font-bold text-base mt-0.5 block font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border">
+            <span className="text-muted-foreground block text-[11px]">Total Keys Stored</span>
+            <span className="text-foreground font-bold text-base mt-0.5 block font-mono">
               {redisData.stats.totalKeys}
             </span>
           </div>
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-            <span className="text-zinc-500 block text-[11px]">Estimated Memory</span>
-            <span className="text-emerald-400 font-bold text-base mt-0.5 block font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border">
+            <span className="text-muted-foreground block text-[11px]">Estimated Memory</span>
+            <span className="text-emerald-500 font-bold text-base mt-0.5 block font-mono">
               {redisData.stats.memory}
             </span>
           </div>
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-            <span className="text-zinc-500 block text-[11px]">Redis Protocol</span>
-            <span className="text-zinc-300 font-semibold text-xs mt-1 block font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border">
+            <span className="text-muted-foreground block text-[11px]">Redis Protocol</span>
+            <span className="text-foreground font-semibold text-xs mt-1 block font-mono">
               RESP v2 / Port {redisData.stats.port}
             </span>
           </div>
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-            <span className="text-zinc-500 block text-[11px]">Server Engine</span>
-            <span className="text-rose-400 font-semibold text-xs mt-1 block font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border">
+            <span className="text-muted-foreground block text-[11px]">Server Engine</span>
+            <span className="text-rose-500 font-semibold text-xs mt-1 block font-mono">
               Redis {redisData.stats.version}
             </span>
           </div>
@@ -831,7 +831,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
       )}
 
       {error && (
-        <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
+        <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
           {error}
         </div>
       )}
@@ -841,20 +841,20 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search keys..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs font-mono focus:outline-none focus:border-rose-500"
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-background border border-input text-foreground text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-sm transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Key</span>
@@ -863,7 +863,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
               <button
                 onClick={handleFlushAll}
                 disabled={flushing || (redisData?.keys || []).length === 0}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-rose-950/50 hover:text-rose-300 hover:border-rose-800 border border-transparent text-zinc-400 text-xs font-medium transition disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/20 border border-border text-foreground text-xs font-medium transition disabled:opacity-40 cursor-pointer"
               >
                 {flushing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                 <span>Flush All</span>
@@ -873,16 +873,16 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
 
           {/* Add Key Form */}
           {showAddForm && (
-            <form onSubmit={handleSaveKey} className="p-4 rounded-lg bg-zinc-950 border border-rose-900/50 space-y-3">
+            <form onSubmit={handleSaveKey} className="p-4 rounded-lg bg-card border border-rose-500/30 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-300 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-rose-500 flex items-center gap-1.5">
                   <Key className="w-3.5 h-3.5" />
                   Store New Key-Value Pair
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="text-zinc-500 hover:text-zinc-300 text-xs"
+                  className="text-muted-foreground hover:text-foreground text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -890,24 +890,24 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] text-zinc-400 mb-1">Key Name</label>
+                  <label className="block text-[11px] text-muted-foreground mb-1">Key Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. session:user:42"
                     value={newKey}
                     onChange={(e) => setNewKey(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-rose-500"
+                    className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] text-zinc-400 mb-1">Value (Text or JSON)</label>
+                  <label className="block text-[11px] text-muted-foreground mb-1">Value (Text or JSON)</label>
                   <input
                     type="text"
                     placeholder='e.g. {"role":"admin","active":true}'
                     value={newValue}
                     onChange={(e) => setNewValue(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-rose-500"
+                    className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
               </div>
@@ -916,7 +916,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                 <button
                   type="submit"
                   disabled={savingKey}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition cursor-pointer"
                 >
                   {savingKey && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Save Key</span>
@@ -926,15 +926,15 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
           )}
 
           {/* Keys Table */}
-          <div className="border border-zinc-800 rounded-lg overflow-hidden bg-zinc-950/80">
+          <div className="border border-border rounded-lg overflow-hidden bg-card">
             {filteredKeys.length === 0 ? (
-              <div className="p-8 text-center text-xs text-zinc-500">
+              <div className="p-8 text-center text-xs text-muted-foreground">
                 {search ? "No keys matched your search filter." : "Redis cache is currently empty. Click 'Add Key' or set values via your application."}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-zinc-900 border-b border-zinc-800 text-zinc-400 text-[11px] uppercase tracking-wider">
+                  <thead className="bg-muted border-b border-border text-muted-foreground text-[11px] uppercase tracking-wider">
                     <tr>
                       <th className="px-4 py-2 font-medium">Key Name</th>
                       <th className="px-4 py-2 font-medium">Type</th>
@@ -943,16 +943,16 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                       <th className="px-4 py-2 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-850 text-zinc-200">
+                  <tbody className="divide-y divide-border text-foreground">
                     {filteredKeys.map((item: any) => {
                       const isExpanded = expandedKey === item.key;
                       return (
-                        <tr key={item.key} className="hover:bg-zinc-900/60 transition">
-                          <td className="px-4 py-2.5 font-bold text-rose-300">
+                        <tr key={item.key} className="hover:bg-accent/40 transition">
+                          <td className="px-4 py-2.5 font-bold text-rose-500">
                             {item.key}
                           </td>
                           <td className="px-4 py-2.5">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground border border-border">
                               {item.type}
                             </span>
                           </td>
@@ -960,14 +960,14 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                             <div className="flex items-center gap-2">
                               <span
                                 onClick={() => setExpandedKey(isExpanded ? null : item.key)}
-                                className="cursor-pointer text-zinc-300 hover:text-white truncate block max-w-[280px]"
+                                className="cursor-pointer text-foreground hover:underline truncate block max-w-[280px]"
                                 title="Click to expand/view full value"
                               >
-                                {item.value || <span className="text-zinc-600 italic">empty</span>}
+                                {item.value || <span className="text-muted-foreground italic">empty</span>}
                               </span>
                             </div>
                             {isExpanded && (
-                              <div className="mt-2 p-2.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-200 whitespace-pre-wrap break-all relative">
+                              <div className="mt-2 p-2.5 rounded bg-muted/40 border border-border text-[11px] text-foreground whitespace-pre-wrap break-all relative">
                                 <div className="absolute top-2 right-2">
                                   <CopyButton text={item.value} />
                                 </div>
@@ -975,7 +975,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                               </div>
                             )}
                           </td>
-                          <td className="px-4 py-2.5 text-zinc-400">
+                          <td className="px-4 py-2.5 text-muted-foreground">
                             {item.size} B
                           </td>
                           <td className="px-4 py-2.5 text-right">
@@ -984,7 +984,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                               <button
                                 onClick={() => handleDeleteKey(item.key)}
                                 disabled={deletingKey === item.key}
-                                className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/40 rounded transition"
+                                className="p-1.5 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded transition cursor-pointer"
                                 title="Delete key"
                               >
                                 {deletingKey === item.key ? (
@@ -1010,7 +1010,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
       {activeTab === "cli" && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-zinc-500 text-[11px]">Quick Commands:</span>
+            <span className="text-muted-foreground text-[11px]">Quick Commands:</span>
             {["PING", "INFO", "KEYS *", "DBSIZE"].map((q) => (
               <button
                 key={q}
@@ -1019,7 +1019,7 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                   setCliCmd(q);
                   handleRunCli(q);
                 }}
-                className="px-2.5 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-mono text-[11px] transition"
+                className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground font-mono text-[11px] transition cursor-pointer"
               >
                 {q}
               </button>
@@ -1040,13 +1040,13 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
                   }
                 }}
                 placeholder="Type a Redis command (e.g. GET user, SET greeting hello, PING)"
-                className="w-full pl-16 pr-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-200 font-mono text-xs focus:outline-none focus:border-rose-500"
+                className="w-full pl-16 pr-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
             <button
               onClick={() => handleRunCli()}
               disabled={cliRunning}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
             >
               {cliRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
               <span>Send</span>
@@ -1054,17 +1054,17 @@ function WebRedisStudio({ addonId }: { addonId: string }) {
           </div>
 
           {/* Console Output Screen */}
-          <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-xs min-h-[140px] flex flex-col justify-between">
+          <div className="p-4 rounded-lg bg-card border border-border font-mono text-xs min-h-[140px] flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-850 text-zinc-500 text-[11px]">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-border text-muted-foreground text-[11px]">
                 <span>RESP Response Output</span>
                 {cliExecutionMs !== null && (
-                  <span className="text-zinc-400 font-mono">
+                  <span className="text-muted-foreground font-mono">
                     Returned in {cliExecutionMs}ms
                   </span>
                 )}
               </div>
-              <pre className="text-emerald-400 whitespace-pre-wrap break-all leading-relaxed">
+              <pre className="text-emerald-500 dark:text-emerald-400 whitespace-pre-wrap break-all leading-relaxed font-mono">
                 {cliOutput ?? '// Output will be displayed here. Type a command and press Enter.'}
               </pre>
             </div>

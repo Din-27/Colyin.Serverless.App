@@ -92,10 +92,10 @@ export function ResourceAllocationSelector({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold text-zinc-300">
+        <label className="block text-xs font-semibold text-foreground">
           Core &amp; Memory Resource Allocation
         </label>
-        <span className="text-[11px] font-mono text-cyan-400">
+        <span className="text-[11px] font-mono text-primary font-medium">
           Active: {cpuLimit} Core{cpuLimit > 1 ? "s" : ""} • {memoryLimitMb} MB RAM
         </span>
       </div>
@@ -111,20 +111,20 @@ export function ResourceAllocationSelector({
               onClick={() => handleSelectMode(preset.id as any)}
               className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-2 cursor-pointer ${
                 isSelected
-                  ? "bg-cyan-950/30 border-cyan-500/60 shadow-lg shadow-cyan-500/10"
-                  : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900"
+                  ? "bg-primary/10 border-primary text-foreground shadow-sm ring-1 ring-primary/40"
+                  : "bg-card border-border hover:border-border/80 hover:bg-accent/50 text-foreground"
               }`}
             >
               <div className="flex items-start justify-between w-full">
                 <div className="flex items-center gap-2">
                   <Icon className={`w-4 h-4 ${preset.color}`} />
-                  <span className="text-xs font-bold text-white">{preset.label}</span>
+                  <span className="text-xs font-bold text-foreground">{preset.label}</span>
                 </div>
-                <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
                   {preset.badge}
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400 leading-tight">
+              <p className="text-[11px] text-muted-foreground leading-tight">
                 {preset.desc}
               </p>
             </button>
@@ -133,9 +133,9 @@ export function ResourceAllocationSelector({
       </div>
 
       {mode === "CUSTOM" && (
-        <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/80 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 animate-in fade-in">
+        <div className="p-4 rounded-xl border border-border bg-card grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 animate-in fade-in">
           <div>
-            <label className="block text-[11px] font-medium text-zinc-300 mb-1">
+            <label className="block text-[11px] font-medium text-foreground mb-1">
               Custom CPU Allocation (Cores)
             </label>
             <input
@@ -145,16 +145,16 @@ export function ResourceAllocationSelector({
               max="32"
               value={customCpu}
               onChange={(e) => handleCustomChange(parseFloat(e.target.value) || 1.0, customMem)}
-              className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-cyan-500"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               placeholder="e.g. 1.5"
             />
-            <p className="text-[10px] text-zinc-500 mt-1">
+            <p className="text-[10px] text-muted-foreground mt-1">
               cgroups v2 NanoCpus quota limit.
             </p>
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-zinc-300 mb-1">
+            <label className="block text-[11px] font-medium text-foreground mb-1">
               Custom Memory Allocation (MB)
             </label>
             <input
@@ -164,10 +164,10 @@ export function ResourceAllocationSelector({
               max="65536"
               value={customMem}
               onChange={(e) => handleCustomChange(customCpu, parseInt(e.target.value, 10) || 512)}
-              className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-cyan-500"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               placeholder="e.g. 1024"
             />
-            <p className="text-[10px] text-zinc-500 mt-1">
+            <p className="text-[10px] text-muted-foreground mt-1">
               Hard RAM ceiling limit before container OOM.
             </p>
           </div>

@@ -308,13 +308,13 @@ export default function SettingsPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "ADMIN":
-        return "bg-rose-950/80 text-rose-300 border-rose-800/80";
+        return "bg-rose-500/10 text-rose-500 border-rose-500/20";
       case "DEVELOPER":
-        return "bg-indigo-950/80 text-indigo-300 border-indigo-800/80";
+        return "bg-indigo-500/10 text-indigo-500 border-indigo-500/20";
       case "VIEWER":
-        return "bg-emerald-950/80 text-emerald-300 border-emerald-800/80";
+        return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
       default:
-        return "bg-zinc-800 text-zinc-300 border-zinc-700";
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -364,20 +364,20 @@ export default function SettingsPage() {
       {activeTab === "rbac" && (
         <div className="space-y-6">
           {/* Change Account / Master Password Card */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-amber-500" />
                   Change Password
                 </h3>
-                <p className="text-xs text-zinc-400 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Update the password for your current account{" "}
                   {currentUser && (
-                    <span className="font-mono text-zinc-300 font-semibold">({currentUser.email})</span>
+                    <span className="font-mono text-foreground font-semibold">({currentUser.email})</span>
                   )}
                   . Changes made by administrators are automatically synchronized to{" "}
-                  <code className="text-amber-300 font-mono text-[11px] bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">
+                  <code className="text-amber-500 font-mono text-[11px] bg-muted px-1.5 py-0.5 rounded border border-border">
                     colyin-credentials.txt
                   </code>{" "}
                   on this VPS host.
@@ -386,27 +386,27 @@ export default function SettingsPage() {
             </div>
 
             {passwordSuccess && (
-              <div className="p-3 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 {passwordSuccess}
               </div>
             )}
             {passwordError && (
-              <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
                 {passwordError}
               </div>
             )}
 
             <form onSubmit={handleUpdatePassword} className="space-y-3 text-xs max-w-lg">
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">New Password</label>
+                <label className="block text-foreground font-semibold mb-1">New Password</label>
                 <input
                   type="password"
                   required
                   placeholder="Enter strong new password (min. 8 chars)"
                   value={myPassword}
                   onChange={(e) => setMyPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
@@ -414,7 +414,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={savingPassword || !myPassword.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
                 >
                   {savingPassword ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -428,25 +428,25 @@ export default function SettingsPage() {
           </div>
 
           {/* Add User Card */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
             <div>
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Plus className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Plus className="w-4 h-4 text-indigo-500" />
                 Add Collaborator / Team Member (RBAC)
               </h3>
-              <p className="text-xs text-zinc-400 mt-1">
-                Admins can provision collaborator accounts with designated role-based access. Note: Collaborator accounts will <strong className="text-zinc-200">never</strong> see master credentials.
+              <p className="text-xs text-muted-foreground mt-1">
+                Admins can provision collaborator accounts with designated role-based access. Note: Collaborator accounts will <strong className="text-foreground">never</strong> see master credentials.
               </p>
             </div>
 
             {userError && (
-              <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
                 {userError}
               </div>
             )}
             {userSuccess && (
-              <div className="p-3 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 {userSuccess}
               </div>
             )}
@@ -454,47 +454,47 @@ export default function SettingsPage() {
             <form onSubmit={handleCreateUser} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Full Name</label>
+                  <label className="block text-foreground font-semibold mb-1">Full Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sarah Jenkins"
                     value={newUserName}
                     onChange={(e) => setNewUserName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Email Address</label>
+                  <label className="block text-foreground font-semibold mb-1">Email Address</label>
                   <input
                     type="email"
                     required
                     placeholder="sarah@company.com"
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Temporary Password</label>
+                  <label className="block text-foreground font-semibold mb-1">Temporary Password</label>
                   <input
                     type="password"
                     required
                     placeholder="Minimum 8 characters"
                     value={newUserPassword}
                     onChange={(e) => setNewUserPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Assigned Role</label>
+                  <label className="block text-foreground font-semibold mb-1">Assigned Role</label>
                   <select
                     value={newUserRole}
                     onChange={(e) => setNewUserRole(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   >
                     <option value="DEVELOPER">DEVELOPER (Deploy &amp; Config Services)</option>
                     <option value="VIEWER">VIEWER (Read-Only Metrics &amp; Logs)</option>
@@ -506,7 +506,7 @@ export default function SettingsPage() {
               <div className="flex justify-end pt-2">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow transition"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Create Member
@@ -516,26 +516,26 @@ export default function SettingsPage() {
           </div>
 
           {/* Users Table */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between text-xs">
-              <span className="font-semibold text-white">Registered Users &amp; Roles</span>
-              <span className="text-zinc-500">{users.length} members</span>
+          <div className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between text-xs">
+              <span className="font-semibold text-foreground">Registered Users &amp; Roles</span>
+              <span className="text-muted-foreground">{users.length} members</span>
             </div>
 
             {loadingUsers ? (
-              <div className="p-8 text-center text-xs text-zinc-500">
-                <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-400" />
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-500" />
                 Loading users...
               </div>
             ) : (
-              <div className="divide-y divide-zinc-800/80 bg-zinc-950">
+              <div className="divide-y divide-border bg-card">
                 {users.map((u) => (
                   <div
                     key={u.id}
                     className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div className="space-y-0.5">
-                      <div className="font-semibold text-white flex items-center gap-2">
+                      <div className="font-semibold text-foreground flex items-center gap-2">
                         <span>{u.name}</span>
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${getRoleBadge(
@@ -545,17 +545,17 @@ export default function SettingsPage() {
                           {u.role}
                         </span>
                       </div>
-                      <div className="text-[11px] text-zinc-400 font-mono">{u.email}</div>
+                      <div className="text-[11px] text-muted-foreground font-mono">{u.email}</div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-zinc-500">
+                      <span className="text-[11px] text-muted-foreground">
                         Joined {new Date(u.createdAt).toLocaleDateString()}
                       </span>
                       <button
                         onClick={() => handleDeleteUser(u.id)}
                         title="Delete user"
-                        className="p-1.5 rounded text-zinc-500 hover:text-rose-400 transition"
+                        className="p-1.5 rounded text-muted-foreground hover:text-rose-500 transition cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -579,8 +579,8 @@ export default function SettingsPage() {
           )}
 
           {/* Trigger Rules */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-            <h3 className="text-sm font-semibold text-white">Active Alert Triggers</h3>
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
+            <h3 className="text-sm font-semibold text-foreground">Active Alert Triggers</h3>
             <div className="space-y-3 text-xs">
               {[
                 {
@@ -606,16 +606,16 @@ export default function SettingsPage() {
               ].map((item) => (
                 <label
                   key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-zinc-950 border border-zinc-800 cursor-pointer hover:bg-zinc-900/60 transition"
+                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-border cursor-pointer hover:bg-muted/70 transition"
                 >
                   <input
                     type="checkbox"
                     defaultChecked
-                    className="mt-0.5 rounded text-indigo-600 bg-zinc-800 border-zinc-700"
+                    className="mt-0.5 rounded text-primary bg-background border-input"
                   />
                   <div>
-                    <div className="font-semibold text-zinc-200">{item.title}</div>
-                    <div className="text-zinc-500 mt-0.5 text-[11px]">{item.desc}</div>
+                    <div className="font-semibold text-foreground">{item.title}</div>
+                    <div className="text-muted-foreground mt-0.5 text-[11px]">{item.desc}</div>
                   </div>
                 </label>
               ))}
@@ -623,15 +623,15 @@ export default function SettingsPage() {
           </div>
 
           {/* Recipient & SMTP Config */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Mail className="w-4 h-4 text-indigo-400" />
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Mail className="w-4 h-4 text-indigo-500" />
               SMTP Server Configuration
             </h3>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block text-zinc-300 font-medium mb-1.5">
+                <label className="block text-foreground font-medium mb-1.5">
                   Alert Recipient Email
                 </label>
                 <input
@@ -639,52 +639,52 @@ export default function SettingsPage() {
                   placeholder="alerts@yourdomain.com"
                   value={alertEmail}
                   onChange={(e) => setAlertEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-zinc-300 font-medium mb-1.5">SMTP Host</label>
+                  <label className="block text-foreground font-medium mb-1.5">SMTP Host</label>
                   <input
                     type="text"
                     placeholder="smtp.mailgun.org or smtp.sendgrid.net"
                     value={smtpHost}
                     onChange={(e) => setSmtpHost(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-medium mb-1.5">SMTP Port</label>
+                  <label className="block text-foreground font-medium mb-1.5">SMTP Port</label>
                   <input
                     type="text"
                     placeholder="587"
                     value={smtpPort}
                     onChange={(e) => setSmtpPort(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-zinc-300 font-medium mb-1.5">Username</label>
+                  <label className="block text-foreground font-medium mb-1.5">Username</label>
                   <input
                     type="text"
                     placeholder="Optional"
                     value={smtpUser}
                     onChange={(e) => setSmtpUser(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-medium mb-1.5">Password</label>
+                  <label className="block text-foreground font-medium mb-1.5">Password</label>
                   <input
                     type="password"
                     placeholder="Optional"
                     value={smtpPass}
                     onChange={(e) => setSmtpPass(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
               </div>
@@ -694,7 +694,7 @@ export default function SettingsPage() {
                   type="button"
                   disabled={isSendingAlert}
                   onClick={handleTestEmail}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
                 >
                   {isSendingAlert ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -711,40 +711,40 @@ export default function SettingsPage() {
 
       {/* Tab 3: GitHub OAuth Configuration */}
       {activeTab === "oauth" && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
+        <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
           <div>
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-indigo-500" />
               GitHub OAuth App Credentials
             </h3>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Configure OAuth credentials to enable zero-token 1-click GitHub authorization for your developers.
             </p>
           </div>
 
           {oauthSaved && (
-            <div className="p-3 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
               GitHub OAuth settings updated!
             </div>
           )}
 
-          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2 text-xs">
-            <span className="font-semibold text-zinc-300 block">
+          <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
+            <span className="font-semibold text-foreground block">
               Authorization Callback URL to register on GitHub:
             </span>
-            <div className="p-2.5 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-between font-mono text-indigo-300">
+            <div className="p-2.5 rounded bg-background border border-border flex items-center justify-between font-mono text-foreground">
               <span>http://localhost:3000/api/github/callback</span>
               <CopyButton text="http://localhost:3000/api/github/callback" label="Copy" />
             </div>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-muted-foreground">
               Register this URL in your GitHub Developer Settings &gt; OAuth Apps.
             </p>
           </div>
 
           <form onSubmit={handleSaveOauth} className="space-y-4 text-xs">
             <div>
-              <label className="block text-zinc-300 font-semibold mb-1">
+              <label className="block text-foreground font-semibold mb-1">
                 GitHub Client ID
               </label>
               <input
@@ -752,12 +752,12 @@ export default function SettingsPage() {
                 placeholder="Ov23li..."
                 value={githubClientId}
                 onChange={(e) => setGithubClientId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-300 font-semibold mb-1">
+              <label className="block text-foreground font-semibold mb-1">
                 GitHub Client Secret
               </label>
               <input
@@ -765,14 +765,14 @@ export default function SettingsPage() {
                 placeholder="••••••••••••••••••••••••"
                 value={githubClientSecret}
                 onChange={(e) => setGithubClientSecret(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow transition"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Save OAuth Credentials
@@ -784,20 +784,20 @@ export default function SettingsPage() {
 
       {/* Tab 4: Wildcard Ingress & Automatic HTTPS */}
       {activeTab === "ingress" && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+        <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
           <div>
             <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-indigo-400" />
-              <h3 className="text-base font-semibold text-white">
+              <Globe className="w-5 h-5 text-indigo-500" />
+              <h3 className="text-base font-semibold text-foreground">
                 Wildcard Ingress &amp; Automatic HTTPS Domains
               </h3>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                <ShieldCheck className="w-3 h-3 text-emerald-500" />
                 Zero-Config TLS
               </span>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Configure the root wildcard domain used to auto-generate public HTTPS subdomains for every deployed service, exactly like Vercel (<span className="font-mono text-zinc-300">*.vercel.app</span>) and Railway (<span className="font-mono text-zinc-300">*.up.railway.app</span>).
+            <p className="text-xs text-muted-foreground mt-1">
+              Configure the root wildcard domain used to auto-generate public HTTPS subdomains for every deployed service, exactly like Vercel (<span className="font-mono text-foreground font-medium">*.vercel.app</span>) and Railway (<span className="font-mono text-foreground font-medium">*.up.railway.app</span>).
             </p>
           </div>
 
@@ -805,47 +805,47 @@ export default function SettingsPage() {
             <div
               className={`p-3.5 rounded-lg text-xs flex items-center gap-2 ${
                 wildcardSaved
-                  ? "bg-emerald-950/60 border border-emerald-800 text-emerald-300"
-                  : "bg-rose-950/60 border border-rose-800 text-rose-300"
+                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500"
+                  : "bg-rose-500/10 border border-rose-500/20 text-rose-500"
               }`}
             >
               {wildcardSaved ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : (
-                <Shield className="w-4 h-4 text-rose-400 shrink-0" />
+                <Shield className="w-4 h-4 text-rose-500 shrink-0" />
               )}
               <span>{wildcardFeedback}</span>
             </div>
           )}
 
           {/* Live Preview Card */}
-          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3 text-xs">
+          <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3 text-xs">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="font-semibold text-foreground flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-emerald-500" />
                 Automatic Application Domain Structure:
               </span>
-              <span className="text-[10px] text-zinc-500 font-mono">Traefik Dynamic Routing</span>
+              <span className="text-[10px] text-muted-foreground font-mono">Traefik Dynamic Routing</span>
             </div>
 
-            <div className="p-3 rounded-lg bg-zinc-900 border border-emerald-500/30 font-mono text-emerald-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="p-3 rounded-lg bg-background border border-border font-mono text-emerald-500 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2 font-bold text-xs truncate">
-                <Lock className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                <Lock className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                 <span className="truncate">https://[app-name]-[rand6].{wildcardDomain}</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800 text-emerald-300 font-sans font-semibold shrink-0">
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-sans font-semibold shrink-0">
                 HTTPS Port 443 + HTTP Redirect
               </span>
             </div>
 
-            <p className="text-[11px] text-zinc-400">
-              With <span className="font-mono text-indigo-300">127.0.0.1.sslip.io</span> or <span className="font-mono text-indigo-300">traefik.me</span>, every subdomain automatically resolves to your local server IP worldwide without editing hosts files.
+            <p className="text-[11px] text-muted-foreground">
+              With <span className="font-mono text-primary font-medium">127.0.0.1.sslip.io</span> or <span className="font-mono text-primary font-medium">traefik.me</span>, every subdomain automatically resolves to your local server IP worldwide without editing hosts files.
             </p>
           </div>
 
           {/* Quick Presets */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-300">
+            <label className="block text-xs font-semibold text-foreground">
               Quick DNS Presets
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -870,22 +870,22 @@ export default function SettingsPage() {
                   key={p.domain}
                   type="button"
                   onClick={() => setWildcardDomain(p.domain)}
-                  className={`p-3 rounded-lg border text-left transition ${
+                  className={`p-3 rounded-lg border text-left transition cursor-pointer ${
                     wildcardDomain === p.domain
-                      ? "bg-indigo-950/50 border-indigo-500 text-white"
-                      : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                      ? "bg-primary/10 border-primary text-foreground ring-1 ring-primary/40"
+                      : "bg-card border-border text-foreground hover:bg-accent/50"
                   }`}
                 >
-                  <div className="text-xs font-bold text-white flex items-center justify-between">
+                  <div className="text-xs font-bold text-foreground flex items-center justify-between">
                     <span>{p.label}</span>
                     {wildcardDomain === p.domain && (
-                      <Check className="w-3.5 h-3.5 text-indigo-400" />
+                      <Check className="w-3.5 h-3.5 text-primary" />
                     )}
                   </div>
-                  <div className="font-mono text-[11px] text-indigo-400 mt-1 truncate">
+                  <div className="font-mono text-[11px] text-primary mt-1 truncate">
                     *.{p.domain}
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-0.5">{p.desc}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{p.desc}</div>
                 </button>
               ))}
             </div>
@@ -893,7 +893,7 @@ export default function SettingsPage() {
 
           <form onSubmit={handleSaveWildcard} className="space-y-4 text-xs pt-2">
             <div>
-              <label className="block text-zinc-300 font-semibold mb-1">
+              <label className="block text-foreground font-semibold mb-1">
                 Root Wildcard Domain
               </label>
               <input
@@ -902,24 +902,24 @@ export default function SettingsPage() {
                 placeholder="e.g. 127.0.0.1.sslip.io or apps.yourdomain.com"
                 value={wildcardDomain}
                 onChange={(e) => setWildcardDomain(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               />
-              <p className="text-[11px] text-zinc-500 mt-1">
-                If using a public server, configure a wildcard DNS record <span className="font-mono text-zinc-400">*.{wildcardDomain}</span> pointing to your server's public IP address.
+              <p className="text-[11px] text-muted-foreground mt-1">
+                If using a public server, configure a wildcard DNS record <span className="font-mono text-foreground">*.{wildcardDomain}</span> pointing to your server's public IP address.
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-              <span className="font-semibold text-zinc-300 block">
+            <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2">
+              <span className="font-semibold text-foreground block">
                 TLS / HTTPS Security Protocol:
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-zinc-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <span>Automatic TLS Let's Encrypt Certificate</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <span>Automatic Port 80 HTTP-to-HTTPS Redirection</span>
                 </div>
               </div>
@@ -929,7 +929,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={savingWildcard}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
               >
                 {savingWildcard ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -947,15 +947,15 @@ export default function SettingsPage() {
       {activeTab === "maintenance" && (
         <div className="space-y-6">
           {/* Section A: Core Database Backup & Recovery */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                  <Database className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                  <Database className="w-4 h-4 text-emerald-500" />
                   Core Platform Database Backup &amp; Recovery
                 </h3>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Download atomic snapshots of the Colyin SQLite database (<code className="text-emerald-300 font-mono">prod.db</code>) containing all applications, deployments, domains, settings, and users.
+                <p className="text-xs text-muted-foreground mt-1">
+                  Download atomic snapshots of the Colyin SQLite database (<code className="text-emerald-500 font-mono">prod.db</code>) containing all applications, deployments, domains, settings, and users.
                 </p>
               </div>
 
@@ -964,13 +964,13 @@ export default function SettingsPage() {
                   type="button"
                   onClick={handleCreateStoredBackup}
                   disabled={creatingBackup}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                   title="Create a timestamped backup in ./data/backups"
                 >
                   {creatingBackup ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
                   ) : (
-                    <Archive className="w-3.5 h-3.5 text-indigo-400" />
+                    <Archive className="w-3.5 h-3.5 text-indigo-500" />
                   )}
                   <span>{creatingBackup ? "Backing up..." : "Create Snapshot"}</span>
                 </button>
@@ -978,7 +978,7 @@ export default function SettingsPage() {
                 <a
                   href="/api/system/backup?download=1"
                   download
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition cursor-pointer"
                   title="Download instantaneous database copy"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -988,7 +988,7 @@ export default function SettingsPage() {
             </div>
 
             {backupMessage && (
-              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2 animate-in fade-in">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>{backupMessage}</span>
               </div>
@@ -996,36 +996,36 @@ export default function SettingsPage() {
 
             {/* Database Metadata Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs font-mono">
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[11px] text-zinc-500 block">Database File Size</span>
-                <span className="text-base font-bold text-emerald-400 block">
+              <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-1">
+                <span className="text-[11px] text-muted-foreground block">Database File Size</span>
+                <span className="text-base font-bold text-emerald-500 block">
                   {dbBackupStats?.sizeFormatted || "Loading..."}
                 </span>
-                <span className="text-[10px] text-zinc-500 block truncate">
+                <span className="text-[10px] text-muted-foreground block truncate">
                   {dbBackupStats?.filePath || "data/prod.db"}
                 </span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[11px] text-zinc-500 block">Active Record Counts</span>
-                <span className="text-sm font-semibold text-zinc-200 block truncate">
+              <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-1">
+                <span className="text-[11px] text-muted-foreground block">Active Record Counts</span>
+                <span className="text-sm font-semibold text-foreground block truncate">
                   {dbBackupStats?.counts
                     ? `${dbBackupStats.counts.applications} Apps • ${dbBackupStats.counts.deployments} Deploys`
                     : "Counting..."}
                 </span>
-                <span className="text-[10px] text-zinc-400 block truncate">
+                <span className="text-[10px] text-muted-foreground block truncate">
                   {dbBackupStats?.counts
                     ? `${dbBackupStats.counts.addons} Addons • ${dbBackupStats.counts.domains} Domains • ${dbBackupStats.counts.users} Users`
                     : "..."}
                 </span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[11px] text-zinc-500 block">Backup Engine Mechanism</span>
-                <span className="text-sm font-semibold text-indigo-400 block">
+              <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-1">
+                <span className="text-[11px] text-muted-foreground block">Backup Engine Mechanism</span>
+                <span className="text-sm font-semibold text-indigo-500 block">
                   Atomic SQLite VACUUM
                 </span>
-                <span className="text-[10px] text-zinc-400 block">
+                <span className="text-[10px] text-muted-foreground block">
                   Zero locks • Safe against active writes
                 </span>
               </div>
@@ -1034,24 +1034,24 @@ export default function SettingsPage() {
             {/* Stored Snapshots History */}
             {dbBackupsList.length > 0 && (
               <div className="space-y-2 pt-2">
-                <span className="text-xs font-semibold text-zinc-300 block">
-                  Stored Snapshots in <code className="text-zinc-400 font-mono">./data/backups/</code> ({dbBackupsList.length})
+                <span className="text-xs font-semibold text-foreground block">
+                  Stored Snapshots in <code className="text-muted-foreground font-mono">./data/backups/</code> ({dbBackupsList.length})
                 </span>
-                <div className="divide-y divide-zinc-800 rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden text-xs">
+                <div className="divide-y divide-border rounded-lg border border-border bg-card overflow-hidden text-xs">
                   {dbBackupsList.slice(0, 5).map((b) => (
                     <div key={b.filename} className="p-3 flex items-center justify-between font-mono gap-3">
                       <div className="truncate">
-                        <span className="text-zinc-200 font-semibold block truncate">{b.filename}</span>
-                        <span className="text-[10px] text-zinc-500 block">
+                        <span className="text-foreground font-semibold block truncate">{b.filename}</span>
+                        <span className="text-[10px] text-muted-foreground block">
                           Size: {b.sizeFormatted} &bull; Created: {new Date(b.createdAt).toLocaleString()}
                         </span>
                       </div>
                       <a
                         href="/api/system/backup?download=1"
                         download
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer text-xs shrink-0"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary border border-border hover:bg-secondary/80 text-foreground transition cursor-pointer text-xs shrink-0"
                       >
-                        <Download className="w-3 h-3 text-emerald-400" />
+                        <Download className="w-3 h-3 text-emerald-500" />
                         <span>Download</span>
                       </a>
                     </div>
@@ -1062,53 +1062,53 @@ export default function SettingsPage() {
           </div>
 
           {/* Section B: Docker System & Build Cache Maintenance */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
             <div>
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <HardDrive className="w-4 h-4 text-rose-400" />
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-rose-500" />
                 Docker System &amp; Build Cache Maintenance
               </h3>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Prune unused Docker resources and BuildKit layers to prevent disk exhaustion on your VPS host.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+            <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <span className="text-sm font-semibold text-white block">Automated Disk Reclaim</span>
-                  <span className="text-xs text-zinc-400 block max-w-xl">
-                    Executes <code className="text-emerald-400 font-mono">docker builder prune -af</code> to remove build cache and <code className="text-cyan-400 font-mono">docker system prune -af</code> to remove dangling images and stopped builder containers.
+                  <span className="text-sm font-semibold text-foreground block">Automated Disk Reclaim</span>
+                  <span className="text-xs text-muted-foreground block max-w-xl">
+                    Executes <code className="text-emerald-500 font-mono">docker builder prune -af</code> to remove build cache and <code className="text-cyan-500 font-mono">docker system prune -af</code> to remove dangling images and stopped builder containers.
                   </span>
                 </div>
 
                 <DockerPruneButton />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-zinc-800/80 text-xs text-zinc-300">
-                <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                  <div className="flex items-center gap-2 font-mono text-emerald-400 font-semibold">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-border text-xs text-foreground">
+                <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
+                  <div className="flex items-center gap-2 font-mono text-emerald-500 font-semibold">
                     <Terminal className="w-3.5 h-3.5" />
                     <span>docker builder prune -af</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400">
+                  <p className="text-[11px] text-muted-foreground">
                     Cleans intermediate BuildKit caching layers created during container compilation and Next.js / Node / Python builds.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                  <div className="flex items-center gap-2 font-mono text-cyan-400 font-semibold">
+                <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
+                  <div className="flex items-center gap-2 font-mono text-cyan-500 font-semibold">
                     <Terminal className="w-3.5 h-3.5" />
                     <span>docker system prune -af</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400">
+                  <p className="text-[11px] text-muted-foreground">
                     Cleans untagged / dangling Docker images, stopped build runners, and unattached bridge networks.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
                 <span>
                   <strong>Safe Execution Guarantee:</strong> Database volumes (SQLite/PostgreSQL) and currently running production application containers are never removed.
                 </span>
@@ -1120,22 +1120,22 @@ export default function SettingsPage() {
 
       {/* Tab 4: Appearance & Theme Settings */}
       {activeTab === "appearance" && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+        <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
           <div>
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <Palette className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <Palette className="w-4 h-4 text-indigo-500" />
               Interface Theme &amp; Styling
             </h3>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Select your preferred color theme or synchronize automatically with your operating system.
             </p>
           </div>
 
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-950 space-y-4">
+          <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="text-sm font-semibold text-white block">Theme Mode</span>
-                <span className="text-xs text-zinc-400 mt-0.5 block">
+                <span className="text-sm font-semibold text-foreground block">Theme Mode</span>
+                <span className="text-xs text-muted-foreground mt-0.5 block">
                   Choose between Light, Dark, or System mode. Changes apply immediately across all console pages.
                 </span>
               </div>
@@ -1145,22 +1145,22 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-zinc-200">
+            <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                 <Sun className="w-4 h-4 text-amber-500" />
                 <span>Light Theme</span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-muted-foreground">
                 Clean, high-contrast slate &amp; white palette optimized for daytime environments, well-lit spaces, and high readability.
               </p>
             </div>
 
-            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-zinc-200">
-                <Moon className="w-4 h-4 text-indigo-400" />
+            <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                <Moon className="w-4 h-4 text-indigo-500" />
                 <span>Dark Theme</span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-muted-foreground">
                 Deep zinc &amp; obsidian dark palette with subtle neon borders, reducing eye fatigue during late-night development.
               </p>
             </div>

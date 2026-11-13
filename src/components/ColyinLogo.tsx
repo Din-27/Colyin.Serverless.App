@@ -23,7 +23,7 @@ export function ColyinLogo({
       {/* Minimalist Vector Mark */}
       <div
         className={cn(
-          "relative shrink-0 flex items-center justify-center rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-xs border border-zinc-800 dark:border-zinc-200 transition-all duration-300",
+          "relative shrink-0 flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs border border-border transition-all duration-300",
           animated && "hover:scale-105 active:scale-95"
         )}
         style={{ width: size, height: size }}

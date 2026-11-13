@@ -123,22 +123,22 @@ export default async function AppPreviewPage({
       </div>
 
       {/* Active Ingress Proxy Card */}
-      <div className="p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-zinc-950 to-zinc-950 shadow-xl space-y-3">
+      <div className="p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-card shadow-sm space-y-3">
         <div className="flex items-start gap-3">
-          <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0 mt-0.5">
+          <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0 mt-0.5">
             <Globe className="w-5 h-5" />
           </div>
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-bold text-emerald-200">
+              <h3 className="text-sm font-bold text-foreground">
                 Native Ingress Reverse Proxy Active
               </h3>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
                 Ports 80 &amp; 443 Live
               </span>
             </div>
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              Domain <span className="font-mono text-emerald-300">{primaryDomain?.host}</span> kini aktif dirouting otomatis melalui Ingress Reverse Proxy ke internal port <span className="font-mono text-zinc-200">:{app.internalPort}</span>.
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Domain <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">{primaryDomain?.host}</span> kini aktif dirouting otomatis melalui Ingress Reverse Proxy ke internal port <span className="font-mono text-foreground font-semibold">:{app.internalPort}</span>.
             </p>
           </div>
         </div>
@@ -149,24 +149,24 @@ export default async function AppPreviewPage({
         {/* Left 2 Cols: Ingress & Live Endpoint Tester */}
         <div className="lg:col-span-2 space-y-6">
           {/* Ingress Card */}
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 backdrop-blur space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div className="p-5 rounded-xl border border-border bg-card space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4 text-indigo-400" />
-                <h2 className="text-sm font-bold text-white">Ingress &amp; Domain Topology</h2>
+                <Globe className="w-4 h-4 text-indigo-500" />
+                <h2 className="text-sm font-bold text-foreground">Ingress &amp; Domain Topology</h2>
               </div>
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono text-muted-foreground">
                 SSL: {primaryDomain?.sslEnabled ? "Active (TLS)" : "Disabled"}
               </span>
             </div>
 
             <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-zinc-950 border border-zinc-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-background border border-border">
                 <div>
-                  <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">
+                  <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
                     Assigned Public Ingress
                   </div>
-                  <div className="text-xs font-mono font-bold text-indigo-300 mt-0.5">
+                  <div className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
                     {accessUrl}
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default async function AppPreviewPage({
                     href={accessUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
+                    className="p-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground transition"
                     title="Open Public Ingress URL"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -184,12 +184,12 @@ export default async function AppPreviewPage({
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-zinc-950 border border-zinc-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-background border border-border">
                 <div>
-                  <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">
+                  <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
                     Direct Local Host Port
                   </div>
-                  <div className="text-xs font-mono font-bold text-emerald-400 mt-0.5">
+                  <div className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
                     {localDirectUrl}
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export default async function AppPreviewPage({
                     href={localDirectUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-950/70 text-emerald-300 text-xs font-medium transition"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-medium transition cursor-pointer"
                   >
                     <span>Open Port</span>
                     <ExternalLink className="w-3 h-3" />
@@ -207,12 +207,12 @@ export default async function AppPreviewPage({
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-zinc-950 border border-zinc-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-background border border-border">
                 <div>
-                  <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">
+                  <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
                     Internal Mesh Address (Docker Network)
                   </div>
-                  <div className="text-xs font-mono text-zinc-300 mt-0.5">
+                  <div className="text-xs font-mono text-foreground mt-0.5">
                     http://{app.slug}:{app.internalPort}
                   </div>
                 </div>
@@ -234,76 +234,76 @@ export default async function AppPreviewPage({
         {/* Right 1 Col: Diagnostics & Deployment Metadata */}
         <div className="space-y-6">
           {/* Runtime & Host Health */}
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 backdrop-blur space-y-4">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Server className="w-4 h-4 text-emerald-400" />
+          <div className="p-5 rounded-xl border border-border bg-card space-y-4">
+            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Server className="w-4 h-4 text-emerald-500" />
               <span>Runtime Environment</span>
             </h2>
 
             <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                <span className="text-zinc-400">Docker Daemon</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                <span className="text-muted-foreground">Docker Daemon</span>
                 <span
                   className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
                     dockerStatus.online
-                      ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800"
-                      : "bg-amber-950/80 text-amber-300 border border-amber-800"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                      : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30"
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      dockerStatus.online ? "bg-emerald-400" : "bg-amber-400"
+                      dockerStatus.online ? "bg-emerald-500" : "bg-amber-500"
                     }`}
                   />
                   {dockerStatus.online ? "Online (Connected)" : "Simulated Local Mode"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                <span className="text-zinc-400">Local Port Status</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                <span className="text-muted-foreground">Local Port Status</span>
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
                     isPortOccupied
-                      ? "bg-indigo-950 text-indigo-300 border border-indigo-800"
-                      : "bg-zinc-800 text-zinc-400 border border-zinc-700"
+                      ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30"
+                      : "bg-muted text-muted-foreground border border-border"
                   }`}
                 >
                   {isPortOccupied ? `Listening (: ${app.internalPort})` : `Idle (: ${app.internalPort})`}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                <span className="text-zinc-400">Target Framework</span>
-                <span className="font-mono text-zinc-200">{app.buildPack || "Nixpacks Auto"}</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                <span className="text-muted-foreground">Target Framework</span>
+                <span className="font-mono text-foreground font-medium">{app.buildPack || "Nixpacks Auto"}</span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                <span className="text-zinc-400">Memory Allocation</span>
-                <span className="font-mono text-zinc-200">{app.memoryLimitMb} MB</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                <span className="text-muted-foreground">Memory Allocation</span>
+                <span className="font-mono text-foreground font-medium">{app.memoryLimitMb} MB</span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                <span className="text-zinc-400">CPU Shares</span>
-                <span className="font-mono text-zinc-200">{app.cpuLimit} Core(s)</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                <span className="text-muted-foreground">CPU Shares</span>
+                <span className="font-mono text-foreground font-medium">{app.cpuLimit} Core(s)</span>
               </div>
             </div>
           </div>
 
           {/* Quick Help Card */}
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 backdrop-blur space-y-3">
-            <h3 className="text-xs font-bold text-zinc-200 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="p-5 rounded-xl border border-border bg-card space-y-3">
+            <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-indigo-500" />
               <span>Testing Guide</span>
             </h3>
-            <p className="text-[11px] text-zinc-400 leading-relaxed">
-              Untuk menguji aplikasi Anda secara lokal tanpa Docker, buka terminal di folder project Anda dan jalankan dev server pada port <span className="font-mono text-zinc-300">:{app.internalPort}</span>:
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Untuk menguji aplikasi Anda secara lokal tanpa Docker, buka terminal di folder project Anda dan jalankan dev server pada port <span className="font-mono text-foreground font-medium">:{app.internalPort}</span>:
             </p>
-            <div className="p-2.5 rounded bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-emerald-400 flex items-center justify-between">
+            <div className="p-2.5 rounded bg-background border border-border font-mono text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
               <code>npm run dev -- -p {app.internalPort}</code>
               <CopyButton text={`npm run dev -- -p ${app.internalPort}`} label="Copy" />
             </div>
-            <p className="text-[11px] text-zinc-500">
-              Setelah dev server berjalan, Anda dapat me-refresh port check di atas atau membuka <span className="font-mono text-zinc-400">{localDirectUrl}</span>.
+            <p className="text-[11px] text-muted-foreground">
+              Setelah dev server berjalan, Anda dapat me-refresh port check di atas atau membuka <span className="font-mono text-muted-foreground">{localDirectUrl}</span>.
             </p>
           </div>
         </div>

@@ -31,7 +31,7 @@ export function CopyButton({
       onClick={handleCopy}
       type="button"
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg border border-zinc-700 shadow-xs transition cursor-pointer select-none",
+        "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-foreground bg-background hover:bg-accent hover:text-accent-foreground rounded-lg border border-input shadow-xs transition cursor-pointer select-none",
         className
       )}
       title="Copy to clipboard"

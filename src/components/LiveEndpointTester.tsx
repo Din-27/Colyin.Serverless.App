@@ -62,15 +62,15 @@ export function LiveEndpointTester({
   };
 
   return (
-    <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/60 backdrop-blur space-y-4">
+    <div className="p-5 rounded-xl border border-border bg-card space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Globe className="w-4 h-4 text-cyan-400" />
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Globe className="w-4 h-4 text-cyan-500" />
             Live Endpoint Diagnostics
           </h3>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Probe application responsiveness on local port <code className="text-cyan-300 font-mono">:{port}</code>.
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Probe application responsiveness on local port <code className="text-cyan-600 dark:text-cyan-300 font-mono">:{port}</code>.
           </p>
         </div>
         <button
@@ -96,8 +96,8 @@ export function LiveEndpointTester({
         <div
           className={`p-3.5 rounded-lg border text-xs flex items-center justify-between animate-in fade-in ${
             testResult.success
-              ? "bg-emerald-950/40 border-emerald-800/80 text-emerald-300"
-              : "bg-rose-950/40 border-rose-800/80 text-rose-300"
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+              : "bg-destructive/10 border-destructive/20 text-destructive"
           }`}
         >
           <div className="flex items-center gap-2">

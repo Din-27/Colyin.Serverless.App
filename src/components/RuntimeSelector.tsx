@@ -50,12 +50,12 @@ export function RuntimeSelector({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-          <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+        <label className="block text-xs font-semibold text-foreground flex items-center gap-1.5">
+          <Cpu className="w-3.5 h-3.5 text-indigo-500" />
           <span>{label}</span>
         </label>
         {selectedOption === "AUTO" && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/80 px-2 py-0.5 rounded-full">
             <Sparkles className="w-2.5 h-2.5" />
             Auto-inspection enabled
           </span>
@@ -65,12 +65,12 @@ export function RuntimeSelector({
       <select
         value={selectedOption}
         onChange={(e) => handleSelectChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500 font-medium"
+        className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-ring font-medium"
       >
         {RUNTIME_GROUPS.map((group) => (
-          <optgroup key={group.group} label={group.group} className="bg-zinc-900 text-zinc-300 font-semibold">
+          <optgroup key={group.group} label={group.group} className="bg-popover text-popover-foreground font-semibold">
             {group.options.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-zinc-950 text-white font-normal py-1">
+              <option key={opt.value} value={opt.value} className="bg-popover text-popover-foreground font-normal py-1">
                 {opt.label}
               </option>
             ))}
@@ -81,28 +81,28 @@ export function RuntimeSelector({
       {selectedOption === "CUSTOM" && (
         <div className="pt-1 space-y-1">
           <div className="relative">
-            <Terminal className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+            <Terminal className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="e.g. 22.11.0, 3.12-slim, 1.23.2, 8.0-alpine"
               value={customInput}
               onChange={handleCustomInputChange}
-              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-background border border-input text-foreground font-mono text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <p className="text-[10px] text-zinc-400">
+          <p className="text-[10px] text-muted-foreground">
             Specify the exact version or Docker base image tag to use during compilation and runtime.
           </p>
         </div>
       )}
 
       {selectedOption === "AUTO" ? (
-        <p className="text-[11px] text-zinc-400 leading-relaxed">
-          {helperText} We automatically read configuration files like <code className="text-indigo-300">.nvmrc</code>, <code className="text-indigo-300">go.mod</code>, <code className="text-indigo-300">pom.xml</code>, <code className="text-indigo-300">runtime.txt</code>, and <code className="text-indigo-300">Cargo.toml</code> from your repository.
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          {helperText} We automatically read configuration files like <code className="text-indigo-600 dark:text-indigo-400 font-semibold">.nvmrc</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">go.mod</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">pom.xml</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">runtime.txt</code>, and <code className="text-indigo-600 dark:text-indigo-400 font-semibold">Cargo.toml</code> from your repository.
         </p>
       ) : selectedOption !== "CUSTOM" ? (
-        <p className="text-[11px] text-zinc-400 leading-relaxed">
-          Override active: Build and runtime containers will explicitly use version <code className="text-indigo-300 font-mono">{selectedOption}</code>.
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          Override active: Build and runtime containers will explicitly use version <code className="text-indigo-600 dark:text-indigo-400 font-mono font-semibold">{selectedOption}</code>.
         </p>
       ) : null}
     </div>

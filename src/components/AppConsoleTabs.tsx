@@ -292,7 +292,7 @@ export function AppConsoleTabs({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs">
                 {primaryDomain && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-200 dark:bg-zinc-900/90 border border-zinc-300 dark:border-zinc-700/80 px-2 py-0.5 rounded shadow-xs">
+                    <span className="text-[11px] font-semibold text-foreground bg-muted border border-border px-2 py-0.5 rounded shadow-xs">
                       Domain:
                     </span>
                     <a
@@ -310,13 +310,13 @@ export function AppConsoleTabs({
 
                 {!isHttps && (
                   <>
-                    <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-3">
-                      <span className="text-[11px] text-zinc-400 font-medium">Local Port:</span>
+                    <div className="flex items-center gap-1.5 border-l border-border pl-3">
+                      <span className="text-[11px] text-muted-foreground font-medium">Local Port:</span>
                       <a
                         href={localDirectUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-mono text-zinc-300 hover:text-white hover:underline flex items-center gap-1"
+                        className="font-mono text-foreground hover:underline flex items-center gap-1"
                       >
                         <span>:{app.internalPort}</span>
                         <ExternalLink className="w-3 h-3 opacity-60" />
@@ -324,7 +324,7 @@ export function AppConsoleTabs({
                       <CopyButton text={localDirectUrl} label="Copy" />
                     </div>
 
-                    <span className="text-[11px] text-zinc-500 font-mono hidden xl:inline border-l border-zinc-800 pl-3">
+                    <span className="text-[11px] text-muted-foreground font-mono hidden xl:inline border-l border-border pl-3">
                       Mesh: http://{app.slug}:{app.internalPort}
                     </span>
                   </>
@@ -339,7 +339,7 @@ export function AppConsoleTabs({
               href={accessUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition cursor-pointer"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Open Application</span>
@@ -350,7 +350,7 @@ export function AppConsoleTabs({
                 href={localDirectUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-medium transition cursor-pointer"
                 title="Open direct local port"
               >
                 <span>Port :{app.internalPort}</span>
@@ -363,10 +363,10 @@ export function AppConsoleTabs({
               type="button"
               onClick={() => handleAction("restart")}
               disabled={actionLoading !== null}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
               title="Restart service container"
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-400" : "text-zinc-400"}`} />
+              <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-500" : "text-muted-foreground"}`} />
               <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
             </button>
 
@@ -374,7 +374,7 @@ export function AppConsoleTabs({
               <button
                 type="button"
                 onClick={() => setActiveTab("settings")}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-medium transition cursor-pointer"
                 title="Configure custom domain"
               >
                 <span>Add Domain</span>
@@ -402,7 +402,7 @@ export function AppConsoleTabs({
           </div>
           <button
             onClick={() => setActionFeedback(null)}
-            className="text-zinc-500 hover:text-white text-xs px-1"
+            className="text-muted-foreground hover:text-foreground text-xs px-1 cursor-pointer"
           >
             &times;
           </button>
@@ -496,42 +496,42 @@ export function AppConsoleTabs({
       {/* Tab 1: Overview */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
-            <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="flex items-center gap-1.5">
-                <Cpu className="w-4 h-4 text-indigo-400" />
+          <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-medium text-foreground">
+                <Cpu className="w-4 h-4 text-indigo-500" />
                 CPU Limit
               </span>
-              <span className="font-mono text-zinc-300">{app.cpuLimit} Core</span>
+              <span className="font-mono text-foreground font-semibold">{app.cpuLimit} Core</span>
             </div>
-            <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
               <div className="bg-indigo-500 h-full rounded-full" style={{ width: "35%" }} />
             </div>
-            <div className="text-[11px] text-zinc-500">cgroups v2 quota enforced</div>
+            <div className="text-[11px] text-muted-foreground">cgroups v2 quota enforced</div>
           </div>
 
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
-            <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="flex items-center gap-1.5">
-                <HardDrive className="w-4 h-4 text-emerald-400" />
+          <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-medium text-foreground">
+                <HardDrive className="w-4 h-4 text-emerald-500" />
                 Memory Quota
               </span>
-              <span className="font-mono text-zinc-300">{app.memoryLimitMb} MB</span>
+              <span className="font-mono text-foreground font-semibold">{app.memoryLimitMb} MB</span>
             </div>
-            <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
               <div className="bg-emerald-500 h-full rounded-full" style={{ width: "20%" }} />
             </div>
-            <div className="text-[11px] text-zinc-500">OOM protection active</div>
+            <div className="text-[11px] text-muted-foreground">OOM protection active</div>
           </div>
 
-          <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
+          <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 font-bold text-foreground">
-                <Globe className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                <Globe className="w-4 h-4 text-amber-500" />
                 Access Endpoint
               </span>
               {!isHttps && (
-                <span className="font-mono text-zinc-800 dark:text-zinc-200 bg-zinc-200 dark:bg-zinc-800/90 px-2 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 text-[11px] font-semibold">
+                <span className="font-mono text-foreground bg-muted px-2 py-0.5 rounded border border-border text-[11px] font-semibold">
                   Port {app.internalPort}
                 </span>
               )}
@@ -560,27 +560,27 @@ export function AppConsoleTabs({
 
       {/* Tab 2: Deployments History */}
       {activeTab === "deployments" && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
-          <div className="p-4 border-b border-zinc-800 text-xs font-semibold text-zinc-300">
+        <div className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-border text-xs font-semibold text-foreground">
             Deployment History ({app.deployments.length})
           </div>
 
-          <div className="divide-y divide-zinc-800/80">
+          <div className="divide-y divide-border">
             {app.deployments.map((dep: any) => (
               <div
                 key={dep.id}
-                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-zinc-900/60 transition"
+                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-accent/40 transition"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-zinc-900 dark:text-white">
+                    <span className="font-mono font-semibold text-foreground">
                       {dep.commitHash || "manual"}
                     </span>
-                    <span className="text-zinc-500">&bull;</span>
-                    <span className="text-zinc-400">{dep.branch}</span>
+                    <span className="text-muted-foreground">&bull;</span>
+                    <span className="text-muted-foreground">{dep.branch}</span>
                     <StatusBadge status={dep.status} />
                   </div>
-                  <div className="text-zinc-500 text-[11px] mt-1">
+                  <div className="text-muted-foreground text-[11px] mt-1">
                     {dep.commitMessage || "Deployment"} &bull;{" "}
                     {new Date(dep.startedAt).toLocaleString()}
                   </div>
@@ -592,7 +592,7 @@ export function AppConsoleTabs({
                       href={accessUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-800 text-emerald-300 hover:bg-emerald-900/60 text-xs font-semibold transition"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition"
                       title={`Open ${accessUrl}`}
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -605,7 +605,7 @@ export function AppConsoleTabs({
                       setLogMode("build");
                       setActiveTab("logs");
                     }}
-                    className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium"
+                    className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground text-xs font-medium cursor-pointer"
                   >
                     View Logs
                   </button>
@@ -631,13 +631,13 @@ export function AppConsoleTabs({
                     <span>Deployment Complete &amp; Running!</span>
                     <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                   </div>
-                  <div className="text-[11px] text-zinc-700 dark:text-zinc-300 font-mono mt-0.5">
+                  <div className="text-[11px] text-muted-foreground font-mono mt-0.5">
                     Live endpoint:{" "}
                     <a
                       href={accessUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-zinc-900 dark:text-white font-bold underline hover:text-emerald-600 dark:hover:text-emerald-300"
+                      className="text-foreground font-bold underline hover:text-emerald-500"
                     >
                       {accessUrl}
                     </a>
@@ -661,7 +661,7 @@ export function AppConsoleTabs({
           )}
 
           {/* Log Stream Mode Switcher Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-border bg-card shadow-xs">
             <div className="flex items-center gap-1.5 bg-secondary p-1 rounded-lg border border-border">
               <button
                 type="button"
@@ -694,32 +694,32 @@ export function AppConsoleTabs({
                 type="button"
                 onClick={() => handleAction("restart")}
                 disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 title="Restart container without leaving logs"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-400" : "text-zinc-400"}`} />
+                <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-500" : "text-muted-foreground"}`} />
                 <span>{actionLoading === "restart" ? "Restarting..." : "Restart Service"}</span>
               </button>
             </div>
           </div>
 
           {/* Terminal Console Card */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl">
+          <div className="rounded-xl border border-border bg-black overflow-hidden shadow-2xl">
             {/* Terminal Toolbar */}
-            <div className="px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="px-4 py-2.5 bg-card border-b border-border flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 font-mono text-zinc-300 font-bold">
-                  <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="flex items-center gap-1.5 font-mono text-foreground font-bold">
+                  <Terminal className="w-3.5 h-3.5 text-cyan-500" />
                   {logMode === "runtime" ? "Container stdout/stderr" : "Build Output Stream"}
                 </span>
 
                 {logMode === "runtime" ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     {isStreamingPaused ? "PAUSED" : "LIVE STREAM"}
                   </span>
                 ) : (
-                  <span className="text-zinc-500 text-[11px] font-mono">
+                  <span className="text-muted-foreground text-[11px] font-mono">
                     Deployment: {(currentDeploymentId || activeDeployment?.id)?.slice(-8) || "None"}
                   </span>
                 )}
@@ -800,7 +800,7 @@ export function AppConsoleTabs({
             {/* Terminal Screen View */}
             <div
               ref={logContainerRef}
-              className="p-4 font-mono text-xs text-zinc-300 h-[28rem] overflow-y-auto space-y-1 bg-black/95 select-text border-t border-zinc-900"
+              className="p-4 font-mono text-xs text-zinc-300 h-[28rem] overflow-y-auto space-y-1 bg-black/95 select-text border-t border-border"
             >
               {logMode === "runtime" ? (
                 runtimeLogs.length === 0 ? (
@@ -1086,12 +1086,12 @@ function SettingsAndNetworkingTab({
   return (
     <div className="space-y-6">
       {/* 1. Container Power Actions Bar */}
-      <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-4 rounded-xl border border-border bg-card shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="text-xs font-semibold text-zinc-300">Container State:</div>
+          <div className="text-xs font-semibold text-foreground">Container State:</div>
           <StatusBadge status={containerStatus} />
           {activeDeployment?.containerId && (
-            <span className="text-[11px] font-mono text-zinc-500">
+            <span className="text-[11px] font-mono text-muted-foreground">
               ID: {activeDeployment.containerId.slice(0, 12)}
             </span>
           )}
@@ -1101,7 +1101,7 @@ function SettingsAndNetworkingTab({
           <button
             onClick={() => handleContainerAction("start")}
             disabled={containerActionLoading !== null || containerStatus === "ACTIVE"}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-semibold transition cursor-pointer"
           >
             {containerActionLoading === "start" ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1114,7 +1114,7 @@ function SettingsAndNetworkingTab({
           <button
             onClick={() => handleContainerAction("stop")}
             disabled={containerActionLoading !== null || containerStatus === "STOPPED"}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white text-xs font-semibold transition cursor-pointer"
           >
             {containerActionLoading === "stop" ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1127,7 +1127,7 @@ function SettingsAndNetworkingTab({
           <button
             onClick={() => handleContainerAction("restart")}
             disabled={containerActionLoading !== null}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-semibold transition cursor-pointer"
           >
             {containerActionLoading === "restart" ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1140,19 +1140,19 @@ function SettingsAndNetworkingTab({
       </div>
 
       {/* 2. Public Domains & SSL Management */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
+      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
         <div>
           <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Globe className="w-4 h-4 text-indigo-400" />
+            <Globe className="w-4 h-4 text-indigo-500" />
             Public Domain Routes &amp; SSL Certificates
           </h3>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Traefik v3 dynamically manages ingress routing, SNI termination, and automatic Let's Encrypt SSL certificates.
           </p>
         </div>
 
         {domainError && (
-          <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
+          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
             {domainError}
           </div>
         )}
@@ -1164,12 +1164,12 @@ function SettingsAndNetworkingTab({
             placeholder="api.yourdomain.com"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+            className="flex-1 px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <button
             type="submit"
             disabled={domainLoading || !newDomain.trim()}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer"
           >
             {domainLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1181,17 +1181,17 @@ function SettingsAndNetworkingTab({
         </form>
 
         {/* Domains List */}
-        <div className="divide-y divide-zinc-800/80 rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
+        <div className="divide-y divide-border rounded-xl border border-border bg-card overflow-hidden">
           {domains.length === 0 ? (
             <div className="p-6 text-center text-xs space-y-3">
-              <p className="text-zinc-500">
+              <p className="text-muted-foreground">
                 No custom domains bound. Assign an automatic HTTPS wildcard domain for instant public access.
               </p>
               <button
                 type="button"
                 onClick={handleGenerateAutoDomain}
                 disabled={domainLoading}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold shadow transition"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold shadow-xs transition cursor-pointer"
               >
                 {domainLoading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1220,21 +1220,21 @@ function SettingsAndNetworkingTab({
                     </a>
                     <CopyButton text={getClientAccessUrl(dom.host)} label="Copy" />
                     {dom.isPrimary && (
-                      <span className="px-1.5 py-0.2 rounded bg-indigo-950 border border-indigo-800 text-indigo-300 text-[10px] font-sans font-semibold">
+                      <span className="px-1.5 py-0.2 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-sans font-semibold">
                         Primary
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                      <ShieldCheck className="w-3 h-3 text-emerald-500" />
                       SSL Enabled
                     </span>
                     <span>&bull;</span>
                     <span
                       className={`font-semibold ${dom.certificateStatus === "ISSUED"
-                        ? "text-emerald-400"
-                        : "text-amber-400"
+                        ? "text-emerald-500"
+                        : "text-amber-500"
                         }`}
                     >
                       Cert: {dom.certificateStatus}
@@ -1247,12 +1247,12 @@ function SettingsAndNetworkingTab({
                     onClick={() => handleVerifyDns(dom.id)}
                     disabled={dnsVerifyingId === dom.id}
                     title="Check DNS A/CNAME record resolution"
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary border border-border hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
                   >
                     {dnsVerifyingId === dom.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                      <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
                     ) : (
-                      <Radio className="w-3 h-3 text-indigo-400" />
+                      <Radio className="w-3 h-3 text-indigo-500" />
                     )}
                     <span>Check DNS</span>
                   </button>
@@ -1260,7 +1260,7 @@ function SettingsAndNetworkingTab({
                   <button
                     onClick={() => handleDeleteDomain(dom.id)}
                     title="Remove domain"
-                    className="p-1.5 rounded text-zinc-500 hover:text-rose-400 transition"
+                    className="p-1.5 rounded text-muted-foreground hover:text-rose-500 transition cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1272,39 +1272,39 @@ function SettingsAndNetworkingTab({
       </div>
 
       {/* 3. Network Mesh & Resource Settings */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
+      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
         <div>
           <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-indigo-400" />
+            <Sliders className="w-4 h-4 text-indigo-500" />
             Network Configuration &amp; cgroups Quotas
           </h3>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Tune internal container ports, isolated bridge networks, and CPU/memory limits.
           </p>
         </div>
 
         {settingsFeedback && (
-          <div className="p-3 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             {settingsFeedback}
           </div>
         )}
 
         <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
           {/* Project Network Info Banner */}
-          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between font-mono">
+          <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between font-mono">
             <div>
-              <span className="text-zinc-500 text-[11px] block">Project Network Mesh:</span>
-              <span className="text-zinc-300 font-semibold">{app.project.networkName}</span>
+              <span className="text-muted-foreground text-[11px] block">Project Network Mesh:</span>
+              <span className="text-foreground font-semibold">{app.project.networkName}</span>
             </div>
             <div className="text-right">
-              <span className="text-zinc-500 text-[11px] block">Internal DNS Alias:</span>
-              <span className="text-indigo-400 font-semibold">http://{app.slug}:{internalPort}</span>
+              <span className="text-muted-foreground text-[11px] block">Internal DNS Alias:</span>
+              <span className="text-indigo-500 font-semibold">http://{app.slug}:{internalPort}</span>
             </div>
           </div>
 
           {/* Compiler & Runtime Version */}
-          <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/80">
+          <div className="p-4 rounded-xl border border-border bg-muted/20">
             <RuntimeSelector
               value={runtimeVersion}
               onChange={setRuntimeVersion}
@@ -1315,9 +1315,9 @@ function SettingsAndNetworkingTab({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-zinc-300 font-semibold mb-1 flex items-center justify-between">
+              <label className="block text-foreground font-semibold mb-1 flex items-center justify-between">
                 <span>Internal Listening Port</span>
-                <span className="text-[10px] text-zinc-500 font-normal">Must be unique &amp; unoccupied</span>
+                <span className="text-[10px] text-muted-foreground font-normal">Must be unique &amp; unoccupied</span>
               </label>
               <input
                 type="number"
@@ -1327,17 +1327,17 @@ function SettingsAndNetworkingTab({
                   setInternalPort(p);
                   checkPortAvailability(p);
                 }}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               />
               {portStatus.checking ? (
-                <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-1">
-                  <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-1">
+                  <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
                   <span>Checking port uniqueness...</span>
                 </div>
               ) : !portStatus.available ? (
-                <div className="mt-1.5 p-2 rounded bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-300">
+                <div className="mt-1.5 p-2 rounded bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-amber-500">
                   <div className="flex items-center gap-1.5">
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                     <span>{portStatus.reason || `Port ${internalPort} is already in use`}</span>
                   </div>
                   {portStatus.suggestedPort && (
@@ -1347,31 +1347,31 @@ function SettingsAndNetworkingTab({
                         setInternalPort(portStatus.suggestedPort!);
                         checkPortAvailability(portStatus.suggestedPort!);
                       }}
-                      className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition"
+                      className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-300 font-bold text-[10px] border border-amber-500/40 shrink-0 self-start sm:self-auto transition cursor-pointer"
                     >
                       Use free port :{portStatus.suggestedPort}
                     </button>
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                <div className="flex items-center gap-1.5 text-[11px] text-emerald-500 mt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                   <span>Port {internalPort} is free and unique</span>
                 </div>
               )}
-              <p className="text-[10px] text-zinc-500 mt-1">
+              <p className="text-[10px] text-muted-foreground mt-1">
                 Port where your app server listens inside the container (e.g. 3000, 8080, 5000).
               </p>
             </div>
 
             <div>
-              <label className="block text-zinc-300 font-semibold mb-1">
+              <label className="block text-foreground font-semibold mb-1">
                 Restart Policy
               </label>
               <select
                 value={restartPolicy}
                 onChange={(e) => setRestartPolicy(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
               >
                 <option value="unless-stopped">unless-stopped (Recommended)</option>
                 <option value="always">always</option>
@@ -1381,7 +1381,7 @@ function SettingsAndNetworkingTab({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-zinc-800">
+          <div className="pt-2 border-t border-border">
             <ResourceAllocationSelector
               cpuLimit={cpuLimit}
               memoryLimitMb={memoryLimitMb}
@@ -1396,7 +1396,7 @@ function SettingsAndNetworkingTab({
             <button
               type="submit"
               disabled={settingsLoading}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-xs cursor-pointer"
             >
               {settingsLoading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1410,18 +1410,18 @@ function SettingsAndNetworkingTab({
       </div>
 
       {/* 4. Danger Zone: Delete Application */}
-      <div className="rounded-xl border border-rose-900/60 bg-rose-950/10 p-6 space-y-4">
+      <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-6 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-rose-400">Danger Zone</h3>
-          <p className="text-xs text-zinc-400 mt-1">
+          <h3 className="text-base font-semibold text-destructive">Danger Zone</h3>
+          <p className="text-xs text-muted-foreground mt-1">
             Permanently destroy this application service, stop its container, and wipe all deployments and variables.
           </p>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-rose-900/30">
+        <div className="flex items-center justify-between pt-2 border-t border-destructive/20">
           <div>
             <div className="text-xs font-semibold text-foreground">Delete {app.name}</div>
-            <div className="text-[11px] text-zinc-500">
+            <div className="text-[11px] text-muted-foreground">
               Irreversible action. Cannot be recovered once confirmed.
             </div>
           </div>
@@ -1485,10 +1485,10 @@ function EnvVarsManager({ appId }: { appId: string }) {
   };
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
+    <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
       <div>
         <h3 className="text-base font-semibold text-foreground">Environment Variables</h3>
-        <p className="text-xs text-zinc-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           All secrets are encrypted at rest using AES-256-GCM. Decrypted only inside container memory.
         </p>
       </div>
@@ -1500,27 +1500,27 @@ function EnvVarsManager({ appId }: { appId: string }) {
           placeholder="KEY (e.g. DATABASE_URL)"
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+          className="flex-1 px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
         />
         <input
           type="text"
           placeholder="VALUE"
           value={newVal}
           onChange={(e) => setNewVal(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+          className="flex-1 px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:ring-1 focus:ring-ring"
         />
         <button
           type="submit"
-          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold cursor-pointer"
         >
           Add Variable
         </button>
       </form>
 
       {/* Env Vars Table */}
-      <div className="divide-y divide-zinc-800/80 rounded-lg border border-zinc-800 overflow-hidden bg-zinc-950">
+      <div className="divide-y divide-border rounded-lg border border-border overflow-hidden bg-card">
         {envs.length === 0 ? (
-          <div className="p-6 text-center text-xs text-zinc-500">
+          <div className="p-6 text-center text-xs text-muted-foreground">
             No environment variables configured.
           </div>
         ) : (
@@ -1529,10 +1529,10 @@ function EnvVarsManager({ appId }: { appId: string }) {
             return (
               <div
                 key={env.id}
-                className="p-3 flex items-center justify-between text-xs font-mono hover:bg-zinc-900/40"
+                className="p-3 flex items-center justify-between text-xs font-mono hover:bg-accent/40"
               >
-                <div className="w-1/3 font-semibold text-zinc-300 truncate">{env.key}</div>
-                <div className="flex-1 text-zinc-400 truncate px-4">
+                <div className="w-1/3 font-semibold text-foreground truncate">{env.key}</div>
+                <div className="flex-1 text-muted-foreground truncate px-4">
                   {isRevealed ? env.value : "••••••••••••••••••••"}
                 </div>
                 <div className="flex items-center gap-2">
@@ -1540,7 +1540,7 @@ function EnvVarsManager({ appId }: { appId: string }) {
                     onClick={() =>
                       setShowValues((prev) => ({ ...prev, [env.id]: !prev[env.id] }))
                     }
-                    className="p-1 text-zinc-500 hover:text-white"
+                    className="p-1 text-muted-foreground hover:text-foreground cursor-pointer"
                     title={isRevealed ? "Hide secret" : "Reveal secret"}
                   >
                     {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -1548,7 +1548,7 @@ function EnvVarsManager({ appId }: { appId: string }) {
                   <CopyButton text={env.value} label="Copy" />
                   <button
                     onClick={() => handleDelete(env.key)}
-                    className="p-1 text-zinc-500 hover:text-rose-400 transition"
+                    className="p-1 text-muted-foreground hover:text-rose-500 transition cursor-pointer"
                     title="Delete variable"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
