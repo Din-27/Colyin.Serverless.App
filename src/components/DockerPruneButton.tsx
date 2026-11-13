@@ -91,32 +91,32 @@ export function DockerPruneButton({
       {/* Confirmation & Execution Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl space-y-5 text-left">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 text-left">
             <div className="flex items-start gap-3.5">
-              <div className="p-2.5 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-400 shrink-0">
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 shrink-0">
                 <HardDrive className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white">
+                <h3 className="text-sm font-bold text-foreground">
                   Clean Docker System &amp; Build Cache
                 </h3>
-                <p className="text-xs text-zinc-300 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Reclaim valuable VPS disk space by clearing accumulated BuildKit cache and unused Docker artifacts.
                 </p>
               </div>
             </div>
 
             {/* Explanatory command list */}
-            <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2 text-xs font-mono">
-              <div className="flex items-center gap-2 text-emerald-400">
+            <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-2 text-xs font-mono">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                 <Terminal className="w-3.5 h-3.5 shrink-0" />
                 <span>docker builder prune -af</span>
               </div>
-              <div className="flex items-center gap-2 text-cyan-400">
+              <div className="flex items-center gap-2 text-sky-600 dark:text-cyan-400">
                 <Terminal className="w-3.5 h-3.5 shrink-0" />
                 <span>docker system prune -af</span>
               </div>
-              <p className="text-[11px] text-zinc-400 font-sans pt-1">
+              <p className="text-[11px] text-muted-foreground font-sans pt-1">
                 &bull; Deletes dangling images, stopped builder containers, and build cache layers.
                 <br />
                 &bull; Active running containers and persistent database volumes (SQLite/PostgreSQL) are safely preserved.
@@ -182,7 +182,7 @@ export function DockerPruneButton({
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-800">
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
               <button
                 type="button"
                 onClick={() => {
@@ -190,7 +190,7 @@ export function DockerPruneButton({
                   setResult(null);
                 }}
                 disabled={loading}
-                className="px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
               >
                 {result?.success ? "Done" : "Cancel"}
               </button>

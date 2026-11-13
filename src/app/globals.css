@@ -163,15 +163,25 @@ html:not(.dark) [class*="bg-[#0F172A]"]:not(button):not(a) {
 }
 
 /* Modals & Dialogs in Light Mode */
+html:not(.dark) .fixed [role="dialog"],
+html:not(.dark) .fixed .bg-card,
+html:not(.dark) .fixed [class*="max-w-lg"],
+html:not(.dark) .fixed [class*="max-w-md"],
+html:not(.dark) .fixed [class*="max-w-xl"],
 html:not(.dark) .fixed [class*="bg-zinc-900"],
 html:not(.dark) .fixed [class*="bg-zinc-950"] {
   background-color: #ffffff !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  color: #09090b !important;
+  border-color: #e4e4e7 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Modal Backdrops */
+/* Modal Backdrops in Light Mode */
+html:not(.dark) .fixed.inset-0,
+html:not(.dark) [class*="fixed inset-0"],
 html:not(.dark) [class*="bg-black/"] {
-  background-color: rgba(9, 9, 11, 0.45) !important;
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 /* 3. Universal Button Color & Text Contrast Rules:
@@ -369,21 +379,68 @@ button[class*="bg-slate-100"],
 button[class*="bg-slate-50"],
 button[class*="bg-gray-100"],
 button[class*="bg-gray-50"],
+html:not(.dark) button[class*="bg-background"],
+html:not(.dark) button[class*="border-input"],
+html:not(.dark) button[class*="bg-secondary"],
 a.bg-white,
 a[class*="bg-white"],
 a[class*="bg-zinc-100"],
-a[class*="bg-zinc-50"] {
+a[class*="bg-zinc-50"],
+html:not(.dark) a[class*="bg-background"],
+html:not(.dark) a[class*="border-input"] {
   background-color: #ffffff !important;
   color: #09090b !important;
   border-color: #e4e4e7 !important;
 }
 
+button.bg-white:hover,
+button[class*="bg-white"]:hover,
+html:not(.dark) button[class*="bg-background"]:hover,
+html:not(.dark) button[class*="border-input"]:hover,
+html:not(.dark) button[class*="bg-secondary"]:hover,
+a.bg-white:hover,
+a[class*="bg-white"]:hover {
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+}
+
 button.bg-white *,
 button[class*="bg-white"] *,
+html:not(.dark) button[class*="bg-background"] *,
+html:not(.dark) button[class*="border-input"] *,
+html:not(.dark) button[class*="bg-secondary"] *,
 a.bg-white *,
 a[class*="bg-white"] * {
   color: #09090b !important;
   stroke: currentColor;
+}
+
+/* F. Tombol Disabled di Tema Terang: Tampil jelas disable tanpa teks putih pudar */
+html:not(.dark) button:disabled,
+html:not(.dark) button[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.65 !important;
+}
+
+html:not(.dark) button[class*="bg-indigo"]:disabled,
+html:not(.dark) button.bg-indigo-600:disabled {
+  background-color: #e2e8f0 !important;
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+html:not(.dark) button[class*="bg-indigo"]:disabled *,
+html:not(.dark) button.bg-indigo-600:disabled * {
+  color: #64748b !important;
+}
+
+html:not(.dark) button[class*="bg-rose"]:disabled,
+html:not(.dark) button.bg-rose-600:disabled {
+  background-color: #ffe4e6 !important;
+  color: #f43f5e !important;
+  border-color: #fecdd3 !important;
+  box-shadow: none !important;
 }
 
 /* 4. Solid, High-Contrast Semantic Badges & Pills in Light Mode (No Washed Out Transparency) */

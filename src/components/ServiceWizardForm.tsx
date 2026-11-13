@@ -1525,29 +1525,29 @@ export function ServiceWizardForm({ project }: { project: any }) {
 
       {/* GitHub OAuth Configuration Modal */}
       {showOauthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 space-y-5 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 space-y-5 shadow-2xl relative text-foreground">
             <button
               type="button"
               onClick={() => setShowOauthModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg transition"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground p-1 rounded-lg transition"
             >
               ✕
             </button>
 
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
-                <GithubIcon className="w-5 h-5 text-indigo-400" />
+              <div className="flex items-center gap-2 text-foreground font-bold text-sm sm:text-base">
+                <GithubIcon className="w-5 h-5 text-indigo-500" />
                 <span>Setup GitHub OAuth (1-Click Login)</span>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Agar tombol <strong>Login ke GitHub</strong> dapat bekerja di server Anda, daftarkan OAuth App gratis di GitHub (hanya 1 menit, berlaku untuk seluruh server).
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-3 text-xs">
+            <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-zinc-400 text-[11px] font-medium">Authorization callback URL:</span>
+                <span className="text-muted-foreground text-[11px] font-medium">Authorization callback URL:</span>
                 <button
                   type="button"
                   onClick={async () => {
@@ -1556,22 +1556,22 @@ export function ServiceWizardForm({ project }: { project: any }) {
                     setCopiedCallback(true);
                     setTimeout(() => setCopiedCallback(false), 2000);
                   }}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-indigo-300 font-mono text-[11px] transition cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground font-mono text-[11px] transition cursor-pointer"
                 >
                   {copiedCallback ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Tersalin!</span>
+                      <Check className="w-3 h-3 text-emerald-500" />
+                      <span className="text-emerald-500">Tersalin!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5" />
+                      <Copy className="w-3 h-3 opacity-60" />
                       <span>Salin URL</span>
                     </>
                   )}
                 </button>
               </div>
-              <div className="p-2.5 rounded bg-black/60 border border-zinc-800 font-mono text-zinc-300 text-[11px] break-all select-all">
+              <div className="p-2.5 rounded bg-background border border-border font-mono text-foreground text-[11px] break-all select-all">
                 {typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "/api/github/callback"}
               </div>
 
@@ -1579,7 +1579,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 href={`https://github.com/settings/applications/new?oauth_application[name]=Colyin+PaaS&oauth_application[url]=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}&oauth_application[callback_url]=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-300 text-xs font-semibold transition"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Buka Form Buat OAuth App di GitHub</span>
@@ -1588,7 +1588,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
 
             <form onSubmit={handleSaveAndLoginOauth} className="space-y-4 text-xs">
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
+                <label className="block text-foreground font-semibold mb-1">
                   Client ID
                 </label>
                 <input
@@ -1597,12 +1597,12 @@ export function ServiceWizardForm({ project }: { project: any }) {
                   placeholder="e.g. Ov23li..."
                   value={oauthClientId}
                   onChange={(e) => setOauthClientId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
+                <label className="block text-foreground font-semibold mb-1">
                   Client Secret
                 </label>
                 <input
@@ -1611,7 +1611,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                   placeholder="••••••••••••••••••••••••"
                   value={oauthClientSecret}
                   onChange={(e) => setOauthClientSecret(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-input text-foreground font-mono text-xs focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
@@ -1619,7 +1619,7 @@ export function ServiceWizardForm({ project }: { project: any }) {
                 <button
                   type="button"
                   onClick={() => setShowOauthModal(false)}
-                  className="px-4 py-2 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition"
+                  className="px-4 py-2 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground text-foreground transition"
                 >
                   Batal
                 </button>

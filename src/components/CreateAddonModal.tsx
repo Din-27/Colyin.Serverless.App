@@ -159,8 +159,8 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                         className={cn(
                           "flex items-start gap-2.5 p-3 rounded-lg border text-left transition-all duration-150 cursor-pointer",
                           isSelected
-                            ? "border-primary bg-secondary/80 ring-1 ring-primary/20"
-                            : "border-border hover:border-muted-foreground/30 hover:bg-secondary/40"
+                            ? "border-indigo-600 bg-indigo-50/70 text-foreground ring-1 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/40"
+                            : "border-border bg-card/60 hover:border-muted-foreground/30 hover:bg-secondary/60 text-foreground"
                         )}
                       >
                         <div className="flex-1 min-w-0">
@@ -168,7 +168,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                             <span className="text-xs font-semibold text-foreground">
                               {item.name}
                             </span>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-primary" />}
+                            {isSelected && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
                           </div>
                           <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
                             {item.desc}
