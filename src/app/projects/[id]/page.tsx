@@ -155,7 +155,12 @@ export default async function ProjectDetailPage({
                           Port {app.internalPort} &bull; {app.buildPack}
                         </p>
                       </div>
-                      <StatusBadge status={latestDeploy?.status || "STOPPED"} />
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <StatusBadge status={latestDeploy?.status || "STOPPED"} />
+                        <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-secondary text-foreground border border-border">
+                          {(app as any).version || (latestDeploy as any)?.version || "v1.0.0"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Domain / Route Access Link */}

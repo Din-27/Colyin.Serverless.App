@@ -58,19 +58,23 @@ export async function POST(
       );
     }
 
-    // 1. Create Deployment record
+    // 1. Calculate dynamic release version & create Deployment record
+    const deployCount = await db.deployment.count({ where: { applicationId: app.id } });
+    const deployVersion = deployCount === 0 ? (app.version || "v1.0.0") : `v1.0.${deployCount}`;
+
     const deployment = await db.deployment.create({
       data: {
         applicationId: app.id,
         branch: branch || app.branch,
         status: "BUILDING",
+        version: deployVersion,
         commitHash: crypto.randomUUID().slice(0, 7),
         commitMessage: "Deployment triggered via console",
       },
     });
 
     // Run async build pipeline in background
-    runBuildPipeline(app, deployment.id).catch((err) => {
+    runBuildPipeline(app, deployment.id, deployVersion).catch((err) => {
       console.error("[Deploy Pipeline Error]:", err);
     });
 
@@ -88,7 +92,7 @@ export async function POST(
   }
 }
 
-export async function runBuildPipeline(app: any, deploymentId: string) {
+export async function runBuildPipeline(app: any, deploymentId: string, versionTag?: string) {
   const appsStorageBase = path.join(process.cwd(), "apps-storage");
   if (!fs.existsSync(appsStorageBase)) {
     fs.mkdirSync(appsStorageBase, { recursive: true });
@@ -318,7 +322,10 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
 
       await db.application.update({
         where: { id: app.id },
-        data: { activeDeployId: deploymentId },
+        data: {
+          activeDeployId: deploymentId,
+          ...(versionTag ? { version: versionTag } : {}),
+        },
       });
 
       globalDeploymentEvents.emit("complete", {
@@ -449,7 +456,10 @@ export async function runBuildPipeline(app: any, deploymentId: string) {
 
     await db.application.update({
       where: { id: app.id },
-      data: { activeDeployId: deploymentId },
+      data: {
+        activeDeployId: deploymentId,
+        ...(versionTag ? { version: versionTag } : {}),
+      },
     });
 
     await log(`Service successfully promoted to ACTIVE status!`);

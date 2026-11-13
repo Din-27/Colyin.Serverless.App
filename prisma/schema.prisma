@@ -65,6 +65,7 @@ model Application {
   cpuLimit        Float                 @default(1.0)
   memoryLimitMb   Int                   @default(512)
   restartPolicy   String                @default("unless-stopped")
+  version         String?               @default("v1.0.0")
   activeDeployId  String?
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
@@ -84,6 +85,7 @@ model Deployment {
   branch        String
   imageTag      String?
   containerId   String?
+  version       String?
   status        String      @default("QUEUED") // QUEUED, BUILDING, DEPLOYING, ACTIVE, FAILED, TERMINATED
   buildLogs     String?
   errorMessage  String?

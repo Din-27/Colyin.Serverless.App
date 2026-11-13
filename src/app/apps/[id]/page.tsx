@@ -68,14 +68,25 @@ export default async function ApplicationDetailPage({
               <Server className="w-5 h-5 text-indigo-500" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">{app.name}</h1>
                 <StatusBadge status={activeDeployment?.status || "STOPPED"} />
+                <Badge variant="outline" className="font-mono text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30">
+                  {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
+                </Badge>
               </div>
               <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground font-mono">
                 <span className="truncate max-w-xs">{app.repositoryUrl}</span>
                 <span>&bull;</span>
                 <span>Branch: {app.branch}</span>
+                {activeDeployment?.commitHash && (
+                  <>
+                    <span>&bull;</span>
+                    <span className="text-[11px] bg-muted px-1.5 py-0.5 rounded border border-border">
+                      {activeDeployment.commitHash.slice(0, 7)}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
