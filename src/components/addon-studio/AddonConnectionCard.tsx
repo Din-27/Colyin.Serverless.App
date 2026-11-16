@@ -197,10 +197,12 @@ export function AddonConnectionCard() {
             ? webManagementUiUrl.replace(externalConnection.host, activeHost)
             : null;
 
+          const encodedPassword = encodeURIComponent(externalConnection.password);
+
           const jdbcUrl = isPostgres
-            ? `jdbc:postgresql://${activeHost}:${externalConnection.port}/${dbName}?ssl=false`
+            ? `jdbc:postgresql://${activeHost}:${externalConnection.port}/${dbName}?user=${externalConnection.user}&password=${encodedPassword}&ssl=false`
             : isMysql
-            ? `jdbc:mysql://${activeHost}:${externalConnection.port}/${dbName}?useSSL=false&allowPublicKeyRetrieval=true`
+            ? `jdbc:mysql://${activeHost}:${externalConnection.port}/${dbName}?user=${externalConnection.user}&password=${encodedPassword}&useSSL=false&allowPublicKeyRetrieval=true`
             : null;
 
           const cliCommand = isPostgres
@@ -353,7 +355,9 @@ export function AddonConnectionCard() {
                         <span className="text-muted-foreground block text-[11px] font-sans">
                           {isPostgres ? "DBeaver JDBC URL (PostgreSQL)" : "DBeaver JDBC URL (MySQL)"}
                         </span>
-                        <span className="text-emerald-500 font-medium truncate">{jdbcUrl}</span>
+                        <span className="text-emerald-500 font-medium truncate">
+                          {showPassword ? jdbcUrl : jdbcUrl.replace(encodedPassword, "••••••••")}
+                        </span>
                       </div>
                       <CopyButton text={jdbcUrl} label="Copy JDBC URL" />
                     </div>
@@ -464,6 +468,13 @@ export function AddonConnectionCard() {
                     <span className="font-semibold shrink-0">⚠️ Firewall Note:</span>
                     <span>
                       Jika koneksi gagal dengan <em>&quot;Connection attempt timed out&quot;</em>, pastikan port <strong>{externalConnection.port}</strong> diizinkan (Inbound Allow) di Security Group / Firewall Cloud VPS Anda (atau jalankan <code className="px-1 py-0.5 rounded bg-amber-500/20 font-mono text-[10px]">sudo ufw allow {externalConnection.port}/tcp</code> di VPS).
+                    </span>
+                  </div>
+
+                  <div className="px-3 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-600 dark:text-indigo-400 flex items-start gap-2">
+                    <span className="font-semibold shrink-0">💡 DBeaver / TablePlus Note:</span>
+                    <span>
+                      Jika muncul error <em>&quot;The server requested SCRAM-based authentication, but no password was provided&quot;</em>: Di DBeaver/TablePlus, kolom <strong>Password</strong> wajib diisi (tidak boleh kosong). Salin password dari kartu di atas dan paste ke field Password DBeaver, atau gunakan <em>DBeaver JDBC URL</em> di atas yang sudah otomatis menyertakan password.
                     </span>
                   </div>
                 </div>
