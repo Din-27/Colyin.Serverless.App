@@ -114,6 +114,7 @@ export async function provisionDedicatedAddon(params: {
   addonId: string;
   type: string;
   networkName: string;
+  internalHost?: string;
   dbName?: string;
   user?: string;
   password?: string;
@@ -124,17 +125,44 @@ export async function provisionDedicatedAddon(params: {
     throw new Error(`Unsupported addon type: ${params.type}`);
   }
 
-  const internalHost = `addon_${params.type.toLowerCase()}_${params.addonId.slice(-6)}`;
+  const internalHost =
+    params.internalHost || `addon_${params.type.toLowerCase()}_${params.addonId.slice(-6)}`;
   const volumeName = `vol_${internalHost}_data`;
   const password = params.password || crypto.randomBytes(12).toString("hex");
   const username = params.user || (params.type === "POSTGRESQL" ? "postgres" : "root");
   const dbName = params.dbName || "main";
 
+  // 1. Ensure docker networks exist
+  const networkToUse = params.networkName || "minipaas-global";
+  try {
+    const { ensureProjectNetwork, ensureGlobalNetwork } = await import("./docker");
+    if (networkToUse === "minipaas-global") {
+      await ensureGlobalNetwork();
+    } else {
+      await ensureProjectNetwork(networkToUse, params.addonId);
+    }
+  } catch (netErr) {
+    console.warn("[provisionDedicatedAddon] Could not ensure network:", netErr);
+  }
+
+  // 2. Stop and remove any pre-existing container with this name
+  try {
+    const oldContainer = docker.getContainer(internalHost);
+    await oldContainer.stop({ t: 2 }).catch(() => {});
+    await oldContainer.remove({ force: true }).catch(() => {});
+  } catch {}
+
+  // 3. Ensure image exists
   await ensureImage(template.image);
 
   const envs = template.envBuilder({ password, dbName, username });
+
+  // Add specific CMD / flags for Redis and MinIO
+  let cmd: string[] | undefined = undefined;
   if (params.type === "REDIS") {
-    envs.push(`REDIS_ARGS=--requirepass ${password}`);
+    cmd = ["redis-server", "--requirepass", password];
+  } else if (params.type === "MINIO") {
+    cmd = ["server", "/data", "--console-address", ":9001"];
   }
 
   const portBindings: Record<string, Array<{ HostIp?: string; HostPort: string }>> = {};
@@ -158,18 +186,20 @@ export async function provisionDedicatedAddon(params: {
     0.5, // 0.5 CPU
     512, // 512 MB
     [`${volumeName}:${template.defaultVolumePath}:rw`],
-    portBindings
+    portBindings,
+    networkToUse
   );
 
   const container = await docker.createContainer({
     name: internalHost,
     Image: template.image,
     Env: envs,
+    Cmd: cmd,
     ExposedPorts: exposedPorts,
     HostConfig: hostConfig,
     NetworkingConfig: {
       EndpointsConfig: {
-        [params.networkName]: {
+        [networkToUse]: {
           Aliases: [internalHost],
         },
       },
@@ -182,5 +212,16 @@ export async function provisionDedicatedAddon(params: {
   });
 
   await container.start();
+
+  // Also connect to minipaas-global if project network is isolated, so controller/traefik can communicate
+  if (networkToUse !== "minipaas-global") {
+    try {
+      const globalNet = docker.getNetwork("minipaas-global");
+      await globalNet
+        .connect({ Container: container.id, EndpointConfig: { Aliases: [internalHost] } })
+        .catch(() => {});
+    } catch {}
+  }
+
   return { containerId: container.id, internalHost };
 }

@@ -100,14 +100,14 @@ export function buildHostConfig(
   cpuLimit: number = 1.0,
   memoryLimitMb: number = 512,
   volumeBinds: string[] = [],
-  portBindings: Record<string, Array<{ HostPort: string }>> = {},
-  networkMode: string = "minipaas-global"
+  portBindings: Record<string, Array<{ HostIp?: string; HostPort: string }>> = {},
+  networkMode?: string
 ): Docker.HostConfig {
   const NanoCpus = Math.floor(cpuLimit * 1e9);
   const Memory = memoryLimitMb * 1024 * 1024;
   const MemorySwap = Memory; // Disable swap to avoid disk thrashing
 
-  return {
+  const config: Docker.HostConfig = {
     NanoCpus,
     Memory,
     MemorySwap,
@@ -115,12 +115,15 @@ export function buildHostConfig(
     RestartPolicy: {
       Name: "unless-stopped",
     },
-    NetworkMode: networkMode,
     Binds: volumeBinds,
     PortBindings: portBindings,
-    CapDrop: ["ALL"],
-    CapAdd: ["CHOWN", "SETUID", "SETGID", "NET_BIND_SERVICE"],
   };
+
+  if (networkMode) {
+    config.NetworkMode = networkMode;
+  }
+
+  return config;
 }
 
 /**

@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import net from "net";
 
-function sendRedisRaw(port: number, command: string): Promise<string> {
+function sendRedisRaw(host: string, port: number, command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const socket = net.createConnection({ host: "127.0.0.1", port }, () => {
+    const socket = net.createConnection({ host, port }, () => {
       socket.write(command.endsWith("\r\n") ? command : `${command}\r\n`);
     });
 
@@ -29,6 +29,15 @@ function sendRedisRaw(port: number, command: string): Promise<string> {
       reject(err);
     });
   });
+}
+
+async function queryRedis(addon: { internalHost: string; internalPort: number; publicPort?: number | null }, command: string): Promise<string> {
+  try {
+    return await sendRedisRaw(addon.internalHost, addon.internalPort, command);
+  } catch {
+    const fallbackPort = addon.publicPort || addon.internalPort;
+    return await sendRedisRaw("127.0.0.1", fallbackPort, command);
+  }
 }
 
 function parseResp(resp: string): any {
@@ -96,7 +105,7 @@ export async function GET(
     // Fetch keys list
     let keysList: string[] = [];
     try {
-      const keysResp = await sendRedisRaw(port, "KEYS *");
+      const keysResp = await queryRedis(addon, "KEYS *");
       const parsed = parseResp(keysResp);
       if (Array.isArray(parsed)) {
         keysList = parsed;
@@ -112,7 +121,7 @@ export async function GET(
     const keys = [];
     for (const key of keysList) {
       try {
-        const valResp = await sendRedisRaw(port, `GET ${key}`);
+        const valResp = await queryRedis(addon, `GET ${key}`);
         const val = parseResp(valResp);
         keys.push({
           key,
@@ -128,7 +137,7 @@ export async function GET(
     // Get info
     let info = "";
     try {
-      const infoResp = await sendRedisRaw(port, "INFO");
+      const infoResp = await queryRedis(addon, "INFO");
       info = parseResp(infoResp);
     } catch {}
 
@@ -187,7 +196,7 @@ export async function POST(
           { status: 400 }
         );
       }
-      await sendRedisRaw(port, `SET ${key} ${value ?? ""}`);
+      await queryRedis(addon, `SET ${key} ${value ?? ""}`);
       return NextResponse.json({ success: true, message: `Key '${key}' saved successfully.` });
     }
 
@@ -198,17 +207,17 @@ export async function POST(
           { status: 400 }
         );
       }
-      await sendRedisRaw(port, `DEL ${key}`);
+      await queryRedis(addon, `DEL ${key}`);
       return NextResponse.json({ success: true, message: `Key '${key}' deleted.` });
     }
 
     if (action === "flush") {
-      await sendRedisRaw(port, "FLUSHALL");
+      await queryRedis(addon, "FLUSHALL");
       return NextResponse.json({ success: true, message: "All keys flushed." });
     }
 
     if (action === "command" && command) {
-      const raw = await sendRedisRaw(port, command.trim());
+      const raw = await queryRedis(addon, command.trim());
       const parsed = parseResp(raw);
       return NextResponse.json({
         success: true,

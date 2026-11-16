@@ -100,6 +100,7 @@ export async function POST(req: Request) {
         addonId: addon.id,
         type: type.toUpperCase(),
         networkName: project.networkName,
+        internalHost: addon.internalHost,
         password: generatedPassword,
         publicPort: publicPort || undefined,
       });

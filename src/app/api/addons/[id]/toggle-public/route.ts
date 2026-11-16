@@ -59,7 +59,8 @@ export async function POST(
       const res = await provisionDedicatedAddon({
         addonId: updated.id,
         type: updated.type,
-        networkName: addon.project?.networkName || "bridge",
+        networkName: addon.project?.networkName || "minipaas-global",
+        internalHost: updated.internalHost,
         password: decryptedPass,
         publicPort: updated.publicPort || undefined,
       });
@@ -68,6 +69,12 @@ export async function POST(
         where: { id: updated.id },
         data: { containerId: res.containerId },
       });
+
+      // Free native runner port if previously running in memory
+      try {
+        const { stopNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
+        await stopNativeAddon(updated.id);
+      } catch {}
     } catch (dockerErr) {
       console.warn("[TogglePublic] Docker container reconfiguration fallback:", dockerErr);
       // 2. Fallback to native runner only if Docker is offline

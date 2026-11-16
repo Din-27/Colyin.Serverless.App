@@ -45,9 +45,9 @@ export async function POST(
 
     const targetPort = addon.publicPort || addon.internalPort;
 
-    const client = new Client({
-      host: "127.0.0.1",
-      port: targetPort,
+    let client = new Client({
+      host: addon.internalHost,
+      port: addon.internalPort,
       user: "postgres",
       password: decryptedPassword,
       database: "main",
@@ -55,7 +55,20 @@ export async function POST(
     });
 
     const start = performance.now();
-    await client.connect();
+    try {
+      await client.connect();
+    } catch {
+      // Fallback to local socket if running natively or inside same host
+      client = new Client({
+        host: "127.0.0.1",
+        port: targetPort,
+        user: "postgres",
+        password: decryptedPassword,
+        database: "main",
+        connectionTimeoutMillis: 3000,
+      });
+      await client.connect();
+    }
 
     try {
       const result = await client.query(sql);

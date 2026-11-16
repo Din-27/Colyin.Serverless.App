@@ -58,13 +58,19 @@ if (command -v ss &>/dev/null && ss -tuln | grep -q ":${COLYIN_PORT} ") || (comm
 fi
 
 if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
-  echo "[3/5] Configuring firewall rules (Ports 22, 80, 443, ${COLYIN_PORT}, 10000-10020, 15672)..."
+  echo "[3/5] Configuring firewall rules (Ports 22, 80, 443, ${COLYIN_PORT}, 10000-20000, 15672)..."
   ufw allow 22/tcp
   ufw allow 80/tcp
   ufw allow 443/tcp
   ufw allow ${COLYIN_PORT}/tcp
   ufw allow 15672/tcp
-  ufw allow 10000:10020/tcp
+  ufw allow 10000:20000/tcp
+  ufw allow 5432/tcp
+  ufw allow 3306/tcp
+  ufw allow 6379/tcp
+  ufw allow 5672/tcp
+  ufw allow 9000/tcp
+  ufw allow 9001/tcp
   ufw reload
 fi
 

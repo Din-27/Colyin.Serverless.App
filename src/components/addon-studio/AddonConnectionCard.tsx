@@ -213,13 +213,13 @@ export function AddonConnectionCard() {
 
           return (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
                 {/* Public Host Box with Edit / Override Capability */}
-                <div className="p-3 rounded-lg bg-muted/40 border border-border flex flex-col justify-between gap-1.5">
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex flex-col justify-between gap-1.5 sm:col-span-2">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground text-[11px] font-sans flex items-center gap-1.5">
                       <Globe className="w-3 h-3 text-indigo-500" />
-                      Public Host (Server IP / Domain)
+                      Host / Server IP
                     </span>
                     {!isEditingHost ? (
                       <button
@@ -285,12 +285,63 @@ export function AddonConnectionCard() {
                   )}
                 </div>
 
+                {/* Public Port */}
                 <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
                   <div>
-                    <span className="text-muted-foreground block text-[11px] font-sans">Public Port</span>
+                    <span className="text-muted-foreground block text-[11px] font-sans">Port</span>
                     <span className="text-amber-500 font-bold">{externalConnection.port}</span>
                   </div>
                   <CopyButton text={externalConnection.port.toString()} />
+                </div>
+
+                {/* Username */}
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-sans">Username</span>
+                    <span className="text-foreground font-bold">{externalConnection.user}</span>
+                  </div>
+                  <CopyButton text={externalConnection.user} />
+                </div>
+
+                {/* Database Name (Postgres / MySQL) */}
+                {(isPostgres || isMysql) && (
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+                    <div>
+                      <span className="text-muted-foreground block text-[11px] font-sans">Database</span>
+                      <span className="text-foreground font-bold">{dbName}</span>
+                    </div>
+                    <CopyButton text={dbName} />
+                  </div>
+                )}
+
+                {/* Password Box */}
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between sm:col-span-2">
+                  <div className="truncate mr-2">
+                    <span className="text-muted-foreground block text-[11px] font-sans">Password</span>
+                    <span className="text-foreground font-bold font-mono">
+                      {showPassword ? externalConnection.password : "••••••••••••••••"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      title={showPassword ? "Hide Password" : "Show Password"}
+                    >
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                    <CopyButton text={externalConnection.password} />
+                  </div>
+                </div>
+
+                {/* SSL Requirement */}
+                <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-sans">SSL Mode</span>
+                    <span className="text-emerald-500 font-bold">Disabled (Off)</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">Uncheck SSL</span>
                 </div>
               </div>
 
