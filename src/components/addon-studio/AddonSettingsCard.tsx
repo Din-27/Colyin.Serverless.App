@@ -18,6 +18,26 @@ import {
   Globe,
 } from "lucide-react";
 import { useAddonStudio } from "./AddonStudioContext";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export function AddonSettingsCard() {
   const router = useRouter();
@@ -33,7 +53,7 @@ export function AddonSettingsCard() {
   const [deleting, setDeleting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   if (!data) return null;
@@ -102,7 +122,7 @@ export function AddonSettingsCard() {
     setDeleting(true);
     const res = await handleDeleteAddon();
     if (res.success) {
-      setShowDeleteModal(false);
+      setShowDeleteDialog(false);
       if (data.projectId) {
         router.push(`/projects/${data.projectId}`);
       } else {
@@ -111,7 +131,7 @@ export function AddonSettingsCard() {
     } else {
       setFeedback({ type: "error", message: res.error || "Failed to delete addon." });
       setDeleting(false);
-      setShowDeleteModal(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -153,235 +173,240 @@ export function AddonSettingsCard() {
         </div>
       )}
 
-      {/* 1. General Configuration Card */}
-      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Settings className="w-4 h-4 text-emerald-500" />
-              General Configuration
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Customize the name, external port, and authentication credentials of this addon.
-            </p>
-          </div>
-        </div>
+      {/* 1. General Configuration Card (shadcn UI Card) */}
+      <Card>
+        <CardHeader className="border-b border-border pb-4">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Settings className="w-4 h-4 text-emerald-500" />
+            General Configuration
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Customize the name, external port, and authentication credentials of this addon.
+          </CardDescription>
+        </CardHeader>
 
-        <form onSubmit={handleSaveGeneral} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Addon Name */}
-            <div>
-              <label className="block text-xs font-medium text-foreground mb-1.5">
-                Addon Display Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                placeholder="e.g. Production PostgreSQL"
-              />
+        <form onSubmit={handleSaveGeneral}>
+          <CardContent className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Addon Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="addon-name" className="text-xs">
+                  Addon Display Name
+                </Label>
+                <Input
+                  id="addon-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="e.g. Production PostgreSQL"
+                />
+              </div>
+
+              {/* Custom Public Port */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="addon-port" className="text-xs">
+                    Public Port
+                  </Label>
+                  <span className="text-[10px] text-muted-foreground">Range: 1024 - 65535</span>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="addon-port"
+                    type="number"
+                    min="1024"
+                    max="65535"
+                    value={publicPort}
+                    onChange={(e) => setPublicPort(e.target.value)}
+                    className="pl-8 font-mono"
+                    placeholder="Kosongkan jika ingin Private Only"
+                  />
+                  <Globe className="w-3.5 h-3.5 text-muted-foreground absolute left-2.5 top-2.5" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Port host eksternal untuk koneksi laptop/DBeaver. Kosongkan untuk private-only.
+                </p>
+              </div>
             </div>
 
-            {/* Custom Public Port */}
-            <div>
-              <label className="block text-xs font-medium text-foreground mb-1.5 flex items-center justify-between">
-                <span>Public Port</span>
-                <span className="text-[10px] text-muted-foreground">Range: 1024 - 65535</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="1024"
-                  max="65535"
-                  value={publicPort}
-                  onChange={(e) => setPublicPort(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                  placeholder="Kosongkan jika ingin Private Only"
-                />
-                <Globe className="w-3.5 h-3.5 text-muted-foreground absolute left-2.5 top-2.5" />
+            {/* Change Password */}
+            <div className="pt-3 border-t border-border space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="addon-password" className="text-xs flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-500" />
+                  Change Password (Optional)
+                </Label>
+                <button
+                  type="button"
+                  onClick={generateRandomPassword}
+                  className="text-[10px] text-indigo-500 hover:text-indigo-400 flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <Dices className="w-3 h-3" />
+                  Generate Secure Password
+                </button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                Port host eksternal untuk koneksi laptop/DBeaver. Kosongkan untuk private-only.
+              <div className="relative">
+                <Input
+                  id="addon-password"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Biarkan kosong jika tidak ingin mengubah password"
+                  className="pr-10 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                >
+                  {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Catatan: Mengubah password akan me-redeploy container dengan kredensial baru.
               </p>
             </div>
-          </div>
+          </CardContent>
 
-          {/* Change Password */}
-          <div className="pt-2 border-t border-border">
-            <label className="block text-xs font-medium text-foreground mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <KeyRound className="w-3.5 h-3.5 text-amber-500" />
-                Change Password (Optional)
-              </span>
-              <button
-                type="button"
-                onClick={generateRandomPassword}
-                className="text-[10px] text-indigo-500 hover:text-indigo-400 flex items-center gap-1 cursor-pointer transition-colors"
-              >
-                <Dices className="w-3 h-3" />
-                Generate Secure Password
-              </button>
-            </label>
-            <div className="relative">
-              <input
-                type={showNewPassword ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Biarkan kosong jika tidak ingin mengubah password"
-                className="w-full pr-10 pl-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-              >
-                {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Catatan: Mengubah password akan me-redeploy container dengan kredensial baru.
-            </p>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer transition-colors disabled:opacity-50"
-            >
+          <CardFooter className="flex justify-end pt-2 border-t border-border">
+            <Button type="submit" disabled={saving} size="sm" className="gap-2">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
               <span>Save Changes</span>
-            </button>
-          </div>
+            </Button>
+          </CardFooter>
         </form>
-      </div>
+      </Card>
 
-      {/* 2. Service Controls Card */}
-      <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-indigo-500" />
-              Instance Controls
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Manage the runtime state of this database instance.
-            </p>
+      {/* 2. Service Controls Card (shadcn UI Card) */}
+      <Card>
+        <CardHeader className="border-b border-border pb-4">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 text-indigo-500" />
+            Instance Controls
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Manage the runtime state of this database instance.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-muted/30 border border-border">
+            <div>
+              <div className="text-xs font-semibold text-foreground">Restart Database Service</div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Restarts the Docker container. Volume and stored data will remain intact.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRestart}
+              disabled={restarting}
+              className="gap-1.5 shrink-0"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${restarting ? "animate-spin" : ""}`} />
+              <span>{restarting ? "Restarting..." : "Restart Instance"}</span>
+            </Button>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-muted/30 border border-border">
-          <div>
-            <div className="text-xs font-semibold text-foreground">Restart Database Service</div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              Restarts the Docker container. Volume and stored data will remain intact.
-            </p>
+      {/* 3. Danger Zone Card (shadcn UI Card with Rose Styling) */}
+      <Card className="border-rose-500/30 bg-rose-500/5">
+        <CardHeader className="border-b border-rose-500/20 pb-4">
+          <CardTitle className="text-sm font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-rose-500" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Permanently delete this database addon and its persistent volume.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-background/60 border border-rose-500/20">
+            <div>
+              <div className="text-xs font-semibold text-foreground">Delete Database Addon</div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Once deleted, all data in volume <code className="font-mono text-foreground font-semibold">{data.volumeName}</code> will be purged and cannot be recovered.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                setDeleteConfirmText("");
+                setShowDeleteDialog(true);
+              }}
+              className="gap-1.5 shrink-0"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Addon</span>
+            </Button>
           </div>
-          <button
-            type="button"
-            onClick={handleRestart}
-            disabled={restarting}
-            className="px-3.5 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${restarting ? "animate-spin" : ""}`} />
-            <span>{restarting ? "Restarting..." : "Restart Instance"}</span>
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* 3. Danger Zone Card */}
-      <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-rose-500/20 pb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-rose-500" />
-              Danger Zone
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Permanently delete this database addon and its persistent volume.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-background/60 border border-rose-500/20">
-          <div>
-            <div className="text-xs font-semibold text-foreground">Delete Database Addon</div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              Once deleted, all data in volume <code className="font-mono text-foreground font-semibold">{data.volumeName}</code> will be purged and cannot be recovered.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setDeleteConfirmText("");
-              setShowDeleteModal(true);
-            }}
-            className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Delete Addon</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 animate-scale-in">
+      {/* Delete Confirmation Modal using shadcn UI Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader className="gap-2">
             <div className="flex items-center gap-3 text-rose-500">
               <div className="p-2.5 rounded-full bg-rose-500/10 border border-rose-500/20">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-foreground">Hapus Addon Database?</h4>
-                <p className="text-xs text-muted-foreground">Tindakan ini permanen dan tidak dapat dibatalkan.</p>
+                <DialogTitle className="text-sm font-bold text-foreground">Hapus Addon Database?</DialogTitle>
+                <DialogDescription className="text-xs">Tindakan ini permanen dan tidak dapat dibatalkan.</DialogDescription>
               </div>
             </div>
+          </DialogHeader>
 
-            <p className="text-xs text-muted-foreground leading-relaxed">
+          <div className="space-y-3 py-2 text-xs text-muted-foreground">
+            <p className="leading-relaxed">
               Anda akan menghapus database <strong className="text-foreground">{data.name}</strong> ({data.type}).
               Seluruh container, credentials, dan data volume akan dihapus permanen dari server.
             </p>
 
             <div className="space-y-2 pt-1">
-              <label className="block text-[11px] text-muted-foreground">
+              <Label htmlFor="confirm-delete-input" className="text-[11px] text-muted-foreground">
                 Ketik nama addon <span className="font-mono font-bold text-foreground">&quot;{data.name}&quot;</span> untuk konfirmasi:
-              </label>
-              <input
+              </Label>
+              <Input
+                id="confirm-delete-input"
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder={data.name}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="font-mono"
                 autoFocus
               />
             </div>
-
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={deleting}
-                className="px-3.5 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium cursor-pointer transition-colors"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting || deleteConfirmText.trim() !== data.name}
-                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
-              >
-                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                <span>{deleting ? "Menghapus..." : "Konfirmasi Hapus"}</span>
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+
+          <DialogFooter className="gap-2 pt-2">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" size="sm" disabled={deleting}>
+                Batal
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleting || deleteConfirmText.trim() !== data.name}
+              className="gap-1.5"
+            >
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              <span>{deleting ? "Menghapus..." : "Konfirmasi Hapus"}</span>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

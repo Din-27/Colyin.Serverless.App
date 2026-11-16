@@ -10,6 +10,7 @@ import { AddonConnectionCard } from "./addon-studio/AddonConnectionCard";
 import { WebSqlStudio } from "./addon-studio/WebSqlStudio";
 import { WebRedisStudio } from "./addon-studio/WebRedisStudio";
 import { AddonSettingsCard } from "./addon-studio/AddonSettingsCard";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 function AddonStudioContent() {
   const { data, loading, activeTab, setActiveTab } = useAddonStudio();
@@ -32,63 +33,43 @@ function AddonStudioContent() {
   const hasInteractiveStudio = isPostgres || isRedis;
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="flex items-center gap-1.5 border-b border-border pb-px overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("credentials")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px shrink-0 ${
-            activeTab === "credentials"
-              ? "border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
-          }`}
-        >
-          <Database className="w-3.5 h-3.5" />
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      {/* shadcn UI TabsList */}
+      <TabsList className="bg-muted/60 p-1 rounded-xl border border-border h-auto gap-1">
+        <TabsTrigger value="credentials" className="gap-2 py-2 px-3.5">
+          <Database className="w-3.5 h-3.5 text-emerald-500" />
           <span>Connection & Credentials</span>
-        </button>
+        </TabsTrigger>
 
         {hasInteractiveStudio && (
-          <button
-            type="button"
-            onClick={() => setActiveTab("studio")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px shrink-0 ${
-              activeTab === "studio"
-                ? "border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
-            }`}
-          >
-            <Terminal className="w-3.5 h-3.5" />
+          <TabsTrigger value="studio" className="gap-2 py-2 px-3.5">
+            <Terminal className="w-3.5 h-3.5 text-indigo-500" />
             <span>Interactive Studio ({isPostgres ? "SQL" : "Redis"})</span>
-          </button>
+          </TabsTrigger>
         )}
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("settings")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px shrink-0 ${
-            activeTab === "settings"
-              ? "border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
-          }`}
-        >
-          <Settings className="w-3.5 h-3.5" />
+        <TabsTrigger value="settings" className="gap-2 py-2 px-3.5">
+          <Settings className="w-3.5 h-3.5 text-amber-500" />
           <span>Configuration & Settings</span>
-        </button>
-      </div>
+        </TabsTrigger>
+      </TabsList>
 
-      {/* Tab Contents */}
-      {activeTab === "credentials" && <AddonConnectionCard />}
+      {/* shadcn UI TabsContent */}
+      <TabsContent value="credentials">
+        <AddonConnectionCard />
+      </TabsContent>
 
-      {activeTab === "studio" && (
-        <div className="space-y-6">
+      {hasInteractiveStudio && (
+        <TabsContent value="studio" className="space-y-6">
           <WebSqlStudio />
           <WebRedisStudio />
-        </div>
+        </TabsContent>
       )}
 
-      {activeTab === "settings" && <AddonSettingsCard />}
-    </div>
+      <TabsContent value="settings">
+        <AddonSettingsCard />
+      </TabsContent>
+    </Tabs>
   );
 }
 
