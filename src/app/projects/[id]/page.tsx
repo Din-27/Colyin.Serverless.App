@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Lock,
   ArrowUpRight,
+  Settings,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CreateAddonModal } from "@/components/CreateAddonModal";
@@ -274,10 +275,16 @@ export default async function ProjectDetailPage({
                         )}
                       </span>
                     </div>
-                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
-                      <span>Credentials</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground flex items-center gap-1 transition-colors">
+                        <Settings className="w-3.5 h-3.5" />
+                        <span>Configure</span>
+                      </span>
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-1">
+                        <span>Credentials</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </div>
                   </CardFooter>
                 </Card>
               </Link>

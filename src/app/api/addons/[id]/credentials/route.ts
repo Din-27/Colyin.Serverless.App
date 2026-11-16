@@ -123,9 +123,12 @@ export async function GET(
       success: true,
       addon: {
         id: addon.id,
+        projectId: addon.projectId,
         name: addon.name,
         type: addon.type,
         status: addon.status,
+        volumeName: addon.volumeName,
+        publicPort: addon.publicPort,
         isPublic: !!addon.publicPort,
         internalConnection,
         externalConnection,
