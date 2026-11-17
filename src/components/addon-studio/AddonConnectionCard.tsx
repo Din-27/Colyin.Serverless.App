@@ -482,15 +482,21 @@ export function AddonConnectionCard() {
             <div>
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-orange-500" />
-                  RabbitMQ Web Management Console &amp; Website
+                  <Globe className={`w-4 h-4 ${data.type === "MINIO" ? "text-emerald-500" : "text-orange-500"}`} />
+                  <span>{data.type === "MINIO" ? "MinIO S3 Console Dashboard" : "RabbitMQ Web Management Console"}</span>
                 </h4>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/20">
-                  Port 15672
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                  data.type === "MINIO"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                    : "bg-orange-500/10 text-orange-500 border-orange-500/20"
+                }`}>
+                  {data.type === "MINIO" ? "Web Console :9001 (S3 API :9000)" : "Port 15672"}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Pantau queue message broker, laju konsumsi pesan, exchanges, dan active consumer secara visual di browser Anda.
+                {data.type === "MINIO"
+                  ? "Akses dashboard visual untuk membuat bucket S3, upload/download objek, mengelola Access Keys, dan mengatur storage."
+                  : "Pantau queue message broker, laju konsumsi pesan, exchanges, dan active consumer secara visual di browser Anda."}
               </p>
             </div>
 
@@ -498,9 +504,11 @@ export function AddonConnectionCard() {
               href={webManagementUiUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-xs transition shrink-0 cursor-pointer"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-xs font-semibold shadow-xs transition shrink-0 cursor-pointer ${
+                data.type === "MINIO" ? "bg-emerald-600 hover:bg-emerald-500" : "bg-orange-600 hover:bg-orange-500"
+              }`}
             >
-              <span>Launch Web Console</span>
+              <span>{data.type === "MINIO" ? "Launch MinIO Console" : "Launch Web Console"}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -508,14 +516,18 @@ export function AddonConnectionCard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
             <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
               <div>
-                <span className="text-muted-foreground block text-[11px] font-sans">Website URL</span>
+                <span className="text-muted-foreground block text-[11px] font-sans">
+                  {data.type === "MINIO" ? "MinIO Console URL" : "Website URL"}
+                </span>
                 <a
                   href={webManagementUiUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-orange-500 hover:underline flex items-center gap-1 mt-0.5"
+                  className={`hover:underline flex items-center gap-1 mt-0.5 ${
+                    data.type === "MINIO" ? "text-emerald-600 dark:text-emerald-400" : "text-orange-500"
+                  }`}
                 >
-                  {webManagementUiUrl}
+                  <span>{webManagementUiUrl}</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -524,12 +536,21 @@ export function AddonConnectionCard() {
 
             <div className="p-3 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
               <div>
-                <span className="text-muted-foreground block text-[11px] font-sans">Default Web Login</span>
-                <span className="text-foreground mt-0.5 block">
-                  User: <strong className="text-orange-500">guest</strong> &bull; Pass: <strong className="text-orange-500">guest</strong>
+                <span className="text-muted-foreground block text-[11px] font-sans">
+                  {data.type === "MINIO" ? "Root Credentials (Access & Secret Key)" : "Default Web Login"}
+                </span>
+                <span className="text-foreground mt-0.5 block truncate max-w-xs">
+                  User: <strong className={data.type === "MINIO" ? "text-emerald-600 dark:text-emerald-400" : "text-orange-500"}>
+                    {data.externalConnection?.user || (data.type === "MINIO" ? "minioadmin" : "guest")}
+                  </strong> &bull; Pass: <strong className={data.type === "MINIO" ? "text-emerald-600 dark:text-emerald-400" : "text-orange-500"}>
+                    {data.externalConnection?.password || "password"}
+                  </strong>
                 </span>
               </div>
-              <CopyButton text="guest" label="Copy User" />
+              <CopyButton
+                text={data.externalConnection?.password || "password"}
+                label="Copy Pass"
+              />
             </div>
           </div>
         </div>
