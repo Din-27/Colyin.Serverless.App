@@ -246,13 +246,7 @@ export async function DELETE(
       console.warn("Docker cleanup notice:", dockerErr);
     }
 
-    // 2. Stop native runner if running
-    try {
-      const { stopNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-      await stopNativeAddon(addon.id);
-    } catch {}
-
-    // 3. Delete from database
+    // 2. Delete from database
     await db.addon.delete({
       where: { id: addonId },
     });

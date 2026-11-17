@@ -46,23 +46,6 @@ export const ADDON_TEMPLATES: Record<string, AddonTemplate> = {
     externalUriBuilder: ({ host, port, user, password, dbName }) =>
       `postgresql://${user}:${password}@${host}:${port}/${dbName}`,
   },
-  MYSQL: {
-    type: "MYSQL",
-    name: "MySQL 8 Database",
-    image: "mysql:8.0",
-    defaultInternalPort: 3306,
-    defaultVolumePath: "/var/lib/mysql",
-    envBuilder: ({ password, dbName, username }) => [
-      `MYSQL_ROOT_PASSWORD=${password}`,
-      `MYSQL_DATABASE=${dbName}`,
-      `MYSQL_USER=${username}`,
-      `MYSQL_PASSWORD=${password}`,
-    ],
-    internalUriBuilder: ({ host, port, user, password, dbName }) =>
-      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
-    externalUriBuilder: ({ host, port, user, password, dbName }) =>
-      `mysql://${user}:${password}@${host}:${port}/${dbName}`,
-  },
   REDIS: {
     type: "REDIS",
     name: "Redis In-Memory Cache",
@@ -224,4 +207,69 @@ export async function provisionDedicatedAddon(params: {
   }
 
   return { containerId: container.id, internalHost };
+}
+
+/**
+ * Syncs and ensures all RUNNING database addons have active Docker containers.
+ */
+export async function syncAllDockerAddons(): Promise<void> {
+  try {
+    const { getDockerDaemonStatus } = await import("./docker");
+    const status = await getDockerDaemonStatus();
+    if (!status.online) {
+      console.warn("[Docker Addons] Docker daemon is offline. Skipping addon container sync.");
+      return;
+    }
+
+    const { db } = await import("@/lib/db");
+    const addons = await db.addon.findMany({
+      where: { status: "RUNNING" },
+      include: { project: true },
+    });
+
+    for (const addon of addons) {
+      try {
+        const template = ADDON_TEMPLATES[addon.type];
+        if (!template) continue;
+
+        let containerNeedsStart = true;
+        if (addon.containerId) {
+          try {
+            const container = docker.getContainer(addon.containerId);
+            const inspect = await container.inspect();
+            if (inspect.State.Running) {
+              containerNeedsStart = false;
+            } else {
+              await container.start();
+              containerNeedsStart = false;
+            }
+          } catch {
+            containerNeedsStart = true;
+          }
+        }
+
+        if (containerNeedsStart) {
+          const { decryptSecret } = await import("./crypto");
+          const password = decryptSecret(addon.encryptedPass, addon.iv, addon.authTag);
+          const res = await provisionDedicatedAddon({
+            addonId: addon.id,
+            type: addon.type,
+            networkName: addon.project?.networkName || "minipaas-global",
+            internalHost: addon.internalHost,
+            password,
+            publicPort: addon.publicPort || undefined,
+          });
+
+          await db.addon.update({
+            where: { id: addon.id },
+            data: { containerId: res.containerId },
+          });
+        }
+      } catch (err: any) {
+        console.warn(`[Docker Addons] Failed to sync addon container '${addon.name}':`, err.message);
+      }
+    }
+  } catch (err: any) {
+    console.warn("[Docker Addons] Error in syncAllDockerAddons:", err.message);
+  }
 }

@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Provision addon using real Docker container (or native runner fallback if Docker is offline)
+    // Provision addon using real Docker container
     try {
       const res = await provisionDedicatedAddon({
         addonId: addon.id,
@@ -107,16 +107,18 @@ export async function POST(req: Request) {
 
       await db.addon.update({
         where: { id: addon.id },
-        data: { containerId: res.containerId },
+        data: { containerId: res.containerId, status: "RUNNING" },
       });
-    } catch (dockerErr) {
-      console.warn("Docker is offline. Attempting native runner fallback:", dockerErr);
-      try {
-        const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-        await startNativeAddon(addon);
-      } catch (nativeErr) {
-        console.warn("Native addon runner notice:", nativeErr);
-      }
+    } catch (dockerErr: any) {
+      // Clean up database record if Docker fails
+      await db.addon.delete({ where: { id: addon.id } }).catch(() => {});
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Docker error: Failed to provision ${type} container. Pastikan Docker Desktop / daemon aktif. (${dockerErr.message})`,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true, addon }, { status: 201 });

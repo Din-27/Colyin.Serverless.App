@@ -69,21 +69,15 @@ export async function POST(
         where: { id: updated.id },
         data: { containerId: res.containerId },
       });
-
-      // Free native runner port if previously running in memory
-      try {
-        const { stopNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-        await stopNativeAddon(updated.id);
-      } catch {}
-    } catch (dockerErr) {
-      console.warn("[TogglePublic] Docker container reconfiguration fallback:", dockerErr);
-      // 2. Fallback to native runner only if Docker is offline
-      try {
-        const { startNativeAddon } = await import("@/lib/engine/nativeAddonRunner");
-        await startNativeAddon(updated);
-      } catch (nativeErr) {
-        console.warn("[TogglePublic] Native runner re-bind notice:", nativeErr);
-      }
+    } catch (dockerErr: any) {
+      console.error("[TogglePublic] Docker container reconfiguration error:", dockerErr.message);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Docker error: Failed to update public port on container. Pastikan Docker Desktop / daemon aktif. (${dockerErr.message})`,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({

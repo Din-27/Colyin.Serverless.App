@@ -15,9 +15,9 @@ export async function register() {
     const { ensureNativeProxyRunning } = await import("@/lib/engine/nativeProxy");
     ensureNativeProxyRunning();
 
-    const { syncAllNativeAddons } = await import("@/lib/engine/nativeAddonRunner");
-    syncAllNativeAddons().catch((e) =>
-      console.warn("Could not sync native addons on startup:", e)
+    const { syncAllDockerAddons } = await import("@/lib/engine/addons");
+    syncAllDockerAddons().catch((e) =>
+      console.warn("Could not sync Docker addons on startup:", e)
     );
   }
 }
