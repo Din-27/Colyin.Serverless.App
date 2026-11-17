@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DockerPruneButton } from "@/components/DockerPruneButton";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 interface MetricPoint {
@@ -241,34 +242,29 @@ export function SystemTelemetryDashboard() {
         </div>
       </div>
 
-      {/* Navigation Tabs: Standard Shadcn Style */}
-      <div className="flex items-center gap-1.5 border-b border-border/80 pb-2 text-xs overflow-x-auto">
-        {[
-          { id: "overview", label: "Overview", icon: Activity },
-          { id: "cpu", label: `CPU (${currentMetrics?.metrics?.cpu?.percent ?? 0}%)`, icon: Cpu },
-          { id: "memory", label: `Memory (${currentMetrics?.metrics?.memory?.percent ?? 0}%)`, icon: Zap },
-          { id: "disk", label: `Storage (${currentMetrics?.metrics?.disk?.percent ?? 0}%)`, icon: HardDrive },
-          { id: "services", label: `Services & Apps (${currentMetrics?.services?.services?.length ?? 0})`, icon: Layers },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap",
-                active
-                  ? "bg-secondary text-foreground font-semibold shadow-xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-              )}
-            >
-              <Icon className={cn("w-3.5 h-3.5", active ? "text-foreground" : "text-muted-foreground")} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Navigation Tabs: Standard Shadcn UI TabsList */}
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="space-y-6">
+        <TabsList className="bg-muted/60 p-1 rounded-xl border border-border h-auto gap-1 overflow-x-auto max-w-full">
+          {[
+            { id: "overview", label: "Overview", icon: Activity },
+            { id: "cpu", label: `CPU (${currentMetrics?.metrics?.cpu?.percent ?? 0}%)`, icon: Cpu },
+            { id: "memory", label: `Memory (${currentMetrics?.metrics?.memory?.percent ?? 0}%)`, icon: Zap },
+            { id: "disk", label: `Storage (${currentMetrics?.metrics?.disk?.percent ?? 0}%)`, icon: HardDrive },
+            { id: "services", label: `Services & Apps (${currentMetrics?.services?.services?.length ?? 0})`, icon: Layers },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="gap-2 py-1.5 px-3 text-xs"
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
       {/* TAB 1: OVERVIEW COMPREHENSIVE */}
       {activeTab === "overview" && (
@@ -739,6 +735,7 @@ export function SystemTelemetryDashboard() {
           </div>
         </div>
       )}
+      </Tabs>
     </div>
   );
 }

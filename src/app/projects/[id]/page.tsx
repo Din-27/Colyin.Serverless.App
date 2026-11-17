@@ -236,58 +236,73 @@ export default async function ProjectDetailPage({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {project.addons.map((addon: any) => (
-              <Link
+              <Card
                 key={addon.id}
-                href={`/addons/${addon.id}`}
-                className="group block transition-all focus:outline-none"
+                className="hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between"
               >
-                <Card className="hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <CardTitle className="text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {addon.name}
-                        </CardTitle>
-                        <span className="text-xs font-mono text-muted-foreground">{addon.type}</span>
-                      </div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Link
+                        href={`/addons/${addon.id}`}
+                        className="font-semibold text-foreground hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      >
+                        {addon.name}
+                      </Link>
+                      <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                        Port {addon.internalPort} &bull; {addon.type}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
                       <StatusBadge status={addon.status} />
+                      <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                        {addon.type}
+                      </span>
                     </div>
+                  </div>
 
-                    {/* Host connection */}
-                    <div className="mt-3 p-2.5 rounded-lg bg-secondary/60 border border-border/80 text-xs font-mono">
-                      <div className="text-muted-foreground text-[11px]">Internal Host:</div>
-                      <div className="text-emerald-600 dark:text-emerald-400 truncate mt-0.5 font-semibold">
-                        {addon.internalHost}:{addon.internalPort}
-                      </div>
-                    </div>
-                  </CardHeader>
+                  {/* Internal Connection & Public Access Row */}
+                  <div className="mt-3 flex items-center justify-between text-xs font-mono">
+                    <Link
+                      href={`/addons/${addon.id}`}
+                      className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 hover:underline truncate max-w-[210px]"
+                      title={`Internal Host: ${addon.internalHost}:${addon.internalPort}`}
+                    >
+                      <Database className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{addon.internalHost}:{addon.internalPort}</span>
+                    </Link>
+                    <span className="text-[10px] font-sans font-medium">
+                      {addon.publicPort ? (
+                        <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-mono font-semibold">
+                          <Globe className="w-2.5 h-2.5" />
+                          :{addon.publicPort}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5" />
+                          Private
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </CardHeader>
 
-                  <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" />
-                        {addon.publicPort ? (
-                          <span className="text-amber-600 dark:text-amber-400 font-mono">
-                            :{addon.publicPort}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">Private Only</span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground flex items-center gap-1 transition-colors">
-                        <Settings className="w-3.5 h-3.5" />
-                        <span>Configure</span>
-                      </span>
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-1">
-                        <span>Credentials</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Link>
+                <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 truncate max-w-[160px]" title={addon.volumeName}>
+                      <HardDrive className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <span className="truncate">{addon.volumeName || "Volume"}</span>
+                    </span>
+                  </div>
+                  <Link
+                    href={`/addons/${addon.id}`}
+                    className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                  >
+                    <span>Manage</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </Link>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}

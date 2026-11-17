@@ -23,6 +23,8 @@ import {
 import { CopyButton } from "@/components/CopyButton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LiveEndpointTester } from "@/components/LiveEndpointTester";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -102,22 +104,22 @@ export default async function AppPreviewPage({
           </div>
 
           <div className="flex items-center gap-2.5">
-            <a
-              href={localDirectUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Open Local Port (: {app.internalPort})</span>
-            </a>
-            <Link
-              href={`/apps/${app.id}`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
-            >
-              <Server className="w-3.5 h-3.5" />
-              <span>App Console</span>
-            </Link>
+            <Button asChild variant="outline" size="sm" className="gap-2 font-mono text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 shadow-xs">
+              <a
+                href={localDirectUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Port {app.internalPort}</span>
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
+              <Link href={`/apps/${app.id}`}>
+                <Server className="w-3.5 h-3.5 text-indigo-500" />
+                <span>App Console</span>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

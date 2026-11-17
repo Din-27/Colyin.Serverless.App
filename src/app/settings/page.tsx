@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   SettingsProvider,
   useSettings,
@@ -52,37 +53,47 @@ function SettingsContent() {
         </p>
       </div>
 
-      {/* Settings Navigation Tabs */}
-      <div className="flex items-center gap-1.5 border-b border-border/80 pb-2 text-xs overflow-x-auto">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap",
-                isActive
-                  ? "bg-secondary text-foreground font-semibold shadow-xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-              )}
-            >
-              <Icon className={cn("w-3.5 h-3.5", isActive ? "text-foreground" : "text-muted-foreground")} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Settings Navigation Tabs with shadcn UI Tabs */}
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as SettingsTabKey)} className="space-y-6">
+        <TabsList className="bg-muted/60 p-1 rounded-xl border border-border h-auto gap-1 overflow-x-auto max-w-full">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="gap-2 py-1.5 px-3 text-xs"
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
-      {/* Tab Panels */}
-      {activeTab === "rbac" && <TabUsersRbac />}
-      {activeTab === "alerts" && <TabAlerts />}
-      {activeTab === "oauth" && <TabGithubOauth />}
-      {activeTab === "ingress" && <TabWildcardIngress />}
-      {activeTab === "mcp" && <TabMcpIntegration />}
-      {activeTab === "maintenance" && <TabMaintenance />}
-      {activeTab === "appearance" && <TabAppearance />}
+        {/* Tab Panels */}
+        <TabsContent value="rbac">
+          <TabUsersRbac />
+        </TabsContent>
+        <TabsContent value="alerts">
+          <TabAlerts />
+        </TabsContent>
+        <TabsContent value="oauth">
+          <TabGithubOauth />
+        </TabsContent>
+        <TabsContent value="ingress">
+          <TabWildcardIngress />
+        </TabsContent>
+        <TabsContent value="mcp">
+          <TabMcpIntegration />
+        </TabsContent>
+        <TabsContent value="maintenance">
+          <TabMaintenance />
+        </TabsContent>
+        <TabsContent value="appearance">
+          <TabAppearance />
+        </TabsContent>
+      </Tabs>
 
       {/* Support & Trakter Developer Banner */}
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs mt-6">
