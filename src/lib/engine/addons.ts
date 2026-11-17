@@ -90,7 +90,7 @@ export const ADDON_TEMPLATES: Record<string, AddonTemplate> = {
   MINIO: {
     type: "MINIO",
     name: "MinIO S3 Object Storage",
-    image: "minio/minio:latest",
+    image: "quay.io/minio/minio:latest",
     defaultInternalPort: 9000,
     defaultVolumePath: "/data",
     uiPort: 9001,

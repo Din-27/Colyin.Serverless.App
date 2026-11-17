@@ -191,11 +191,17 @@ export async function buildImageFromDirectory(
  * Pulls a docker image if not present locally.
  */
 export async function ensureImage(imageTag: string): Promise<void> {
+  // MinIO deprecated Docker Hub repository (minio/minio) and officially hosts on quay.io
+  const normalizedTag =
+    imageTag === "minio/minio:latest" || imageTag === "minio/minio"
+      ? "quay.io/minio/minio:latest"
+      : imageTag;
+
   try {
-    await docker.getImage(imageTag).inspect();
+    await docker.getImage(normalizedTag).inspect();
   } catch {
     await new Promise((resolve, reject) => {
-      docker.pull(imageTag, (err: any, stream: any) => {
+      docker.pull(normalizedTag, (err: any, stream: any) => {
         if (err) return reject(err);
         docker.modem.followProgress(stream, (pullErr: any, output: any) => {
           if (pullErr) return reject(pullErr);

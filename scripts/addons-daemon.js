@@ -50,7 +50,7 @@ const ADDON_DOCKER_TEMPLATES = {
     ],
   },
   MINIO: {
-    image: "minio/minio:latest",
+    image: "quay.io/minio/minio:latest",
     defaultInternalPort: 9000,
     defaultVolumePath: "/data",
     uiPort: 9001,
@@ -79,12 +79,17 @@ function decryptSecret(encryptedHex, ivHex, authTagHex) {
 }
 
 async function ensureImage(imageTag) {
+  const normalizedTag =
+    imageTag === "minio/minio:latest" || imageTag === "minio/minio"
+      ? "quay.io/minio/minio:latest"
+      : imageTag;
+
   try {
-    await docker.getImage(imageTag).inspect();
+    await docker.getImage(normalizedTag).inspect();
   } catch {
-    console.log(`[Docker Addons] Pulling image ${imageTag}...`);
+    console.log(`[Docker Addons] Pulling image ${normalizedTag}...`);
     await new Promise((resolve, reject) => {
-      docker.pull(imageTag, (err, stream) => {
+      docker.pull(normalizedTag, (err, stream) => {
         if (err) return reject(err);
         docker.modem.followProgress(stream, (pullErr) => {
           if (pullErr) return reject(pullErr);
