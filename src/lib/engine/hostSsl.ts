@@ -104,7 +104,7 @@ export async function provisionHostCertbot(
 
     const waitStatus = await container.wait().catch(() => ({ StatusCode: 0 }));
     if (waitStatus.StatusCode === 0) {
-      await log(`✅ SSL Certificate verified and active for '${domain}'!`);
+      await log(`[Success] SSL Certificate verified and active for '${domain}'!`);
       return { success: true, message: "SSL verified and active" };
     } else {
       await log(
@@ -120,7 +120,7 @@ export async function provisionHostCertbot(
       );
       if (stdout) await log(stdout);
       if (stderr) await log(stderr, "stderr");
-      await log(`✅ SSL Certificate verified and active for '${domain}'!`);
+      await log(`[Success] SSL Certificate verified and active for '${domain}'!`);
       return { success: true, message: "SSL verified via host CLI" };
     } catch (hostErr: any) {
       await log(

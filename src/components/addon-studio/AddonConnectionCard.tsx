@@ -12,6 +12,10 @@ import {
   Edit2,
   Check,
   RotateCcw,
+  AlertTriangle,
+  Info,
+  Sparkles,
+  ShieldAlert,
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { useAddonStudio } from "./AddonStudioContext";
@@ -435,46 +439,29 @@ export function AddonConnectionCard() {
                     </div>
                   )}
 
-                  <div className="p-2.5 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-500 font-bold shrink-0">
-                        {isPostgres
-                          ? "Postgres Tip:"
-                          : isMysql
-                          ? "MySQL Tip:"
-                          : isRedis
-                          ? "Redis Tip:"
-                          : isRabbit
-                          ? "RabbitMQ Tip:"
-                          : "Connection Tip:"}
-                      </span>
-                      <span>
-                        {isPostgres && "Pilih driver PostgreSQL di DBeaver/TablePlus. SSL disetel ke disabled/uncheck."}
-                        {isMysql && "Gunakan driver MySQL 8 di DBeaver/TablePlus. allowPublicKeyRetrieval=true."}
-                        {isRedis && "Gunakan redis-cli, RedisInsight, atau client library ioredis/redis untuk terhubung langsung."}
-                        {isRabbit && "Gunakan AMQP library (amqplib) untuk worker queue atau akses Web Console di bawah."}
-                        {isMinio && "Gunakan S3 SDK (AWS S3 / minio-js) dengan endpoint URL dan root credentials di atas."}
-                        {!isPostgres && !isMysql && !isRedis && !isRabbit && !isMinio && "Gunakan credential ini untuk terhubung dari aplikasi lokal atau cloud."}
-                      </span>
-                    </div>
-                    <div className="text-muted-foreground font-mono text-[10px]">
-                      {(isPostgres || isMysql) && <>Database: <strong className="text-foreground">{dbName}</strong> &bull; User: <strong className="text-foreground">{externalConnection.user}</strong></>}
-                      {isRedis && <>Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Auth: <strong className="text-foreground">Password protected</strong></>}
-                      {isRabbit && <>AMQP Port: <strong className="text-foreground">{externalConnection.port}</strong> &bull; Web UI: <strong className="text-orange-500">15672</strong></>}
-                    </div>
+                  <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-start gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span>
+                      {isPostgres && "Pilih driver PostgreSQL di DBeaver/TablePlus. SSL disetel ke disabled/uncheck."}
+                      {isMysql && "Gunakan driver MySQL 8 di DBeaver/TablePlus. allowPublicKeyRetrieval=true."}
+                      {isRedis && "Gunakan redis-cli, RedisInsight, atau client library ioredis/redis untuk terhubung langsung."}
+                      {isRabbit && "Gunakan AMQP library (amqplib) untuk worker queue atau akses Web Console di bawah."}
+                      {isMinio && "Gunakan S3 SDK (AWS S3 / minio-js) dengan endpoint URL dan root credentials di atas."}
+                      {!isPostgres && !isMysql && !isRedis && !isRabbit && !isMinio && "Gunakan credential ini untuk terhubung dari aplikasi lokal atau cloud."}
+                    </span>
                   </div>
 
                   <div className="px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-600 dark:text-amber-400 flex items-start gap-2">
-                    <span className="font-semibold shrink-0">⚠️ Firewall Note:</span>
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <span>
-                      Jika koneksi gagal dengan <em>&quot;Connection attempt timed out&quot;</em>, pastikan port <strong>{externalConnection.port}</strong> diizinkan (Inbound Allow) di Security Group / Firewall Cloud VPS Anda (atau jalankan <code className="px-1 py-0.5 rounded bg-amber-500/20 font-mono text-[10px]">sudo ufw allow {externalConnection.port}/tcp</code> di VPS).
+                      <strong className="font-semibold">Firewall Notice:</strong> Jika koneksi gagal dengan <em>&quot;Connection attempt timed out&quot;</em>, pastikan port <strong>{externalConnection.port}</strong> diizinkan (Inbound Allow) di Security Group / Firewall Cloud VPS Anda (atau jalankan <code className="px-1 py-0.5 rounded bg-amber-500/20 font-mono text-[10px]">sudo ufw allow {externalConnection.port}/tcp</code> di VPS).
                     </span>
                   </div>
 
                   <div className="px-3 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-600 dark:text-indigo-400 flex items-start gap-2">
-                    <span className="font-semibold shrink-0">💡 DBeaver / TablePlus Note:</span>
+                    <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                     <span>
-                      Jika muncul error <em>&quot;The server requested SCRAM-based authentication, but no password was provided&quot;</em>: Di DBeaver/TablePlus, kolom <strong>Password</strong> wajib diisi (tidak boleh kosong). Salin password dari kartu di atas dan paste ke field Password DBeaver, atau gunakan <em>DBeaver JDBC URL</em> di atas yang sudah otomatis menyertakan password.
+                      <strong className="font-semibold">Client Note:</strong> Jika muncul error <em>&quot;The server requested SCRAM-based authentication, but no password was provided&quot;</em>: Di DBeaver/TablePlus, kolom <strong>Password</strong> wajib diisi. Salin password dari kartu di atas dan paste ke field Password DBeaver, atau gunakan <em>DBeaver JDBC URL</em> di atas yang sudah otomatis menyertakan password.
                     </span>
                   </div>
                 </div>

@@ -304,11 +304,11 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
       }
 
       await log(`-------------------------------------------------------`);
-      await log(`🚀 Application deployed successfully and is now LIVE!`);
-      await log(`🌐 Public Domain : ${accessUrl}`);
-      await log(`🔒 SSL Security  : Active (Native Wildcard TLS Proxy on Port 443/80)`);
-      await log(`💻 Local Port    : http://localhost:${app.internalPort}`);
-      await log(`🔗 Internal Mesh : http://${app.slug}:${app.internalPort}`);
+      await log(`[Success] Application deployed successfully and is now LIVE!`);
+      await log(`[Domain]  Public Domain : ${accessUrl}`);
+      await log(`[SSL]     Security      : Active (Native Wildcard TLS Proxy on Port 443/80)`);
+      await log(`[Port]    Local Port    : http://localhost:${app.internalPort}`);
+      await log(`[Mesh]    Internal Mesh : http://${app.slug}:${app.internalPort}`);
       await log(`-------------------------------------------------------`);
 
       await db.deployment.update({
@@ -439,10 +439,10 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
     }
 
     await log(`-------------------------------------------------------`);
-    await log(`🚀 Application deployed successfully and is now LIVE!`);
-    await log(`🌐 Public Domain : ${accessUrl}`);
-    await log(`🔒 SSL Security  : ${isPublicHttps ? "Active (Host Nginx Reverse Proxy / Dynamic TLS)" : "Disabled (Direct HTTP Routing)"}`);
-    await log(`🔗 Internal Mesh : http://${app.slug}:${app.internalPort}`);
+    await log(`[Success] Application deployed successfully and is now LIVE!`);
+    await log(`[Domain]  Public Domain : ${accessUrl}`);
+    await log(`[SSL]     Security      : ${isPublicHttps ? "Active (Host Nginx Reverse Proxy / Dynamic TLS)" : "Disabled (Direct HTTP Routing)"}`);
+    await log(`[Mesh]    Internal Mesh : http://${app.slug}:${app.internalPort}`);
     await log(`-------------------------------------------------------`);
 
     await db.deployment.update({
