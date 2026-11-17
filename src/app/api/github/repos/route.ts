@@ -51,9 +51,34 @@ export async function GET() {
       const ghRes = await fetch(apiUrl, { headers });
 
       if (!ghRes.ok) {
-        // If first page fails, return error
+        const errText = await ghRes.text();
+
+        // If GitHub returns 401 Unauthorized / Bad credentials, automatically disconnect the account
+        if (ghRes.status === 401) {
+          console.warn(
+            `[GitHub Repos] Stored GitHub credentials for '${account.username}' are invalid or expired (401 Bad credentials). Automatically disconnecting account.`
+          );
+          try {
+            await db.githubAccount.deleteMany({ where: { id: account.id } });
+          } catch (delErr: any) {
+            console.error(`[GitHub Repos] Failed to remove expired account:`, delErr);
+          }
+
+          return NextResponse.json(
+            {
+              success: false,
+              connected: false,
+              disconnected: true,
+              error: `GitHub API error (401): ${errText}. Akun GitHub telah otomatis diputuskan karena kredensial kadaluarsa atau tidak valid. Silakan hubungkan kembali.`,
+              repos: [],
+              hasToken: false,
+            },
+            { status: 401 }
+          );
+        }
+
+        // If first page fails with another error, return error
         if (page === 1) {
-          const errText = await ghRes.text();
           return NextResponse.json(
             {
               success: false,

@@ -236,6 +236,10 @@ export function ServiceWizardProvider({
         loadRepos();
       } else {
         setGithubAccount(null);
+        setRepos([]);
+        if (data.disconnected && data.error) {
+          setError(data.error);
+        }
       }
     } catch {}
     setCheckingGithub(false);
@@ -255,6 +259,11 @@ export function ServiceWizardProvider({
         }
       } else {
         setRepos([]);
+        // Auto-disconnect handling on 401 Bad credentials
+        if (data.disconnected || res.status === 401 || data.connected === false) {
+          setGithubAccount(null);
+          setSelectedRepoFullName("");
+        }
         if (data.error) setError(data.error);
       }
     } catch (err: any) {

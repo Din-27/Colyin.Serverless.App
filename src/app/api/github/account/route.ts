@@ -87,10 +87,41 @@ export async function GET() {
     }
 
     let hasToken = false;
+    let decryptedToken = "";
     try {
-      const decrypted = decryptSecret(account.encryptedToken, account.iv, account.authTag);
-      hasToken = !!decrypted && !decrypted.startsWith("public_user_");
+      decryptedToken = decryptSecret(account.encryptedToken, account.iv, account.authTag);
+      hasToken = !!decryptedToken && !decryptedToken.startsWith("public_user_");
     } catch {}
+
+    // Verify token validity against GitHub API if token exists
+    if (hasToken && decryptedToken) {
+      try {
+        const ghVerify = await fetch("https://api.github.com/user", {
+          headers: {
+            Authorization: `Bearer ${decryptedToken}`,
+            Accept: "application/vnd.github+json",
+            "User-Agent": "MiniPaaS-Engine",
+          },
+          signal: AbortSignal.timeout(2500),
+        });
+
+        if (ghVerify.status === 401) {
+          console.warn(
+            `[GitHub Account] Token verification returned 401 Bad credentials. Auto-disconnecting account ${account.username}.`
+          );
+          await db.githubAccount.deleteMany({ where: { id: account.id } });
+          return NextResponse.json({
+            success: true,
+            connected: false,
+            disconnected: true,
+            error: "Koneksi GitHub telah otomatis diputuskan karena kredensial tidak valid atau kadaluarsa (401 Bad credentials).",
+            account: null,
+            cliAccounts,
+            isOauthConfigured,
+          });
+        }
+      } catch {}
+    }
 
     return NextResponse.json({
       success: true,
