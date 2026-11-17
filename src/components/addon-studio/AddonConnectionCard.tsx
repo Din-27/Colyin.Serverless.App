@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { useAddonStudio } from "./AddonStudioContext";
+import { MinioNpmIntegrationCard } from "./MinioNpmIntegrationCard";
 
 export function AddonConnectionCard() {
   const {
@@ -378,6 +379,8 @@ export function AddonConnectionCard() {
                           ? "MySQL Connection URI"
                           : isPostgres
                           ? "PostgreSQL Connection URI"
+                          : isMinio
+                          ? "MinIO S3 API Endpoint"
                           : "Client Connection URI"}
                       </span>
                       <span className="text-amber-500 font-medium truncate">
@@ -554,6 +557,17 @@ export function AddonConnectionCard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Dedicated Node.js & npm minio Integration Guide */}
+      {data.type === "MINIO" && (
+        <MinioNpmIntegrationCard
+          addonId={addonId}
+          internalConnection={internalConnection}
+          externalConnection={externalConnection}
+          activeHost={customHost.trim() || externalConnection?.host || "localhost"}
+          showPassword={showPassword}
+        />
       )}
     </div>
   );
