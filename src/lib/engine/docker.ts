@@ -191,10 +191,10 @@ export async function buildImageFromDirectory(
  * Pulls a docker image if not present locally.
  */
 export async function ensureImage(imageTag: string): Promise<void> {
-  // MinIO deprecated Docker Hub repository (minio/minio) and officially hosts on quay.io
+  // MinIO deprecated Docker Hub & Quay.io public access; Chainguard provides the free drop-in binary image
   const normalizedTag =
-    imageTag === "minio/minio:latest" || imageTag === "minio/minio"
-      ? "quay.io/minio/minio:latest"
+    imageTag.includes("minio/minio")
+      ? "cgr.dev/chainguard/minio:latest"
       : imageTag;
 
   try {

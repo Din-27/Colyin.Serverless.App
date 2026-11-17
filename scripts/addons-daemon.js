@@ -50,7 +50,7 @@ const ADDON_DOCKER_TEMPLATES = {
     ],
   },
   MINIO: {
-    image: "quay.io/minio/minio:latest",
+    image: "cgr.dev/chainguard/minio:latest",
     defaultInternalPort: 9000,
     defaultVolumePath: "/data",
     uiPort: 9001,
@@ -80,8 +80,8 @@ function decryptSecret(encryptedHex, ivHex, authTagHex) {
 
 async function ensureImage(imageTag) {
   const normalizedTag =
-    imageTag === "minio/minio:latest" || imageTag === "minio/minio"
-      ? "quay.io/minio/minio:latest"
+    imageTag.includes("minio/minio")
+      ? "cgr.dev/chainguard/minio:latest"
       : imageTag;
 
   try {

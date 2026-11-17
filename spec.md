@@ -704,7 +704,7 @@ Atomically sets or updates environment variables for an application.
 | **MySQL** | `mysql:8.4` | `3306` | `/var/lib/mysql` | `DATABASE_URL=mysql://{user}:{pass}@{host}:3306/{db}` |
 | **Redis** | `redis:7-alpine` | `6379` | `/data` | `REDIS_URL=redis://default:{pass}@{host}:6379` |
 | **RabbitMQ** | `rabbitmq:3-management-alpine` | `5672` (AMQP)<br>`15672` (UI) | `/var/lib/rabbitmq` | `RABBITMQ_URL=amqp://{user}:{pass}@{host}:5672` |
-| **MinIO (S3)** | `quay.io/minio/minio:latest` | `9000` (API)<br>`9001` (Console) | `/data` | `S3_ENDPOINT=http://{host}:9000`<br>`S3_ACCESS_KEY={user}` |
+| **MinIO (S3)** | `cgr.dev/chainguard/minio:latest` | `9000` (API)<br>`9001` (Console) | `/data` | `S3_ENDPOINT=http://{host}:9000`<br>`S3_ACCESS_KEY={user}` |
 
 ### 8.2 Shared vs. Dedicated Provisioning Workflow
 
