@@ -39,6 +39,11 @@ const ADDON_DOCKER_TEMPLATES = {
     defaultInternalPort: 5672,
     defaultVolumePath: "/var/lib/rabbitmq",
     uiPort: 15672,
+    extraPorts: [
+      { port: 15672, name: "stats" },
+      { port: 25672, name: "dist" },
+      { port: 4369, name: "epmd" },
+    ],
     envBuilder: ({ password, username }) => [
       `RABBITMQ_DEFAULT_USER=${username}`,
       `RABBITMQ_DEFAULT_PASS=${password}`,
@@ -151,6 +156,16 @@ async function syncDockerAddons() {
             portBindings[`${template.uiPort}/tcp`] = [
               { HostIp: "0.0.0.0", HostPort: template.uiPort.toString() },
             ];
+          }
+          if (template.extraPorts) {
+            for (const ep of template.extraPorts) {
+              exposedPorts[`${ep.port}/tcp`] = {};
+              if (addon.publicPort || ep.port === 15672) {
+                portBindings[`${ep.port}/tcp`] = [
+                  { HostIp: "0.0.0.0", HostPort: ep.port.toString() },
+                ];
+              }
+            }
           }
 
           const networkToUse = addon.project?.networkName || "minipaas-global";

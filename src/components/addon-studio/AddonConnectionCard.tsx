@@ -20,6 +20,7 @@ import {
 import { CopyButton } from "@/components/CopyButton";
 import { useAddonStudio } from "./AddonStudioContext";
 import { MinioNpmIntegrationCard } from "./MinioNpmIntegrationCard";
+import { RabbitMqPortsCard } from "./RabbitMqPortsCard";
 
 export function AddonConnectionCard() {
   const {
@@ -567,6 +568,18 @@ export function AddonConnectionCard() {
           externalConnection={externalConnection}
           activeHost={customHost.trim() || externalConnection?.host || "localhost"}
           showPassword={showPassword}
+        />
+      )}
+
+      {/* Dedicated RabbitMQ Ports Matrix & npm amqplib Guide */}
+      {data.type === "RABBITMQ" && (
+        <RabbitMqPortsCard
+          addonId={addonId}
+          internalConnection={internalConnection}
+          externalConnection={externalConnection}
+          activeHost={customHost.trim() || externalConnection?.host || "localhost"}
+          webManagementUiUrl={webManagementUiUrl}
+          ports={data.ports}
         />
       )}
     </div>

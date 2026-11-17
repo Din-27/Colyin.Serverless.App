@@ -1,6 +1,13 @@
 import { docker, buildHostConfig, ensureImage } from "./docker";
 import crypto from "crypto";
 
+export interface AddonPortSpec {
+  port: number;
+  protocol?: string;
+  name: string;
+  description?: string;
+}
+
 export interface AddonTemplate {
   type: string;
   name: string;
@@ -8,6 +15,7 @@ export interface AddonTemplate {
   defaultInternalPort: number;
   defaultVolumePath: string;
   uiPort?: number;
+  extraPorts?: AddonPortSpec[];
   envBuilder: (params: {
     password: string;
     dbName: string;
@@ -65,6 +73,11 @@ export const ADDON_TEMPLATES: Record<string, AddonTemplate> = {
     defaultInternalPort: 5672,
     defaultVolumePath: "/var/lib/rabbitmq",
     uiPort: 15672,
+    extraPorts: [
+      { port: 15672, protocol: "tcp", name: "stats", description: "Management Web UI & HTTP API" },
+      { port: 25672, protocol: "tcp", name: "dist", description: "Erlang distribution / CLI inter-node" },
+      { port: 4369, protocol: "tcp", name: "epmd", description: "Erlang Port Mapper Daemon (peer discovery)" },
+    ],
     envBuilder: ({ password, username }) => [
       `RABBITMQ_DEFAULT_USER=${username}`,
       `RABBITMQ_DEFAULT_PASS=${password}`,
@@ -163,6 +176,16 @@ export async function provisionDedicatedAddon(params: {
     portBindings[`${template.uiPort}/tcp`] = [
       { HostIp: "0.0.0.0", HostPort: template.uiPort.toString() },
     ];
+  }
+  if (template.extraPorts) {
+    for (const ep of template.extraPorts) {
+      exposedPorts[`${ep.port}/tcp`] = {};
+      if (params.publicPort || ep.port === 15672) {
+        portBindings[`${ep.port}/tcp`] = [
+          { HostIp: "0.0.0.0", HostPort: ep.port.toString() },
+        ];
+      }
+    }
   }
 
   const hostConfig = buildHostConfig(

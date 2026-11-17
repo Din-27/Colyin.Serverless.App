@@ -113,8 +113,43 @@ export async function GET(
       : null;
 
     let webManagementUiUrl = null;
+    let ports: any[] | null = null;
     if (addon.type === "RABBITMQ") {
       webManagementUiUrl = `http://${publicHost}:15672`;
+      ports = [
+        {
+          name: "amqp",
+          port: addon.publicPort || 5672,
+          internalPort: 5672,
+          protocol: "TCP",
+          service: "AMQP 0-9-1",
+          description: "Client application message protocol",
+        },
+        {
+          name: "dist",
+          port: 25672,
+          internalPort: 25672,
+          protocol: "TCP",
+          service: "Erlang Distribution",
+          description: "Inter-node clustering & CLI communication",
+        },
+        {
+          name: "stats",
+          port: 15672,
+          internalPort: 15672,
+          protocol: "TCP",
+          service: "Management Web UI & HTTP API",
+          description: "Web management dashboard & metrics API",
+        },
+        {
+          name: "epmd",
+          port: 4369,
+          internalPort: 4369,
+          protocol: "TCP",
+          service: "Erlang Port Mapper Daemon",
+          description: "Peer discovery & name resolution daemon",
+        },
+      ];
     } else if (addon.type === "MINIO") {
       webManagementUiUrl = `http://${publicHost}:9001`;
     }
@@ -133,6 +168,7 @@ export async function GET(
         internalConnection,
         externalConnection,
         webManagementUiUrl,
+        ports,
       },
     });
   } catch (err: any) {
