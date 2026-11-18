@@ -14,18 +14,32 @@ export interface NativeRunningProcess {
 
 // Global registry of real running application processes
 const activeProcesses = new Map<string, NativeRunningProcess>();
+// Global registry of in-process HTTP servers (e.g. for static sites)
+const activeHttpServers = new Map<string, http.Server>();
 
 /**
  * Ensures previous process for this application or occupying this port is terminated.
  */
 export async function stopNativeService(appId: string): Promise<void> {
+  // 1. Close in-process HTTP server if any
+  const existingServer = activeHttpServers.get(appId);
+  if (existingServer) {
+    try {
+      existingServer.close();
+    } catch {}
+    activeHttpServers.delete(appId);
+  }
+
+  // 2. Kill child process if any
   const existing = activeProcesses.get(appId);
   if (existing) {
     try {
-      if (process.platform === "win32") {
-        spawn("taskkill", ["/pid", String(existing.pid), "/T", "/F"], { stdio: "ignore" });
-      } else {
-        existing.child.kill("SIGKILL");
+      if (existing.child && typeof existing.child.kill === "function") {
+        if (process.platform === "win32") {
+          spawn("taskkill", ["/pid", String(existing.pid), "/T", "/F"], { stdio: "ignore" });
+        } else {
+          existing.child.kill("SIGKILL");
+        }
       }
     } catch {}
     activeProcesses.delete(appId);
@@ -278,6 +292,120 @@ export function resolveNativeCommands(projectDir: string): {
   };
 }
 
+const MIME_TYPES_MAP: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".htm": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+  ".otf": "font/otf",
+  ".eot": "application/vnd.ms-fontobject",
+  ".wasm": "application/wasm",
+  ".xml": "application/xml; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".pdf": "application/pdf",
+  ".zip": "application/zip",
+  ".map": "application/json; charset=utf-8",
+};
+
+export function createInProcessStaticServer(projectDir: string, port: number): http.Server {
+  let webRoot = projectDir;
+  for (const dir of ["dist", "build", "out", "public"]) {
+    const c = path.join(projectDir, dir);
+    if (fs.existsSync(c) && fs.statSync(c).isDirectory()) {
+      if (fs.existsSync(path.join(c, "index.html")) || fs.existsSync(path.join(c, "index.htm"))) {
+        webRoot = c;
+        break;
+      }
+    }
+  }
+
+  const server = http.createServer((req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.writeHead(405, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Method Not Allowed");
+      return;
+    }
+
+    let decodedUrl = "/";
+    try {
+      const parsed = new URL(req.url || "/", "http://localhost:" + port);
+      decodedUrl = decodeURIComponent(parsed.pathname);
+    } catch {
+      decodedUrl = "/";
+    }
+
+    const safePath = path.normalize(decodedUrl).replace(/^(\.\.[\/\\])+/, "");
+    let filePath = path.join(webRoot, safePath);
+
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      if (fs.existsSync(path.join(filePath, "index.html"))) {
+        filePath = path.join(filePath, "index.html");
+      } else if (fs.existsSync(path.join(filePath, "index.htm"))) {
+        filePath = path.join(filePath, "index.htm");
+      }
+    }
+
+    // SPA fallback: if requested file does not exist, serve index.html
+    if (!fs.existsSync(filePath)) {
+      const rootIndex = path.join(webRoot, "index.html");
+      const rootHtm = path.join(webRoot, "index.htm");
+      if (fs.existsSync(rootIndex)) {
+        filePath = rootIndex;
+      } else if (fs.existsSync(rootHtm)) {
+        filePath = rootHtm;
+      } else {
+        res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(
+          `<!DOCTYPE html><html><head><title>404 Not Found</title></head><body style="font-family:system-ui,sans-serif;padding:40px;text-align:center;background:#09090b;color:#f4f4f5;"><h1 style="color:#ef4444;">404 Not Found</h1><p>Requested path <code>${safePath}</code> was not found.</p></body></html>`
+        );
+        return;
+      }
+    }
+
+    try {
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES_MAP[ext] || "application/octet-stream";
+      const stat = fs.statSync(filePath);
+
+      res.writeHead(200, {
+        "Content-Type": contentType,
+        "Content-Length": stat.size,
+        "Cache-Control": ext === ".html" || ext === ".htm" ? "no-cache" : "public, max-age=3600",
+        "Access-Control-Allow-Origin": "*",
+      });
+
+      if (req.method === "HEAD") {
+        res.end();
+        return;
+      }
+
+      fs.createReadStream(filePath).pipe(res);
+    } catch (err: any) {
+      res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Internal Server Error: " + (err && err.message ? err.message : String(err)));
+    }
+  });
+
+  return server;
+}
+
 /**
  * Runs build & installation step synchronously with live streaming logs.
  */
@@ -292,10 +420,17 @@ export function executeCommandWithLogs(
     const shell = isWin ? "cmd.exe" : "/bin/sh";
     const shellArg = isWin ? "/c" : "-c";
 
+    const nodeDir = path.dirname(process.execPath);
+    const existingPath = process.env.PATH || "";
+    const enhancedPath = existingPath.includes(nodeDir)
+      ? existingPath
+      : `${nodeDir}${path.delimiter}${existingPath}`;
+
     const child = spawn(shell, [shellArg, command], {
       cwd,
       env: {
         ...process.env,
+        PATH: enhancedPath,
         ...extraEnv,
       },
     });
@@ -347,16 +482,67 @@ export async function startNativeService({
   // Kill previous instance if any
   await stopNativeService(appId);
 
+  // 1. In-process ultra-fast static web server for static sites
+  if (startCmd.includes("_static_server.cjs") || startCmd === "static") {
+    await onLog(`[NativeRunner] Initializing in-process static HTTP web server on port :${port}...`);
+    const server = createInProcessStaticServer(projectDir, port);
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, "0.0.0.0", () => {
+        resolve();
+      });
+      server.on("error", (err) => {
+        reject(err);
+      });
+    });
+
+    activeHttpServers.set(appId, server);
+    await onLog(`[NativeRunner] Static web server LIVE & listening on http://0.0.0.0:${port}`);
+
+    const record: NativeRunningProcess = {
+      pid: process.pid,
+      child: {
+        pid: process.pid,
+        kill: () => {
+          server.close();
+          return true;
+        },
+      } as any,
+      appId,
+      appSlug,
+      port,
+      startedAt: new Date(),
+    };
+
+    activeProcesses.set(appId, record);
+    return record;
+  }
+
+  // 2. Spawn external background process (Node.js backend, Python, etc.)
   const isWin = process.platform === "win32";
   const shell = isWin ? "cmd.exe" : "/bin/sh";
   const shellArg = isWin ? "/c" : "-c";
 
-  await onLog(`Spawning native application process: ${startCmd} on port :${port}...`);
+  const nodeDir = path.dirname(process.execPath);
+  const existingPath = process.env.PATH || "";
+  const enhancedPath = existingPath.includes(nodeDir)
+    ? existingPath
+    : `${nodeDir}${path.delimiter}${existingPath}`;
 
-  const child = spawn(shell, [shellArg, startCmd], {
+  let finalCmd = startCmd;
+  if (finalCmd.startsWith("node ")) {
+    finalCmd = `"${process.execPath}" ` + finalCmd.slice(5);
+  } else if (finalCmd === "node") {
+    finalCmd = `"${process.execPath}"`;
+  }
+
+  await onLog(`Spawning native application process: ${finalCmd} on port :${port}...`);
+
+  const child = spawn(shell, [shellArg, finalCmd], {
     cwd: projectDir,
     env: {
       ...process.env,
+      PATH: enhancedPath,
       ...env,
       PORT: String(port),
       NODE_ENV: "production",

@@ -49,7 +49,7 @@ export function HoverCard({
   return (
     <HoverCardContext.Provider value={{ open, setOpen }}>
       <div
-        className={cn("relative inline-flex items-center", className)}
+        className={cn("relative", className || "inline-flex items-center")}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -69,7 +69,7 @@ export function HoverCardTrigger({
   asChild?: boolean;
 }) {
   return (
-    <div className={cn("inline-flex items-center cursor-help", className)}>
+    <div className={cn("cursor-help", className || "inline-flex items-center")}>
       {children}
     </div>
   );

@@ -224,11 +224,11 @@ export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
                     {/* Resource Usage Breakdown: Core, Memory, Disk */}
                     <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60">
                       {/* CPU Core */}
-                      <HoverCard openDelay={150}>
-                        <HoverCardTrigger asChild>
-                          <div className="p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center cursor-help">
+                      <HoverCard openDelay={150} className="w-full">
+                        <HoverCardTrigger asChild className="w-full block">
+                          <div className="w-full h-full min-h-[58px] p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center flex flex-col justify-center items-center cursor-help">
                             <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mb-0.5">
-                              <Cpu className="w-3 h-3 text-primary" />
+                              <Cpu className="w-3 h-3 text-primary shrink-0" />
                               <span className="font-medium text-foreground">Core</span>
                             </div>
                             <span className="font-mono text-xs font-bold text-foreground">
@@ -248,11 +248,11 @@ export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
                       </HoverCard>
 
                       {/* Memory RAM */}
-                      <HoverCard openDelay={150}>
-                        <HoverCardTrigger asChild>
-                          <div className="p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center cursor-help">
+                      <HoverCard openDelay={150} className="w-full">
+                        <HoverCardTrigger asChild className="w-full block">
+                          <div className="w-full h-full min-h-[58px] p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center flex flex-col justify-center items-center cursor-help">
                             <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mb-0.5">
-                              <Activity className="w-3 h-3 text-primary" />
+                              <Activity className="w-3 h-3 text-primary shrink-0" />
                               <span className="font-medium text-foreground">RAM</span>
                             </div>
                             <span className="font-mono text-xs font-bold text-foreground">
@@ -272,11 +272,11 @@ export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
                       </HoverCard>
 
                       {/* Storage Disk */}
-                      <HoverCard openDelay={150}>
-                        <HoverCardTrigger asChild>
-                          <div className="p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center cursor-help">
+                      <HoverCard openDelay={150} className="w-full">
+                        <HoverCardTrigger asChild className="w-full block">
+                          <div className="w-full h-full min-h-[58px] p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors border border-border text-center flex flex-col justify-center items-center cursor-help">
                             <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mb-0.5">
-                              <HardDrive className="w-3 h-3 text-primary" />
+                              <HardDrive className="w-3 h-3 text-primary shrink-0" />
                               <span className="font-medium text-foreground">Disk</span>
                             </div>
                             <span className="font-mono text-xs font-bold text-foreground">
