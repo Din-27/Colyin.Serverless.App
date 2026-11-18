@@ -192,17 +192,6 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
       await log(`[Custom Override] Start command set to: ${detected.startCmd}`);
     }
 
-    // Auto-generate multi-stage production Dockerfile if not present
-    if (!fs.existsSync(path.join(buildDir, "Dockerfile"))) {
-      const generatedDockerfile = generateUniversalDockerfile(detected, buildDir, app.runtimeVersion);
-      fs.writeFileSync(path.join(buildDir, "Dockerfile"), generatedDockerfile, "utf8");
-      await log(`[Buildpack] Synthesized dynamic Dockerfile for ${detected.language} v${effectiveVersion}:`);
-      const previewLines = generatedDockerfile.split("\n").slice(0, 8).join("\n");
-      await log(previewLines + (generatedDockerfile.split("\n").length > 8 ? "\n..." : ""));
-    } else {
-      await log(`[Buildpack] Custom repository Dockerfile detected. Using source definition.`);
-    }
-
     // Update internal port if app internalPort was default 3000 and stack suggests something else
     if (app.internalPort === 3000 && detected.defaultPort !== 3000) {
       const portCheck = await validatePort(detected.defaultPort, { excludeAppId: app.id });
@@ -216,6 +205,17 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
       });
       app.internalPort = targetPort;
       await log(`Auto-configured service internal port to :${targetPort} (Verified unique & unoccupied)`);
+    }
+
+    // Auto-generate multi-stage production Dockerfile if not present
+    if (!fs.existsSync(path.join(buildDir, "Dockerfile"))) {
+      const generatedDockerfile = generateUniversalDockerfile(detected, buildDir, app.runtimeVersion, app.internalPort);
+      fs.writeFileSync(path.join(buildDir, "Dockerfile"), generatedDockerfile, "utf8");
+      await log(`[Buildpack] Synthesized dynamic Dockerfile for ${detected.language} v${effectiveVersion}:`);
+      const previewLines = generatedDockerfile.split("\n").slice(0, 8).join("\n");
+      await log(previewLines + (generatedDockerfile.split("\n").length > 8 ? "\n..." : ""));
+    } else {
+      await log(`[Buildpack] Custom repository Dockerfile detected. Using source definition.`);
     }
 
     // 3. Compile Image & Spawn Container
@@ -271,13 +271,18 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
 
       // 3. Start real application daemon on internal port
       await log(`[Step 4/4] Starting service '${app.slug}' on internal port :${app.internalPort}...`);
+      const targetStartCmd =
+        app.startCommand && app.startCommand.trim()
+          ? app.startCommand.trim()
+          : commands.startCmd;
+
       const runningProc = await startNativeService({
         appId: app.id,
         appSlug: app.slug,
         projectDir: buildDir,
         port: app.internalPort,
         env: envMap,
-        startCmd: commands.startCmd,
+        startCmd: targetStartCmd,
         onLog: log,
       });
 
@@ -373,7 +378,19 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
     });
 
     const containerName = `app_${app.slug}_${deploymentId.slice(-6)}`;
-    const hostConfig = buildHostConfig(app.cpuLimit, app.memoryLimitMb);
+    const exposedPorts: Record<string, {}> = {};
+    const portBindings: Record<string, Array<{ HostIp: string; HostPort: string }>> = {};
+    exposedPorts[`${app.internalPort}/tcp`] = {};
+    portBindings[`${app.internalPort}/tcp`] = [
+      { HostIp: "0.0.0.0", HostPort: app.internalPort.toString() },
+    ];
+
+    const hostConfig = buildHostConfig(
+      app.cpuLimit,
+      app.memoryLimitMb,
+      [],
+      portBindings
+    );
 
     // 3. Stop and clean up any previously running containers for this app
     try {
@@ -399,6 +416,7 @@ export async function runBuildPipeline(app: any, deploymentId: string, versionTa
       name: containerName,
       Image: imageTag,
       HostConfig: hostConfig,
+      ExposedPorts: exposedPorts,
       NetworkingConfig: {
         EndpointsConfig: {
           "minipaas-global": {

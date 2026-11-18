@@ -372,14 +372,18 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
   }
 
   // 14. Static HTML / Vanilla JS
-  if (fs.existsSync(path.join(dir, "index.html"))) {
+  if (
+    fs.existsSync(path.join(dir, "index.html")) ||
+    fs.existsSync(path.join(dir, "index.htm")) ||
+    fs.existsSync(path.join(dir, "public", "index.html"))
+  ) {
     return {
       language: "Static",
       framework: "Static HTML / Web Site",
       buildPack: "NIXPACKS",
       defaultPort: 80,
       detectedVersion: "latest",
-      entryFile: "index.html",
+      entryFile: fs.existsSync(path.join(dir, "index.html")) ? "index.html" : "index.htm",
       startCmd: "nginx -g 'daemon off;'",
     };
   }
@@ -402,9 +406,10 @@ export function detectUniversalStack(dir: string): UniversalStackInfo {
 export function generateUniversalDockerfile(
   info: UniversalStackInfo,
   dir: string,
-  userOverrideVersion?: string | null
+  userOverrideVersion?: string | null,
+  customPort?: number
 ): string {
-  const port = info.defaultPort || 8080;
+  const port = customPort || info.defaultPort || 8080;
   // Use user override if not empty/AUTO, otherwise use detected version
   const rawVersion =
     userOverrideVersion && userOverrideVersion !== "AUTO" && userOverrideVersion.trim()
@@ -642,8 +647,10 @@ CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "${port}"]
 
     case "Static":
       return `FROM nginx:alpine
+RUN sed -i 's/listen\\s*80;/listen ${port};/g' /etc/nginx/conf.d/default.conf && \\
+    sed -i 's/index\\.html index\\.htm;/index.html index.htm; try_files \\$uri \\$uri\\/ \\/index.html =404;/g' /etc/nginx/conf.d/default.conf
 COPY . /usr/share/nginx/html
-EXPOSE 80
+EXPOSE ${port}
 CMD ["nginx", "-g", "daemon off;"]
 `;
 

@@ -32,6 +32,139 @@ export async function stopNativeService(appId: string): Promise<void> {
   }
 }
 
+const STATIC_SERVER_CODE = `const http = require("http");
+const fs = require("fs");
+const path = require("path");
+
+const PORT = parseInt(process.env.PORT, 10) || 8080;
+const PROJECT_ROOT = process.cwd();
+
+// Auto-detect web root if an output/dist directory exists
+let webRoot = PROJECT_ROOT;
+for (const dir of ["dist", "build", "out", "public"]) {
+  const c = path.join(PROJECT_ROOT, dir);
+  if (fs.existsSync(c) && fs.statSync(c).isDirectory()) {
+    if (fs.existsSync(path.join(c, "index.html")) || fs.existsSync(path.join(c, "index.htm"))) {
+      webRoot = c;
+      break;
+    }
+  }
+}
+
+const MIME_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".htm": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+  ".otf": "font/otf",
+  ".eot": "application/vnd.ms-fontobject",
+  ".wasm": "application/wasm",
+  ".xml": "application/xml; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".pdf": "application/pdf",
+  ".zip": "application/zip",
+  ".map": "application/json; charset=utf-8",
+};
+
+const server = http.createServer((req, res) => {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.writeHead(405, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Method Not Allowed");
+    return;
+  }
+
+  let decodedUrl = "/";
+  try {
+    const parsed = new URL(req.url || "/", "http://localhost:" + PORT);
+    decodedUrl = decodeURIComponent(parsed.pathname);
+  } catch {
+    decodedUrl = "/";
+  }
+
+  const safePath = path.normalize(decodedUrl).replace(/^(\\.\\.[\\/\\\\])+/, "");
+  let filePath = path.join(webRoot, safePath);
+
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    if (fs.existsSync(path.join(filePath, "index.html"))) {
+      filePath = path.join(filePath, "index.html");
+    } else if (fs.existsSync(path.join(filePath, "index.htm"))) {
+      filePath = path.join(filePath, "index.htm");
+    }
+  }
+
+  // SPA fallback: if requested file does not exist, serve index.html
+  if (!fs.existsSync(filePath)) {
+    const rootIndex = path.join(webRoot, "index.html");
+    const rootHtm = path.join(webRoot, "index.htm");
+    if (fs.existsSync(rootIndex)) {
+      filePath = rootIndex;
+    } else if (fs.existsSync(rootHtm)) {
+      filePath = rootHtm;
+    } else {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<!DOCTYPE html><html><head><title>404 Not Found</title></head><body style=\\"font-family:system-ui,sans-serif;padding:40px;text-align:center;background:#09090b;color:#f4f4f5;\\"><h1 style=\\"color:#ef4444;\\">404 Not Found</h1><p>Requested path <code>" + safePath + "</code> was not found.</p></body></html>");
+      return;
+    }
+  }
+
+  try {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || "application/octet-stream";
+    const stat = fs.statSync(filePath);
+
+    res.writeHead(200, {
+      "Content-Type": contentType,
+      "Content-Length": stat.size,
+      "Cache-Control": ext === ".html" || ext === ".htm" ? "no-cache" : "public, max-age=3600",
+      "Access-Control-Allow-Origin": "*",
+    });
+
+    if (req.method === "HEAD") {
+      res.end();
+      return;
+    }
+
+    fs.createReadStream(filePath).pipe(res);
+  } catch (err) {
+    res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Internal Server Error: " + (err && err.message ? err.message : String(err)));
+  }
+});
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("[StaticServer] Serving static site from " + webRoot + " on http://0.0.0.0:" + PORT);
+});
+`;
+
+/**
+ * Ensures the self-contained static web server script exists in the target directory.
+ */
+export function ensureStaticServerScript(projectDir: string): void {
+  try {
+    const targetFile = path.join(projectDir, "_static_server.cjs");
+    fs.writeFileSync(targetFile, STATIC_SERVER_CODE, "utf8");
+  } catch (err) {
+    console.error("[nativeRunner] Failed to write _static_server.cjs:", err);
+  }
+}
+
 /**
  * Resolves the appropriate build & start commands for a repository without Docker.
  */
@@ -41,6 +174,21 @@ export function resolveNativeCommands(projectDir: string): {
   startCmd: string;
 } {
   const pkgPath = path.join(projectDir, "package.json");
+
+  const hasRootIndexHtml =
+    fs.existsSync(path.join(projectDir, "index.html")) ||
+    fs.existsSync(path.join(projectDir, "index.htm"));
+  const hasPublicIndexHtml =
+    fs.existsSync(path.join(projectDir, "public", "index.html")) ||
+    fs.existsSync(path.join(projectDir, "public", "index.htm"));
+  const hasDistIndexHtml =
+    fs.existsSync(path.join(projectDir, "dist", "index.html")) ||
+    fs.existsSync(path.join(projectDir, "dist", "index.htm"));
+  const hasBuildIndexHtml =
+    fs.existsSync(path.join(projectDir, "build", "index.html")) ||
+    fs.existsSync(path.join(projectDir, "build", "index.htm"));
+  const isStaticSite =
+    hasRootIndexHtml || hasPublicIndexHtml || hasDistIndexHtml || hasBuildIndexHtml;
 
   // Node.js project
   if (fs.existsSync(pkgPath)) {
@@ -53,7 +201,7 @@ export function resolveNativeCommands(projectDir: string): {
         buildCmd = "npm run build";
       }
 
-      let startCmd = "npm start";
+      let startCmd: string | undefined;
       if (scripts.start) {
         startCmd = "npm start";
       } else if (scripts.dev) {
@@ -68,12 +216,34 @@ export function resolveNativeCommands(projectDir: string): {
         startCmd = "node app.js";
       }
 
-      return {
-        installCmd: "npm install",
-        buildCmd,
-        startCmd,
-      };
+      // If package.json has a viable start command, use it
+      if (startCmd) {
+        return {
+          installCmd: "npm install",
+          buildCmd,
+          startCmd,
+        };
+      }
+
+      // If package.json has a build command or is a static site without backend start command
+      if (isStaticSite || buildCmd) {
+        ensureStaticServerScript(projectDir);
+        return {
+          installCmd: "npm install",
+          buildCmd,
+          startCmd: "node _static_server.cjs",
+        };
+      }
     } catch {}
+  }
+
+  // Pure Static HTML / Vanilla JS site without package.json
+  if (isStaticSite) {
+    ensureStaticServerScript(projectDir);
+    return {
+      installCmd: "echo 'Static HTML site ready (no build step needed)'",
+      startCmd: "node _static_server.cjs",
+    };
   }
 
   // Python project
@@ -93,10 +263,18 @@ export function resolveNativeCommands(projectDir: string): {
     };
   }
 
-  // Fallback
+  // Fallback: if index.js exists use node index.js, otherwise static server
+  if (fs.existsSync(path.join(projectDir, "index.js"))) {
+    return {
+      installCmd: "echo 'Universal runtime ready'",
+      startCmd: "node index.js",
+    };
+  }
+
+  ensureStaticServerScript(projectDir);
   return {
-    installCmd: "echo 'Universal runtime ready'",
-    startCmd: "node index.js",
+    installCmd: "echo 'Universal static runner ready'",
+    startCmd: "node _static_server.cjs",
   };
 }
 
