@@ -39,13 +39,6 @@ const ADDON_TYPES = [
     badgeColor: "text-rose-500",
   },
   {
-    type: "MYSQL",
-    name: "MySQL 8",
-    desc: "Popular relational database system",
-    defaultPort: 3306,
-    badgeColor: "text-amber-500",
-  },
-  {
     type: "RABBITMQ",
     name: "RabbitMQ",
     desc: "AMQP message broker with management UI",
