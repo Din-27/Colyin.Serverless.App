@@ -91,18 +91,17 @@ export default async function ApplicationDetailPage({
                 <span>&bull;</span>
                 <HoverCard>
                   <HoverCardTrigger>
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted text-foreground border border-border cursor-help transition-colors text-[11px] shadow-2xs">
-                      <GitBranch className="w-3 h-3 text-muted-foreground" />
-                      <span>{app.branch}</span>
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border cursor-help transition-colors shadow-2xs">
+                      <GitBranch className="w-3.5 h-3.5" />
                     </span>
                   </HoverCardTrigger>
                   <HoverCardContent className="w-60 text-xs space-y-1">
                     <div className="font-semibold text-foreground flex items-center gap-1.5">
                       <GitBranch className="w-3.5 h-3.5 text-primary" />
-                      <span>Deploy Branch</span>
+                      <span>Tracked Branch</span>
                     </div>
                     <div className="text-[11px] text-muted-foreground">
-                      Deployments are automatically pulled and tracked against the <code className="font-mono text-foreground font-semibold">{app.branch}</code> branch.
+                      Deployments are pulled from branch <code className="font-mono text-foreground font-semibold bg-muted px-1 py-0.5 rounded">{app.branch}</code>.
                     </div>
                   </HoverCardContent>
                 </HoverCard>
@@ -112,17 +111,16 @@ export default async function ApplicationDetailPage({
                     <span>&bull;</span>
                     <HoverCard>
                       <HoverCardTrigger>
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted text-foreground border border-border cursor-help transition-colors text-[11px] shadow-2xs">
-                          <GitCommit className="w-3 h-3 text-muted-foreground" />
-                          <span>{activeDeployment.commitHash.slice(0, 7)}</span>
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border cursor-help transition-colors shadow-2xs">
+                          <GitCommit className="w-3.5 h-3.5" />
                         </span>
                       </HoverCardTrigger>
                       <HoverCardContent className="w-64 text-xs space-y-1">
                         <div className="font-semibold text-foreground flex items-center gap-1.5">
                           <GitCommit className="w-3.5 h-3.5 text-primary" />
-                          <span>Active Commit Hash</span>
+                          <span>Active Commit SHA</span>
                         </div>
-                        <div className="text-[11px] text-muted-foreground font-mono break-all">
+                        <div className="text-[11px] text-muted-foreground font-mono break-all bg-muted p-1 rounded">
                           {activeDeployment.commitHash}
                         </div>
                       </HoverCardContent>
@@ -133,13 +131,12 @@ export default async function ApplicationDetailPage({
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <HoverCard>
-              <HoverCardTrigger>
-                <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
-                  <Link href={`/apps/${app.id}/preview`}>
-                    <Globe className="w-3.5 h-3.5 text-foreground" />
-                    <span>Simulator</span>
+              <HoverCardTrigger asChild>
+                <Button asChild variant="outline" size="icon" className="h-8 w-8 shadow-xs border-border bg-card hover:bg-accent text-foreground">
+                  <Link href={`/apps/${app.id}/preview`} aria-label="Interactive Simulator">
+                    <Globe className="w-4 h-4 text-foreground" />
                   </Link>
                 </Button>
               </HoverCardTrigger>

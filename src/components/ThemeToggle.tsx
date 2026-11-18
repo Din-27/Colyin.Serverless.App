@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTheme, Theme } from "@/components/ThemeProvider";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export function ThemeToggle({
@@ -13,19 +19,10 @@ export function ThemeToggle({
   className?: string;
 }) {
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (!mounted) {
@@ -94,14 +91,14 @@ export function ThemeToggle({
     );
   }
 
-  // Default: Dropdown Menu
+  // Default: Dropdown Menu with shadcn UI DropdownMenu
   return (
-    <div ref={menuRef} className={cn("relative inline-block", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        title="Toggle Theme"
-        className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition cursor-pointer shadow-xs"
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition cursor-pointer shadow-xs",
+          className
+        )}
         aria-label="Toggle theme"
       >
         {resolvedTheme === "dark" ? (
@@ -109,71 +106,51 @@ export function ThemeToggle({
         ) : (
           <Sun className="w-4 h-4 text-amber-500" />
         )}
-      </button>
+      </DropdownMenuTrigger>
 
-      {open && (
-        <div className="absolute right-0 mt-1.5 w-34 rounded-xl border border-border bg-popover text-popover-foreground p-1 shadow-lg z-50 text-xs space-y-0.5 animate-zoom-in">
-          <button
-            type="button"
-            onClick={() => {
-              setTheme("light");
-              setOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
-              theme === "light"
-                ? "bg-secondary text-foreground font-semibold"
-                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Sun className="w-3.5 h-3.5 text-amber-500" />
-              <span>Light</span>
-            </div>
-            {theme === "light" && <Check className="w-3.5 h-3.5" />}
-          </button>
+      <DropdownMenuContent align="end" className="w-36">
+        <DropdownMenuItem
+          onClick={() => setTheme("light")}
+          className={cn(
+            "flex items-center justify-between",
+            theme === "light" && "bg-secondary text-foreground font-semibold"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Sun className="w-3.5 h-3.5 text-amber-500" />
+            <span>Light</span>
+          </div>
+          {theme === "light" && <Check className="w-3.5 h-3.5 text-foreground" />}
+        </DropdownMenuItem>
 
-          <button
-            type="button"
-            onClick={() => {
-              setTheme("dark");
-              setOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
-              theme === "dark"
-                ? "bg-secondary text-foreground font-semibold"
-                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Moon className="w-3.5 h-3.5 text-foreground" />
-              <span>Dark</span>
-            </div>
-            {theme === "dark" && <Check className="w-3.5 h-3.5" />}
-          </button>
+        <DropdownMenuItem
+          onClick={() => setTheme("dark")}
+          className={cn(
+            "flex items-center justify-between",
+            theme === "dark" && "bg-secondary text-foreground font-semibold"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Moon className="w-3.5 h-3.5 text-foreground" />
+            <span>Dark</span>
+          </div>
+          {theme === "dark" && <Check className="w-3.5 h-3.5 text-foreground" />}
+        </DropdownMenuItem>
 
-          <button
-            type="button"
-            onClick={() => {
-              setTheme("system");
-              setOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition cursor-pointer",
-              theme === "system"
-                ? "bg-secondary text-foreground font-semibold"
-                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Monitor className="w-3.5 h-3.5 text-muted-foreground" />
-              <span>System</span>
-            </div>
-            {theme === "system" && <Check className="w-3.5 h-3.5" />}
-          </button>
-        </div>
-      )}
-    </div>
+        <DropdownMenuItem
+          onClick={() => setTheme("system")}
+          className={cn(
+            "flex items-center justify-between",
+            theme === "system" && "bg-secondary text-foreground font-semibold"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Monitor className="w-3.5 h-3.5 text-muted-foreground" />
+            <span>System</span>
+          </div>
+          {theme === "system" && <Check className="w-3.5 h-3.5 text-foreground" />}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

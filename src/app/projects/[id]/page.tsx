@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 
 export const dynamic = "force-dynamic";
 
@@ -192,14 +193,37 @@ export default async function ProjectDetailPage({
 
                   <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
-                        {app.cpuLimit} CPU
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <HardDrive className="w-3.5 h-3.5 text-muted-foreground" />
-                        {app.memoryLimitMb}MB
-                      </span>
+                      <HoverCard openDelay={150}>
+                        <HoverCardTrigger asChild>
+                          <span className="flex items-center gap-1 cursor-help hover:text-foreground transition-colors">
+                            <Cpu className="w-3.5 h-3.5 text-primary" />
+                            <span>{app.cpuLimit} CPU</span>
+                          </span>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-52 text-xs space-y-1">
+                          <div className="font-semibold text-foreground flex items-center gap-1.5">
+                            <Cpu className="w-3.5 h-3.5 text-primary" />
+                            <span>CPU Core Quota</span>
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">{app.cpuLimit} dedicated virtual CPU cores allocated.</div>
+                        </HoverCardContent>
+                      </HoverCard>
+
+                      <HoverCard openDelay={150}>
+                        <HoverCardTrigger asChild>
+                          <span className="flex items-center gap-1 cursor-help hover:text-foreground transition-colors">
+                            <HardDrive className="w-3.5 h-3.5 text-primary" />
+                            <span>{app.memoryLimitMb}MB</span>
+                          </span>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-52 text-xs space-y-1">
+                          <div className="font-semibold text-foreground flex items-center gap-1.5">
+                            <HardDrive className="w-3.5 h-3.5 text-primary" />
+                            <span>RAM Ceiling</span>
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">{app.memoryLimitMb} MB maximum memory ceiling with OOM protection.</div>
+                        </HoverCardContent>
+                      </HoverCard>
                     </div>
                     <Link
                       href={`/apps/${app.id}`}

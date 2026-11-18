@@ -6,9 +6,11 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/h
 
 export function StatusBadge({
   status,
+  iconOnly = false,
   className = "",
 }: {
   status: string;
+  iconOnly?: boolean;
   className?: string;
 }) {
   const normalized = (status || "STOPPED").toUpperCase();
@@ -49,16 +51,15 @@ export function StatusBadge({
       return (
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs transition-colors cursor-help",
+            iconOnly
+              ? "inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs transition-colors cursor-help"
+              : "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs transition-colors cursor-help",
             className
           )}
+          aria-label={normalized}
         >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-          </span>
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>{normalized}</span>
+          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+          {!iconOnly && <span>{normalized}</span>}
         </span>
       );
     }
@@ -67,12 +68,15 @@ export function StatusBadge({
       return (
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 shadow-2xs transition-colors cursor-help",
+            iconOnly
+              ? "inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shadow-2xs transition-colors cursor-help"
+              : "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 shadow-2xs transition-colors cursor-help",
             className
           )}
+          aria-label={normalized}
         >
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-600 dark:text-sky-400" />
-          <span>{normalized}</span>
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-600 dark:text-sky-400 shrink-0" />
+          {!iconOnly && <span>{normalized}</span>}
         </span>
       );
     }
@@ -81,12 +85,15 @@ export function StatusBadge({
       return (
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/20 shadow-2xs transition-colors cursor-help",
+            iconOnly
+              ? "inline-flex items-center justify-center w-6 h-6 rounded-full bg-destructive/10 text-destructive border border-destructive/20 shadow-2xs transition-colors cursor-help"
+              : "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/20 shadow-2xs transition-colors cursor-help",
             className
           )}
+          aria-label={normalized}
         >
-          <AlertCircle className="w-3.5 h-3.5 text-destructive" />
-          <span>{normalized}</span>
+          <AlertCircle className="w-3.5 h-3.5 text-destructive shrink-0" />
+          {!iconOnly && <span>{normalized}</span>}
         </span>
       );
     }
@@ -94,12 +101,15 @@ export function StatusBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border shadow-2xs transition-colors cursor-help",
+          iconOnly
+            ? "inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-muted-foreground border border-border shadow-2xs transition-colors cursor-help"
+            : "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border shadow-2xs transition-colors cursor-help",
           className
         )}
+        aria-label={normalized}
       >
-        <CircleSlash className="w-3.5 h-3.5 text-muted-foreground" />
-        <span>{normalized}</span>
+        <CircleSlash className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        {!iconOnly && <span>{normalized}</span>}
       </span>
     );
   };

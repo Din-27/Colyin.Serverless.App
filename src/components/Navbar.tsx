@@ -13,11 +13,21 @@ import {
   Radio,
   FolderKanban,
   Coffee,
+  ChevronDown,
+  Settings,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ColyinLogo } from "@/components/ColyinLogo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -75,7 +85,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/80 backdrop-blur-md transition-colors">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between">
         {/* Left: Brand & Navigation */}
         <div className="flex items-center gap-6 md:gap-8">
@@ -155,27 +165,48 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {/* User Account & Logout */}
+          {/* User Account Dropdown using shadcn UI */}
           {user && (
-            <div className="flex items-center gap-2 pl-2 border-l border-border/70">
-              <div className="hidden md:flex flex-col text-right">
-                <span className="text-xs font-medium text-foreground leading-none">
-                  {user.name || user.email}
-                </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 capitalize">
-                  {user.role?.toLowerCase()}
-                </span>
-              </div>
+            <div className="flex items-center pl-2 border-l border-border">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-accent/80 transition-colors border border-transparent hover:border-border text-left">
+                  <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-foreground font-semibold text-xs border border-border">
+                    {user.name ? user.name.slice(0, 2).toUpperCase() : <User className="w-3.5 h-3.5" />}
+                  </div>
+                  <div className="hidden md:flex flex-col text-left">
+                    <span className="text-xs font-semibold text-foreground leading-tight truncate max-w-[120px]">
+                      {user.name || user.email}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground capitalize">
+                      {user.role?.toLowerCase()}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3 h-3 text-muted-foreground opacity-60 ml-0.5" />
+                </DropdownMenuTrigger>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                title="Sign out of Colyin"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-xs font-semibold leading-none text-foreground">{user.name || "User"}</p>
+                      <p className="text-[11px] leading-none text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push("/")}>
+                    <FolderKanban className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>Projects</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/overview")}>
+                    <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>System Overview</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} variant="destructive">
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Log Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
         </div>

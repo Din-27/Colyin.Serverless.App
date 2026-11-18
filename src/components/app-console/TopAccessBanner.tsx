@@ -3,7 +3,7 @@
 import React from "react";
 import { Globe, ExternalLink, RotateCcw, Radio, Network } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
-import { InfoHoverBadge } from "@/components/ui/hover-card";
+import { InfoHoverBadge, HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { useAppConsole } from "./AppConsoleContext";
 
 export function TopAccessBanner() {
@@ -107,52 +107,82 @@ export function TopAccessBanner() {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-        <a
-          href={accessUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs transition cursor-pointer"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Open Application</span>
-        </a>
+      {/* Action Buttons: Clean Icons with Info Hover Cards */}
+      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <HoverCard openDelay={150}>
+          <HoverCardTrigger asChild>
+            <a
+              href={accessUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs transition cursor-pointer"
+              aria-label="Open Application"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-52 text-xs space-y-1">
+            <div className="font-semibold text-foreground">Open Application</div>
+            <div className="text-[11px] text-muted-foreground truncate">{accessUrl}</div>
+          </HoverCardContent>
+        </HoverCard>
 
         {!isHttps && (
-          <a
-            href={localDirectUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
-            title="Open direct local port"
-          >
-            <span>Port :{app.internalPort}</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
+          <HoverCard openDelay={150}>
+            <HoverCardTrigger asChild>
+              <a
+                href={localDirectUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground transition cursor-pointer shadow-xs"
+                aria-label={`Open direct port :${app.internalPort}`}
+              >
+                <Radio className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+              </a>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-52 text-xs space-y-1">
+              <div className="font-semibold text-foreground">Direct Local Port</div>
+              <div className="text-[11px] text-muted-foreground font-mono">http://localhost:{app.internalPort}</div>
+            </HoverCardContent>
+          </HoverCard>
         )}
 
-        {/* Quick Restart Action on Banner */}
-        <button
-          type="button"
-          onClick={() => handleAction("restart")}
-          disabled={actionLoading !== null}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
-          title="Restart service container"
-        >
-          <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-primary" : "text-muted-foreground"}`} />
-          <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
-        </button>
+        {/* Quick Restart Action */}
+        <HoverCard openDelay={150}>
+          <HoverCardTrigger asChild>
+            <button
+              type="button"
+              onClick={() => handleAction("restart")}
+              disabled={actionLoading !== null}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground transition cursor-pointer disabled:opacity-50 shadow-xs"
+              aria-label="Restart service container"
+            >
+              <RotateCcw className={`w-4 h-4 ${actionLoading === "restart" ? "animate-spin text-primary" : "text-muted-foreground hover:text-foreground"}`} />
+            </button>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-48 text-xs space-y-1">
+            <div className="font-semibold text-foreground">Restart Service</div>
+            <div className="text-[11px] text-muted-foreground">Trigger a zero-downtime container restart.</div>
+          </HoverCardContent>
+        </HoverCard>
 
         {isLocalhost && !isHttps && (
-          <button
-            type="button"
-            onClick={() => setActiveTab("settings")}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
-            title="Configure custom domain"
-          >
-            <span>Add Domain</span>
-          </button>
+          <HoverCard openDelay={150}>
+            <HoverCardTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setActiveTab("settings")}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground transition cursor-pointer shadow-xs"
+                aria-label="Configure custom domain"
+              >
+                <Globe className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+              </button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-52 text-xs space-y-1">
+              <div className="font-semibold text-foreground">Custom Domains</div>
+              <div className="text-[11px] text-muted-foreground">Add a custom public domain or Traefik wildcard ingress route.</div>
+            </HoverCardContent>
+          </HoverCard>
         )}
       </div>
     </div>

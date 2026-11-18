@@ -31,15 +31,12 @@ export function TabOverview() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5 font-medium text-foreground">
-              <InfoHoverBadge
-                icon={Cpu}
-                label="CPU Quota"
-                badgeText="cgroups v2"
-                description="Hard core ceiling limit enforced on the Linux kernel level to prevent noisy neighbors."
-              />
-              <span>CPU Limit</span>
-            </span>
+            <InfoHoverBadge
+              icon={Cpu}
+              label="CPU Allocation"
+              badgeText="cgroups v2"
+              description="Hard core ceiling limit enforced on the Linux kernel level to prevent noisy neighbors."
+            />
             <span className="font-mono text-foreground font-semibold">{app.cpuLimit} Core</span>
           </div>
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
@@ -50,15 +47,12 @@ export function TabOverview() {
 
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5 font-medium text-foreground">
-              <InfoHoverBadge
-                icon={HardDrive}
-                label="Memory Ceiling"
-                badgeText="OOM Protected"
-                description="Maximum memory allocated before the container is safeguarded by the OOM killer."
-              />
-              <span>Memory Quota</span>
-            </span>
+            <InfoHoverBadge
+              icon={HardDrive}
+              label="Memory Quota"
+              badgeText="OOM Protected"
+              description="Maximum memory allocated before the container is safeguarded by the OOM killer."
+            />
             <span className="font-mono text-foreground font-semibold">{app.memoryLimitMb} MB</span>
           </div>
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
@@ -69,15 +63,12 @@ export function TabOverview() {
 
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="flex items-center gap-1.5 font-bold text-foreground">
-              <InfoHoverBadge
-                icon={Globe}
-                label="Primary Endpoint"
-                badgeText={primaryDomain ? "Ingress TLS" : "Bridge"}
-                description="The entrypoint URL where incoming HTTP/HTTPS traffic is terminated and forwarded."
-              />
-              <span>Access Endpoint</span>
-            </span>
+            <InfoHoverBadge
+              icon={Globe}
+              label="Access Endpoint"
+              badgeText={primaryDomain ? "Ingress TLS" : "Bridge"}
+              description="The entrypoint URL where incoming HTTP/HTTPS traffic is terminated and forwarded."
+            />
             {!isHttps && (
               <span className="font-mono text-foreground bg-muted px-2 py-0.5 rounded border border-border text-[11px] font-semibold">
                 Port {app.internalPort}
@@ -128,44 +119,32 @@ export function TabOverview() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border">
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                <span>Release Version</span>
-                <InfoHoverBadge icon={Layers} label="Release Tag" description="Version indicator of the active container deployment." />
-              </div>
-              <div className="font-mono font-bold text-foreground mt-1">
+            <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+              <div className="font-mono font-bold text-foreground truncate">
                 {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
               </div>
+              <InfoHoverBadge icon={Layers} label="Release Tag" description="Version indicator of the active container deployment." />
             </div>
 
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border">
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                <span>Active Commit</span>
-                <InfoHoverBadge icon={GitCommit} label="Commit SHA" description="Exact Git commit hash pulled for this deployment build." />
-              </div>
-              <div className="font-mono font-bold text-foreground mt-1 truncate">
+            <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+              <div className="font-mono font-bold text-foreground truncate">
                 {activeDeployment?.commitHash ? activeDeployment.commitHash.slice(0, 7) : "initial"}
               </div>
+              <InfoHoverBadge icon={GitCommit} label="Commit SHA" description="Exact Git commit hash pulled for this deployment build." />
             </div>
 
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border">
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                <span>Build Engine</span>
-                <InfoHoverBadge icon={Terminal} label="Buildpack Strategy" description="Container buildpack compiler used to compile and package your application." />
-              </div>
-              <div className="font-mono font-bold text-foreground mt-1">
+            <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+              <div className="font-mono font-bold text-foreground truncate">
                 {app.buildPack || "Nixpacks"}
               </div>
+              <InfoHoverBadge icon={Terminal} label="Build Engine" description="Container buildpack compiler used to compile and package your application." />
             </div>
 
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border">
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                <span>Branch Ref</span>
-                <InfoHoverBadge icon={GitBranch} label="Tracked Branch" description="Git repository branch configured for automated deployments." />
-              </div>
-              <div className="font-mono font-bold text-foreground mt-1">
+            <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+              <div className="font-mono font-bold text-foreground truncate">
                 {app.branch || "main"}
               </div>
+              <InfoHoverBadge icon={GitBranch} label="Tracked Branch" description="Git repository branch configured for automated deployments." />
             </div>
           </div>
         </div>
@@ -189,10 +168,7 @@ export function TabOverview() {
 
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border">
-              <span className="text-muted-foreground flex items-center gap-1.5">
-                <InfoHoverBadge icon={Terminal} label="Docker Container ID" description="Local Docker daemon container instance hash." />
-                <span>Container ID</span>
-              </span>
+              <InfoHoverBadge icon={Terminal} label="Docker Container ID" description="Local Docker daemon container instance hash." />
               <div className="flex items-center gap-2">
                 <span className="font-mono font-bold text-foreground">
                   {activeDeployment?.containerId ? activeDeployment.containerId.slice(0, 12) : "None (Stopped)"}
@@ -205,10 +181,7 @@ export function TabOverview() {
 
             <div className="p-2.5 rounded-lg bg-muted/40 border border-border space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                  <InfoHoverBadge icon={Info} label="CLI Command" description="Command to stream container logs directly from your host terminal." />
-                  <span>Host Terminal Command</span>
-                </span>
+                <InfoHoverBadge icon={Info} label="CLI Command" description="Command to stream container logs directly from your host terminal." />
                 <CopyButton
                   text={`docker logs -f ${activeDeployment?.containerId ? activeDeployment.containerId.slice(0, 12) : app.slug}`}
                   label="Copy CLI"

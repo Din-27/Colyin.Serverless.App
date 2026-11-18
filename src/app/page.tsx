@@ -15,6 +15,7 @@ export default async function Page() {
         applications: {
           include: {
             domains: true,
+            storageVolumes: true,
           },
         },
         addons: true,
