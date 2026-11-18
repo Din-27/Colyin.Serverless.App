@@ -28,13 +28,13 @@ export function TabOverview() {
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5 font-medium text-foreground">
-              <Cpu className="w-4 h-4 text-indigo-500" />
+              <Cpu className="w-4 h-4 text-muted-foreground" />
               CPU Limit
             </span>
             <span className="font-mono text-foreground font-semibold">{app.cpuLimit} Core</span>
           </div>
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-            <div className="bg-indigo-500 h-full rounded-full" style={{ width: "35%" }} />
+            <div className="bg-primary h-full rounded-full" style={{ width: "35%" }} />
           </div>
           <div className="text-[11px] text-muted-foreground">cgroups v2 quota enforced</div>
         </div>
@@ -42,13 +42,13 @@ export function TabOverview() {
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5 font-medium text-foreground">
-              <HardDrive className="w-4 h-4 text-emerald-500" />
+              <HardDrive className="w-4 h-4 text-muted-foreground" />
               Memory Quota
             </span>
             <span className="font-mono text-foreground font-semibold">{app.memoryLimitMb} MB</span>
           </div>
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-            <div className="bg-emerald-500 h-full rounded-full" style={{ width: "20%" }} />
+            <div className="bg-primary h-full rounded-full" style={{ width: "20%" }} />
           </div>
           <div className="text-[11px] text-muted-foreground">OOM protection active</div>
         </div>
@@ -56,7 +56,7 @@ export function TabOverview() {
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 font-bold text-foreground">
-              <Globe className="w-4 h-4 text-amber-500" />
+              <Globe className="w-4 h-4 text-muted-foreground" />
               Access Endpoint
             </span>
             {!isHttps && (
@@ -70,7 +70,7 @@ export function TabOverview() {
               href={accessUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 hover:underline flex items-center gap-1.5 truncate"
+              className="text-xs font-mono font-bold text-foreground hover:underline flex items-center gap-1.5 truncate"
               title={`Open ${accessUrl}`}
             >
               <span className="truncate">{accessUrl}</span>
@@ -92,10 +92,10 @@ export function TabOverview() {
         <div className="p-5 rounded-xl border border-border bg-card shadow-xs space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <GitCommit className="w-4 h-4 text-indigo-500" />
+              <GitCommit className="w-4 h-4 text-muted-foreground" />
               <span className="text-xs font-bold text-foreground">Running Release Properties</span>
             </div>
-            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
               {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
             </span>
           </div>

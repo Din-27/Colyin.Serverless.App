@@ -45,7 +45,7 @@ function SettingsContent() {
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       <div className="pb-6 border-b border-border/80">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-          <Shield className="w-6 h-6 text-indigo-500" />
+          <Shield className="w-6 h-6 text-foreground" />
           <span>Settings</span>
         </h1>
         <p className="text-sm text-muted-foreground mt-1">

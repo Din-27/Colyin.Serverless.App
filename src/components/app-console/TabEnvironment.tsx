@@ -83,7 +83,7 @@ export function TabEnvironment() {
         />
         <button
           type="submit"
-          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold cursor-pointer"
+          className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold cursor-pointer transition shadow-xs"
         >
           Add Variable
         </button>

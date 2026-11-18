@@ -86,7 +86,7 @@ export function ThemeToggle({
         )}
       >
         {resolvedTheme === "dark" ? (
-          <Moon className="w-4 h-4 text-indigo-400" />
+          <Moon className="w-4 h-4 text-foreground" />
         ) : (
           <Sun className="w-4 h-4 text-amber-500" />
         )}
@@ -105,7 +105,7 @@ export function ThemeToggle({
         aria-label="Toggle theme"
       >
         {resolvedTheme === "dark" ? (
-          <Moon className="w-4 h-4 text-indigo-400" />
+          <Moon className="w-4 h-4 text-foreground" />
         ) : (
           <Sun className="w-4 h-4 text-amber-500" />
         )}
@@ -147,7 +147,7 @@ export function ThemeToggle({
             )}
           >
             <div className="flex items-center gap-2">
-              <Moon className="w-3.5 h-3.5 text-indigo-400" />
+              <Moon className="w-3.5 h-3.5 text-foreground" />
               <span>Dark</span>
             </div>
             {theme === "dark" && <Check className="w-3.5 h-3.5" />}

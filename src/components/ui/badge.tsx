@@ -31,7 +31,7 @@ export function Badge({
     warning:
       "border border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800/60",
     brand:
-      "border border-indigo-200 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400 dark:border-indigo-800/60",
+      "border border-primary/20 bg-primary/10 text-primary",
   };
 
   return (

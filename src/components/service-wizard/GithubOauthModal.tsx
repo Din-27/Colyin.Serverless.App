@@ -47,7 +47,7 @@ export function GithubOauthModal() {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <GithubIcon className="w-5 h-5 text-indigo-500" />
+            <GithubIcon className="w-5 h-5 text-foreground" />
             <DialogTitle>Setup GitHub OAuth (1-Click Login)</DialogTitle>
           </div>
           <DialogDescription>
@@ -89,7 +89,7 @@ export function GithubOauthModal() {
             href={`https://github.com/settings/applications/new?oauth_application[name]=Colyin+PaaS&oauth_application[url]=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}&oauth_application[callback_url]=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/api/github/callback` : "")}`}
             target="_blank"
             rel="noreferrer"
-            className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition"
+            className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-secondary hover:bg-secondary/80 border border-border text-foreground text-xs font-semibold transition cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Buka Form Buat OAuth App di GitHub</span>

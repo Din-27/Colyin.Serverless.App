@@ -33,16 +33,16 @@ export const buttonVariants = ({
     default:
       "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
     brand:
-      "bg-indigo-600 text-white shadow-xs hover:bg-indigo-500 hover:shadow-indigo-500/25",
+      "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
     destructive:
-      "bg-rose-600 text-white shadow-xs hover:bg-rose-500",
+      "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90",
     outline:
       "border border-input bg-background text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground",
     secondary:
       "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 border border-border/50",
     ghost:
       "text-foreground hover:bg-accent hover:text-accent-foreground",
-    link: "text-indigo-600 dark:text-indigo-400 underline-offset-4 hover:underline",
+    link: "text-foreground underline-offset-4 hover:underline",
   };
 
   const sizes = {

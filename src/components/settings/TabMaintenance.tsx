@@ -47,9 +47,9 @@ export function TabMaintenance() {
               title="Create a timestamped backup in ./data/backups"
             >
               {creatingBackup ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
               ) : (
-                <Archive className="w-3.5 h-3.5 text-indigo-500" />
+                <Archive className="w-3.5 h-3.5 text-foreground" />
               )}
               <span>{creatingBackup ? "Backing up..." : "Create Snapshot"}</span>
             </button>
@@ -101,7 +101,7 @@ export function TabMaintenance() {
 
           <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-1">
             <span className="text-[11px] text-muted-foreground block">Backup Engine Mechanism</span>
-            <span className="text-sm font-semibold text-indigo-500 block">
+            <span className="text-sm font-semibold text-foreground block">
               Atomic SQLite VACUUM
             </span>
             <span className="text-[10px] text-muted-foreground block">

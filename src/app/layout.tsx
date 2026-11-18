@@ -57,7 +57,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col font-sans antialiased selection:bg-indigo-600/30 selection:text-indigo-200">
+      <body className="min-h-full flex flex-col font-sans antialiased selection:bg-primary/20 selection:text-foreground">
         <ThemeProvider>
           <Navbar />
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">

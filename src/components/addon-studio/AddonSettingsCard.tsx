@@ -240,7 +240,7 @@ export function AddonSettingsCard() {
                 <button
                   type="button"
                   onClick={generateRandomPassword}
-                  className="text-[10px] text-indigo-500 hover:text-indigo-400 flex items-center gap-1 cursor-pointer transition-colors"
+                  className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   <Dices className="w-3 h-3" />
                   Generate Secure Password
@@ -282,7 +282,7 @@ export function AddonSettingsCard() {
       <Card>
         <CardHeader className="border-b border-border pb-4">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 text-indigo-500" />
+            <RefreshCw className="w-4 h-4 text-muted-foreground" />
             Instance Controls
           </CardTitle>
           <CardDescription className="text-xs">

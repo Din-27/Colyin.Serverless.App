@@ -233,7 +233,7 @@ export function WizardStep1Source() {
                 />
                 {portStatus.checking ? (
                   <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-1">
-                    <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
+                    <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                     <span>Verifying port availability...</span>
                   </div>
                 ) : !portStatus.available ? (
@@ -304,7 +304,7 @@ export function WizardStep1Source() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold transition shadow-xs cursor-pointer"
             >
               <span>Continue to Resources</span>
               <ArrowRight className="w-4 h-4" />
@@ -313,14 +313,14 @@ export function WizardStep1Source() {
         </form>
       ) : checkingGithub ? (
         <div className="p-12 text-center text-xs text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-500" />
+          <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-muted-foreground" />
           Checking GitHub integration...
         </div>
       ) : !githubAccount ? (
         /* Connect GitHub State with 1-Click Login ke GitHub */
         <div className="space-y-4">
           {/* Primary 1-Click Login Card (OAuth Flow) */}
-          <div className="p-6 sm:p-7 rounded-2xl border border-indigo-500/40 bg-card space-y-5 shadow-xs">
+          <div className="p-6 sm:p-7 rounded-2xl border border-border bg-card space-y-5 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3.5">
                 <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground shadow-xs shrink-0">
@@ -385,7 +385,7 @@ export function WizardStep1Source() {
               <button
                 type="button"
                 onClick={() => setShowOauthModal(true)}
-                className="text-[11px] text-muted-foreground hover:text-indigo-500 flex items-center gap-1 transition cursor-pointer"
+                className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition cursor-pointer"
               >
                 <KeyRound className="w-3 h-3" />
                 <span>Konfigurasi OAuth App</span>
@@ -401,17 +401,17 @@ export function WizardStep1Source() {
               </div>
 
               <form onSubmit={handleConnectGithub} className="space-y-4">
-                <div className="p-3.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold text-indigo-500">
+                <div className="p-3.5 rounded-lg bg-muted/40 border border-border space-y-2">
+                  <div className="flex items-center justify-between text-xs font-semibold text-foreground">
                     <span className="flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
                       Personal Access Token (with 'repo' scope)
                     </span>
                     <a
                       href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Deployment"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[11px] text-indigo-500 hover:underline flex items-center gap-1 font-normal"
+                      className="text-[11px] text-foreground hover:underline flex items-center gap-1 font-normal"
                     >
                       <span>Generate Token</span>
                       <ExternalLink className="w-3 h-3" />
@@ -446,7 +446,7 @@ export function WizardStep1Source() {
                   <button
                     type="submit"
                     disabled={loading || (!inputUsername.trim() && !inputToken.trim())}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-semibold transition shadow-xs cursor-pointer"
                   >
                     {loading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -474,7 +474,7 @@ export function WizardStep1Source() {
                     className="w-8 h-8 rounded-full border border-border"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-500">
+                  <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground">
                     <GithubIcon className="w-4 h-4" />
                   </div>
                 )}
@@ -487,8 +487,8 @@ export function WizardStep1Source() {
                         Private &amp; Public Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-500 font-medium">
-                        <Lock className="w-3 h-3 text-amber-500" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] text-muted-foreground font-medium">
+                        <Lock className="w-3 h-3 text-muted-foreground" />
                         Public Repos Only
                       </span>
                     )}
@@ -506,7 +506,7 @@ export function WizardStep1Source() {
                   <button
                     type="button"
                     onClick={() => setShowAddTokenForm(!showAddTokenForm)}
-                    className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
+                    className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 border border-border text-foreground text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
                   >
                     <Lock className="w-3 h-3" />
                     <span>{showAddTokenForm ? "Cancel" : "Enable Private Repos"}</span>
@@ -523,7 +523,7 @@ export function WizardStep1Source() {
                 <button
                   type="button"
                   onClick={handleDisconnectGithub}
-                  className="text-muted-foreground hover:text-rose-500 text-[11px] px-2 py-1 transition cursor-pointer"
+                  className="text-muted-foreground hover:text-destructive text-[11px] px-2 py-1 transition cursor-pointer"
                 >
                   Disconnect
                 </button>
@@ -533,23 +533,23 @@ export function WizardStep1Source() {
             {/* Inline Add Token Form */}
             {showAddTokenForm && !githubAccount.hasToken && (
               <div className="pt-3 border-t border-border mt-2">
-                <div className="p-3 rounded-lg bg-card border border-indigo-500/40 space-y-2">
+                <div className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-indigo-500">
+                    <span className="text-xs font-semibold text-foreground">
                       Add Personal Access Token for Private Repositories
                     </span>
                     <a
                       href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=MiniPaaS-Private-Repos"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[11px] text-indigo-500 hover:underline flex items-center gap-1"
+                      className="text-[11px] text-foreground hover:underline flex items-center gap-1"
                     >
                       <span>Generate Token on GitHub</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Paste a classic or fine-grained GitHub token with the <code className="text-amber-500 font-mono">repo</code> scope enabled. It will be encrypted with AES-256-GCM.
+                    Paste a classic or fine-grained GitHub token with the <code className="text-foreground font-mono">repo</code> scope enabled. It will be encrypted with AES-256-GCM.
                   </p>
                   <div className="flex items-center gap-2">
                     <input
@@ -563,7 +563,7 @@ export function WizardStep1Source() {
                       type="button"
                       onClick={handleUpdateToken}
                       disabled={inlineTokenLoading || !inlineToken.trim()}
-                      className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
                     >
                       {inlineTokenLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                       Save &amp; Unlock
@@ -645,7 +645,7 @@ export function WizardStep1Source() {
 
             {loadingRepos ? (
               <div className="p-8 text-center text-xs text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-indigo-500" />
+                <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-muted-foreground" />
                 Fetching repositories from GitHub API...
               </div>
             ) : (
@@ -665,7 +665,7 @@ export function WizardStep1Source() {
                       <button
                         type="button"
                         onClick={() => setShowAddTokenForm(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold transition cursor-pointer"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Add Personal Access Token</span>
@@ -682,7 +682,7 @@ export function WizardStep1Source() {
                         onClick={() => handleSelectRepo(repo)}
                         className={`w-full p-3 rounded-lg border text-left transition flex items-center justify-between cursor-pointer ${
                           isSelected
-                            ? "bg-primary/10 border-primary text-foreground ring-1 ring-primary/40"
+                            ? "bg-primary/5 border-primary text-foreground ring-1 ring-primary/30"
                             : repo.isPrivate
                             ? "bg-amber-500/5 border-amber-500/20 text-foreground hover:bg-amber-500/10"
                             : "bg-card border-border text-foreground hover:bg-accent/40"
@@ -726,8 +726,8 @@ export function WizardStep1Source() {
           </div>
 
           {selectedRepoFullName && (
-            <div className="p-4 rounded-xl border border-indigo-500/40 bg-indigo-500/10 space-y-4">
-              <div className="text-xs font-semibold text-indigo-500">
+            <div className="p-4 rounded-xl border border-border bg-muted/20 space-y-4">
+              <div className="text-xs font-semibold text-foreground">
                 Selected Service Configuration
               </div>
 
@@ -777,7 +777,7 @@ export function WizardStep1Source() {
                   />
                   {portStatus.checking ? (
                     <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-1">
-                      <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
+                      <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                       <span>Verifying port availability...</span>
                     </div>
                   ) : !portStatus.available ? (
@@ -822,7 +822,7 @@ export function WizardStep1Source() {
               </div>
 
               {buildPack === "NIXPACKS" && (
-                <div className="pt-2 border-t border-indigo-500/30">
+                <div className="pt-2 border-t border-border">
                   <RuntimeSelector
                     value={runtimeVersion}
                     onChange={setRuntimeVersion}
@@ -831,7 +831,7 @@ export function WizardStep1Source() {
               )}
 
               {/* Core & Memory Resource Quota */}
-              <div className="pt-3 border-t border-indigo-500/30">
+              <div className="pt-3 border-t border-border">
                 <ResourceAllocationSelector
                   cpuLimit={cpuLimit}
                   memoryLimitMb={memoryLimitMb}
@@ -849,7 +849,7 @@ export function WizardStep1Source() {
             <button
               type="submit"
               disabled={!selectedRepoFullName}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-semibold transition shadow-xs cursor-pointer"
             >
               <span>Continue to Resources</span>
               <ArrowRight className="w-4 h-4" />

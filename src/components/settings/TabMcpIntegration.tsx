@@ -50,7 +50,7 @@ export function TabMcpIntegration() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
           <div>
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-500" />
+              <Sparkles className="w-4 h-4 text-foreground" />
               <span>AI Agent &amp; Model Context Protocol (MCP)</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                 Active &bull; Protocol v2024-11-05
@@ -70,7 +70,7 @@ export function TabMcpIntegration() {
         <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3 text-xs">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-foreground flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-indigo-500" />
+              <Globe className="w-3.5 h-3.5 text-foreground" />
               <span>HTTP JSON-RPC 2.0 MCP Endpoint:</span>
             </span>
             <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
@@ -93,7 +93,7 @@ export function TabMcpIntegration() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <Bot className="w-3.5 h-3.5 text-indigo-500" />
+              <Bot className="w-3.5 h-3.5 text-foreground" />
               <span>Konfigurasi Claude Desktop / Cursor (claude_desktop_config.json)</span>
             </label>
             <CopyButton
@@ -129,7 +129,7 @@ export function TabMcpIntegration() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
             {tools.map((tool) => (
               <div key={tool.name} className="p-3.5 rounded-xl border border-border bg-card space-y-1.5 shadow-xs">
-                <div className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px] truncate">
+                <div className="font-mono font-bold text-foreground text-[11px] truncate">
                   {tool.name}
                 </div>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">

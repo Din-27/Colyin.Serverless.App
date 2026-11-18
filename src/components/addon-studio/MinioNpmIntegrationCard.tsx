@@ -228,14 +228,19 @@ async function main() {
 main();`;
 
   return (
-    <div className="rounded-xl border border-emerald-500/20 bg-card shadow-xs p-6 space-y-5">
+    <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-500" />
-            <span>Integrasi Node.js &amp; npm <code>minio</code></span>
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Layers className="w-4 h-4 text-foreground" />
+              <span>Integrasi Node.js &amp; npm <code>minio</code></span>
+            </h4>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-foreground border border-border">
+              S3 API :9000
+            </span>
+          </div>
           <p className="text-xs text-muted-foreground mt-1">
             Gunakan paket resmi <code className="px-1.5 py-0.5 rounded bg-muted text-foreground font-mono text-[11px]">minio</code> untuk upload, download, delete file, dan manajemen bucket S3 dari aplikasi Anda.
           </p>
@@ -246,7 +251,7 @@ main();`;
             type="button"
             onClick={handleTestConnection}
             disabled={testing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-xs cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition shadow-xs cursor-pointer disabled:opacity-50"
           >
             {testing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -264,13 +269,13 @@ main();`;
           className={`p-3 rounded-lg border text-xs flex items-start gap-2.5 ${
             testResult.success
               ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-              : "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400"
+              : "bg-destructive/10 border-destructive/20 text-destructive"
           }`}
         >
           {testResult.success ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
           )}
           <div className="flex-1">
             <span className="font-semibold block">
@@ -289,7 +294,7 @@ main();`;
       {/* Installation block */}
       <div className="p-3.5 rounded-lg bg-muted/40 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
         <div className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-emerald-500 shrink-0" />
+          <Terminal className="w-4 h-4 text-muted-foreground shrink-0" />
           <div>
             <span className="text-muted-foreground block text-[11px] font-sans">Install Library npm minio</span>
             <span className="text-foreground font-semibold">pnpm add minio</span>
@@ -308,14 +313,14 @@ main();`;
         <div className="text-xs font-medium text-foreground">
           Pilih Lingkungan Target Koneksi:
         </div>
-        <div className="inline-flex rounded-lg border border-border bg-muted/50 p-1 text-xs">
+        <div className="inline-flex rounded-lg border border-border bg-muted/50 p-1 text-xs gap-1">
           <button
             type="button"
             onClick={() => setConnectionMode("external")}
             disabled={!externalConnection}
-            className={`px-3 py-1 rounded-md font-medium transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md font-medium transition cursor-pointer ${
               connectionMode === "external"
-                ? "bg-background text-foreground shadow-xs"
+                ? "bg-background text-foreground shadow-xs font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             } ${!externalConnection ? "opacity-50 cursor-not-allowed" : ""}`}
             title={externalConnection ? "Koneksi dari Laptop / Next.js dev lokal" : "Aktifkan Public Access dahulu"}
@@ -325,9 +330,9 @@ main();`;
           <button
             type="button"
             onClick={() => setConnectionMode("internal")}
-            className={`px-3 py-1 rounded-md font-medium transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md font-medium transition cursor-pointer ${
               connectionMode === "internal"
-                ? "bg-background text-foreground shadow-xs"
+                ? "bg-background text-foreground shadow-xs font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -344,7 +349,7 @@ main();`;
         </div>
         <div className="p-2.5 rounded-lg bg-muted/30 border border-border">
           <span className="text-muted-foreground block text-[10px] font-sans">port</span>
-          <span className="text-amber-500 font-semibold">{targetPort}</span>
+          <span className="text-foreground font-semibold">{targetPort}</span>
         </div>
         <div className="p-2.5 rounded-lg bg-muted/30 border border-border">
           <span className="text-muted-foreground block text-[10px] font-sans">accessKey</span>
@@ -352,7 +357,7 @@ main();`;
         </div>
         <div className="p-2.5 rounded-lg bg-muted/30 border border-border">
           <span className="text-muted-foreground block text-[10px] font-sans">useSSL</span>
-          <span className="text-emerald-500 font-semibold">false</span>
+          <span className="text-foreground font-semibold">false</span>
         </div>
       </div>
 
@@ -364,11 +369,11 @@ main();`;
             onClick={() => setActiveTab("client")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "client"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Key className="w-3.5 h-3.5 text-emerald-500" />
+            <Key className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Client Setup</span>
           </button>
 
@@ -377,11 +382,11 @@ main();`;
             onClick={() => setActiveTab("upload")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "upload"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Upload className="w-3.5 h-3.5 text-indigo-500" />
+            <Upload className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Upload File</span>
           </button>
 
@@ -390,11 +395,11 @@ main();`;
             onClick={() => setActiveTab("delete")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "delete"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+            <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Delete File</span>
           </button>
 
@@ -403,11 +408,11 @@ main();`;
             onClick={() => setActiveTab("presigned")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "presigned"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <LinkIcon className="w-3.5 h-3.5 text-amber-500" />
+            <LinkIcon className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Presigned URL</span>
           </button>
 
@@ -416,11 +421,11 @@ main();`;
             onClick={() => setActiveTab("env")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "env"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <FileCode className="w-3.5 h-3.5 text-cyan-500" />
+            <FileCode className="w-3.5 h-3.5 text-muted-foreground" />
             <span>.env Config</span>
           </button>
 
@@ -429,11 +434,11 @@ main();`;
             onClick={() => setActiveTab("testScript")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "testScript"
-                ? "bg-muted text-foreground border-b-2 border-emerald-500"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+            <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Test Script (Node.js)</span>
           </button>
         </div>

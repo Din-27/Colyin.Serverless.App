@@ -9,7 +9,7 @@ export function TabAppearance() {
     <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
       <div>
         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <Palette className="w-4 h-4 text-indigo-500" />
+          <Palette className="w-4 h-4 text-foreground" />
           Interface Theme &amp; Styling
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
@@ -43,7 +43,7 @@ export function TabAppearance() {
 
         <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-2">
           <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-            <Moon className="w-4 h-4 text-indigo-500" />
+            <Moon className="w-4 h-4 text-foreground" />
             <span>Dark Theme</span>
           </div>
           <p className="text-xs text-muted-foreground">

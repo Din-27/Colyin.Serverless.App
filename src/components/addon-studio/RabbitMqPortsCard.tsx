@@ -224,16 +224,16 @@ async function testRabbitMQ() {
 testRabbitMQ();`;
 
   return (
-    <div className="rounded-xl border border-orange-500/20 bg-card shadow-xs p-6 space-y-6">
+    <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Network className="w-4 h-4 text-orange-500" />
+              <Network className="w-4 h-4 text-foreground" />
               <span>RabbitMQ Ports &amp; Topology Matrix</span>
             </h4>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-foreground border border-border">
               4 Core TCP Ports
             </span>
           </div>
@@ -247,7 +247,7 @@ testRabbitMQ();`;
             href={webManagementUiUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white transition shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition shadow-xs cursor-pointer shrink-0"
           >
             <Globe className="w-3.5 h-3.5" />
             <span>Launch Web Console (:15672)</span>
@@ -259,27 +259,14 @@ testRabbitMQ();`;
       {/* 4 Ports Grid (amqp, stats, dist, epmd) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
         {ports.map((p) => {
-          const isAmqp = p.name === "amqp";
-          const isStats = p.name === "stats";
-          const isDist = p.name === "dist";
-          const isEpmd = p.name === "epmd";
-
           return (
             <div
               key={p.name}
-              className={`p-3.5 rounded-xl border flex flex-col justify-between gap-3 transition-colors ${
-                isAmqp
-                  ? "bg-orange-500/5 border-orange-500/30"
-                  : isStats
-                  ? "bg-amber-500/5 border-amber-500/30"
-                  : isDist
-                  ? "bg-indigo-500/5 border-indigo-500/30"
-                  : "bg-cyan-500/5 border-cyan-500/30"
-              }`}
+              className="p-3.5 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 flex flex-col justify-between gap-3 transition-colors"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono font-bold text-xs uppercase px-2 py-0.5 rounded bg-muted/80 text-foreground">
+                  <span className="font-mono font-bold text-xs uppercase px-2 py-0.5 rounded bg-muted text-foreground border border-border">
                     {p.name}
                   </span>
                   <span className="font-mono text-[11px] font-semibold text-foreground px-2 py-0.5 rounded bg-background border border-border">
@@ -312,7 +299,7 @@ testRabbitMQ();`;
       <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-            <Terminal className="w-3.5 h-3.5 text-orange-500" />
+            <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Integrasi Node.js &amp; npm <code>amqplib</code></span>
           </div>
 
@@ -332,11 +319,11 @@ testRabbitMQ();`;
             onClick={() => setActiveSnippetTab("producer")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeSnippetTab === "producer"
-                ? "bg-muted text-foreground border-b-2 border-orange-500 font-semibold"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Radio className="w-3.5 h-3.5 text-orange-500" />
+            <Radio className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Producer (Send Queue)</span>
           </button>
 
@@ -345,11 +332,11 @@ testRabbitMQ();`;
             onClick={() => setActiveSnippetTab("consumer")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeSnippetTab === "consumer"
-                ? "bg-muted text-foreground border-b-2 border-orange-500 font-semibold"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Cpu className="w-3.5 h-3.5 text-indigo-500" />
+            <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Consumer (Worker)</span>
           </button>
 
@@ -358,11 +345,11 @@ testRabbitMQ();`;
             onClick={() => setActiveSnippetTab("pubsub")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeSnippetTab === "pubsub"
-                ? "bg-muted text-foreground border-b-2 border-orange-500 font-semibold"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Share2 className="w-3.5 h-3.5 text-emerald-500" />
+            <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Pub / Sub (Fanout)</span>
           </button>
 
@@ -371,11 +358,11 @@ testRabbitMQ();`;
             onClick={() => setActiveSnippetTab("env")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeSnippetTab === "env"
-                ? "bg-muted text-foreground border-b-2 border-orange-500 font-semibold"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <FileCode className="w-3.5 h-3.5 text-cyan-500" />
+            <FileCode className="w-3.5 h-3.5 text-muted-foreground" />
             <span>.env Config</span>
           </button>
 
@@ -384,11 +371,11 @@ testRabbitMQ();`;
             onClick={() => setActiveSnippetTab("testScript")}
             className={`px-3 py-1.5 rounded-t-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
               activeSnippetTab === "testScript"
-                ? "bg-muted text-foreground border-b-2 border-orange-500 font-semibold"
+                ? "bg-muted text-foreground border-b-2 border-primary font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Terminal className="w-3.5 h-3.5 text-amber-500" />
+            <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Test Script (amqp ping)</span>
           </button>
         </div>

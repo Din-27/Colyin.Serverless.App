@@ -164,7 +164,7 @@ export default function SetupWizardPage() {
               {/* Section 1: Ingress & Network */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/80 text-sm font-semibold text-foreground">
-                  <Globe className="w-4 h-4 text-indigo-500" />
+                  <Globe className="w-4 h-4 text-foreground" />
                   <span>1. Network &amp; Public Domains</span>
                 </div>
 
@@ -199,7 +199,7 @@ export default function SetupWizardPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-2 border-b border-border/80">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Shield className="w-4 h-4 text-indigo-500" />
+                    <Shield className="w-4 h-4 text-foreground" />
                     <span>2. Encryption &amp; Security Secrets</span>
                   </div>
                   <Badge variant="outline" className="font-mono text-[10px]">
@@ -216,7 +216,7 @@ export default function SetupWizardPage() {
                       <button
                         type="button"
                         onClick={() => setEncryptionMasterKey(generateRandomHex(64))}
-                        className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <RefreshCw className="w-3 h-3" />
                         <span>Regenerate</span>
@@ -236,7 +236,7 @@ export default function SetupWizardPage() {
               {/* Section 3: Master Admin Account */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/80 text-sm font-semibold text-foreground">
-                  <User className="w-4 h-4 text-indigo-500" />
+                  <User className="w-4 h-4 text-foreground" />
                   <span>3. Administrator Account</span>
                 </div>
 
@@ -269,7 +269,7 @@ export default function SetupWizardPage() {
                       <button
                         type="button"
                         onClick={() => setAdminPassword(generatePassword())}
-                        className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <RefreshCw className="w-3 h-3" />
                         <span>Generate Secure</span>

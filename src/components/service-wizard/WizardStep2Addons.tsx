@@ -21,13 +21,13 @@ export function WizardStep2Addons() {
           onClick={() => setSelectedAddonId("")}
           className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
             selectedAddonId === ""
-              ? "bg-indigo-500/10 border-indigo-500 text-foreground"
-              : "bg-card border-border text-muted-foreground hover:bg-accent/50"
+              ? "bg-primary/5 border-primary text-foreground"
+              : "bg-card border-border text-muted-foreground hover:bg-muted/50"
           }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-4 h-4 rounded-full border border-border flex items-center justify-center">
-              {selectedAddonId === "" && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
+              {selectedAddonId === "" && <div className="w-2 h-2 rounded-full bg-primary" />}
             </div>
             <div>
               <div className="text-xs font-semibold text-foreground">Standalone Service (No Addons)</div>
@@ -42,18 +42,18 @@ export function WizardStep2Addons() {
             onClick={() => setSelectedAddonId(addon.id)}
             className={`flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
               selectedAddonId === addon.id
-                ? "bg-indigo-500/10 border-indigo-500 text-foreground"
-                : "bg-card border-border text-foreground hover:bg-accent/50"
+                ? "bg-primary/5 border-primary text-foreground"
+                : "bg-card border-border text-foreground hover:bg-muted/50"
             }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 rounded-full border border-border flex items-center justify-center">
-                {selectedAddonId === addon.id && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
+                {selectedAddonId === addon.id && <div className="w-2 h-2 rounded-full bg-primary" />}
               </div>
               <div>
                 <div className="text-xs font-semibold flex items-center gap-2">
                   <span className="text-foreground">{addon.name}</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-indigo-500">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">
                     {addon.type}
                   </span>
                 </div>
@@ -70,7 +70,7 @@ export function WizardStep2Addons() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition border border-border"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -78,7 +78,7 @@ export function WizardStep2Addons() {
         <button
           type="button"
           onClick={() => setStep(3)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer transition"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold cursor-pointer transition shadow-xs"
         >
           <span>Continue to Environment</span>
           <ArrowRight className="w-4 h-4" />

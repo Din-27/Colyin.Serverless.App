@@ -159,8 +159,8 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                     className={cn(
                       "flex items-start gap-2.5 p-3 rounded-lg border text-left transition-all duration-150 cursor-pointer",
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/70 text-foreground ring-1 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/40"
-                        : "border-border bg-card/60 hover:border-muted-foreground/30 hover:bg-secondary/60 text-foreground"
+                        ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary/30"
+                        : "border-border bg-card/60 hover:border-muted-foreground/30 hover:bg-muted/40 text-foreground"
                     )}
                   >
                     <div className="flex-1 min-w-0">
@@ -168,7 +168,7 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
                         <span className="text-xs font-semibold text-foreground">
                           {item.name}
                         </span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-primary" />}
                       </div>
                       <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
                         {item.desc}
@@ -202,11 +202,11 @@ export function CreateAddonModal({ projectId }: { projectId: string }) {
               id="addon-is-public"
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              className="mt-0.5 h-4 w-4 rounded border-border accent-primary cursor-pointer"
             />
             <div className="flex-1">
               <label htmlFor="addon-is-public" className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                <Globe className="w-3.5 h-3.5 text-muted-foreground" />
                 Enable Public Access (Port Publik Luar)
               </label>
               <p className="text-[11px] text-muted-foreground mt-0.5">

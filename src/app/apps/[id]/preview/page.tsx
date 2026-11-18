@@ -116,7 +116,7 @@ export default async function AppPreviewPage({
             </Button>
             <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
               <Link href={`/apps/${app.id}`}>
-                <Server className="w-3.5 h-3.5 text-indigo-500" />
+                <Server className="w-3.5 h-3.5 text-foreground" />
                 <span>App Console</span>
               </Link>
             </Button>
@@ -154,7 +154,7 @@ export default async function AppPreviewPage({
           <div className="p-5 rounded-xl border border-border bg-card space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4 text-indigo-500" />
+                <Globe className="w-4 h-4 text-foreground" />
                 <h2 className="text-sm font-bold text-foreground">Ingress &amp; Domain Topology</h2>
               </div>
               <span className="text-[11px] font-mono text-muted-foreground">
@@ -168,7 +168,7 @@ export default async function AppPreviewPage({
                   <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
                     Assigned Public Ingress
                   </div>
-                  <div className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
+                  <div className="text-xs font-mono font-bold text-foreground mt-0.5">
                     {accessUrl}
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default async function AppPreviewPage({
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
                     isPortOccupied
-                      ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30"
+                      ? "bg-primary/10 text-primary border border-primary/20"
                       : "bg-muted text-muted-foreground border border-border"
                   }`}
                 >
@@ -294,7 +294,7 @@ export default async function AppPreviewPage({
           {/* Quick Help Card */}
           <div className="p-5 rounded-xl border border-border bg-card space-y-3">
             <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-indigo-500" />
+              <Info className="w-3.5 h-3.5 text-foreground" />
               <span>Testing Guide</span>
             </h3>
             <p className="text-[11px] text-muted-foreground leading-relaxed">

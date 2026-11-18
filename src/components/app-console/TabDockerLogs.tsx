@@ -274,7 +274,7 @@ export function TabDockerLogs() {
                           : isHttp
                           ? "text-cyan-300"
                           : isSystem
-                          ? "text-indigo-400 font-bold"
+                          ? "text-sky-400 font-bold"
                           : "text-zinc-300"
                       }`}
                     >
@@ -299,7 +299,7 @@ export function TabDockerLogs() {
                       : line.includes("WARNING")
                       ? "text-amber-400"
                       : line.includes("Simulated")
-                      ? "text-indigo-400"
+                      ? "text-sky-400"
                       : "text-zinc-300"
                   }`}
                 >

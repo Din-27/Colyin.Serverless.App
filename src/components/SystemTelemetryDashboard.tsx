@@ -408,7 +408,7 @@ export function SystemTelemetryDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-indigo-500" />
+                  <Layers className="w-4 h-4 text-foreground" />
                   Active Integrated Services
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">

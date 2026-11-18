@@ -65,13 +65,13 @@ export default async function ApplicationDetailPage({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-foreground">
-              <Server className="w-5 h-5 text-indigo-500" />
+              <Server className="w-5 h-5 text-foreground" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">{app.name}</h1>
                 <StatusBadge status={activeDeployment?.status || "STOPPED"} />
-                <Badge variant="outline" className="font-mono text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30">
+                <Badge variant="outline" className="font-mono text-xs font-semibold bg-muted text-foreground border-border">
                   {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
                 </Badge>
               </div>
@@ -94,7 +94,7 @@ export default async function ApplicationDetailPage({
           <div className="flex items-center gap-2.5">
             <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
               <Link href={`/apps/${app.id}/preview`}>
-                <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                <Globe className="w-3.5 h-3.5 text-foreground" />
                 <span>Simulator</span>
               </Link>
             </Button>

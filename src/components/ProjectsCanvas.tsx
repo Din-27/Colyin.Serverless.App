@@ -56,7 +56,7 @@ export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-            <FolderKanban className="w-6 h-6 text-indigo-500" />
+            <FolderKanban className="w-6 h-6 text-foreground" />
             <span>Projects</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -90,13 +90,13 @@ export function ProjectsCanvas({ projects, user }: ProjectsCanvasProps) {
               href={`/projects/${project.id}`}
               className="group block transition-all focus:outline-none"
             >
-              <Card className="h-full hover:-translate-y-1 hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-500/40 transition-all duration-200 flex flex-col justify-between">
+              <Card className="h-full hover:-translate-y-1 hover:shadow-md hover:border-foreground/30 transition-all duration-200 flex flex-col justify-between">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                    <CardTitle className="text-base group-hover:text-primary transition-colors flex items-center gap-1.5">
                       {project.name}
                     </CardTitle>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
                   <CardDescription className="line-clamp-2 mt-1">
                     {project.description || "No description provided."}

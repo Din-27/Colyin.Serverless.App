@@ -29,19 +29,19 @@ function WizardContent() {
             key={s.num}
             className={`flex items-center gap-2 ${
               step === s.num
-                ? "text-indigo-600 dark:text-indigo-400 font-semibold"
+                ? "text-primary font-semibold"
                 : step > s.num
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-foreground font-medium"
                 : "text-muted-foreground/60"
             }`}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border transition ${
                 step === s.num
-                  ? "border-indigo-500 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+                  ? "border-primary bg-primary text-primary-foreground font-bold shadow-xs"
                   : step > s.num
-                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                  : "border-border bg-muted/50 text-muted-foreground/60"
+                  ? "border-border bg-muted text-foreground"
+                  : "border-border bg-muted/40 text-muted-foreground/60"
               }`}
             >
               {step > s.num ? <Check className="w-3.5 h-3.5" /> : s.num}
@@ -52,7 +52,7 @@ function WizardContent() {
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
           {error}
         </div>
       )}

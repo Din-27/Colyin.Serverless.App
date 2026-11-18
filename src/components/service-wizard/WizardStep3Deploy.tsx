@@ -56,13 +56,13 @@ export function WizardStep3Deploy() {
           </div>
 
           {/* Mode Toggle Buttons */}
-          <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted border border-border self-start sm:self-auto text-xs">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/60 border border-border self-start sm:self-auto text-xs">
             <button
               type="button"
               onClick={() => setDomainMode("auto")}
-              className={`px-3 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
                 domainMode === "auto"
-                  ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -71,9 +71,9 @@ export function WizardStep3Deploy() {
             <button
               type="button"
               onClick={() => setDomainMode("custom")}
-              className={`px-3 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
                 domainMode === "custom"
-                  ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -150,7 +150,7 @@ export function WizardStep3Deploy() {
         <button
           type="button"
           onClick={() => setStep(2)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold cursor-pointer transition border border-border"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -159,7 +159,7 @@ export function WizardStep3Deploy() {
           type="button"
           disabled={loading}
           onClick={handleFinishDeploy}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow-xs transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-semibold shadow-xs transition cursor-pointer"
         >
           {loading ? (
             <>

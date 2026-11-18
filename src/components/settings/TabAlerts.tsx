@@ -77,7 +77,7 @@ export function TabAlerts() {
       {/* Recipient & SMTP Config */}
       <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-4">
         <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Mail className="w-4 h-4 text-indigo-500" />
+          <Mail className="w-4 h-4 text-foreground" />
           SMTP Server Configuration
         </h3>
 
@@ -146,7 +146,7 @@ export function TabAlerts() {
               type="button"
               disabled={isSendingAlert}
               onClick={handleTestEmail}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-semibold shadow-xs transition cursor-pointer"
             >
               {isSendingAlert ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

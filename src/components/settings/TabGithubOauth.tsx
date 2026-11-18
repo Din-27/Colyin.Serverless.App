@@ -19,7 +19,7 @@ export function TabGithubOauth() {
     <div className="rounded-xl border border-border bg-card shadow-xs p-6 space-y-5">
       <div>
         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-indigo-500" />
+          <KeyRound className="w-4 h-4 text-foreground" />
           GitHub OAuth App Credentials
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
@@ -77,7 +77,7 @@ export function TabGithubOauth() {
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs transition cursor-pointer"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             Save OAuth Credentials

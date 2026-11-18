@@ -109,7 +109,7 @@ export default async function ProjectDetailPage({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Server className="w-4 h-4 text-indigo-500" />
+            <Server className="w-4 h-4 text-foreground" />
             <span>Applications ({project.applications.length})</span>
           </h2>
         </div>
@@ -141,14 +141,14 @@ export default async function ProjectDetailPage({
               return (
                 <Card
                   key={app.id}
-                  className="hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-500/40 transition-all duration-200 flex flex-col justify-between"
+                  className="hover:-translate-y-0.5 hover:shadow-md hover:border-foreground/30 transition-all duration-200 flex flex-col justify-between"
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <Link
                           href={`/apps/${app.id}`}
-                          className="font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                          className="font-semibold text-foreground hover:text-primary transition-colors"
                         >
                           {app.name}
                         </Link>
@@ -170,7 +170,7 @@ export default async function ProjectDetailPage({
                         href={appAccessUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:underline truncate max-w-[210px]"
+                        className="flex items-center gap-1.5 text-foreground hover:underline truncate max-w-[210px]"
                         title={`Open ${appAccessUrl} in new tab`}
                       >
                         <Globe className="w-3.5 h-3.5 shrink-0" />
@@ -203,7 +203,7 @@ export default async function ProjectDetailPage({
                     </div>
                     <Link
                       href={`/apps/${app.id}`}
-                      className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                      className="text-xs font-medium text-foreground hover:underline flex items-center gap-1"
                     >
                       <span>Manage</span>
                       <ChevronRight className="w-3 h-3" />

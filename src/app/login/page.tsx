@@ -188,7 +188,7 @@ export default function LoginPage() {
           <CardFooter className="flex-col items-stretch pt-4 border-t border-border/80 bg-muted/20 gap-2.5">
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 font-medium text-foreground text-[11px]">
-                <Terminal className="w-3.5 h-3.5 text-indigo-500" />
+                <Terminal className="w-3.5 h-3.5 text-foreground" />
                 <span>Kredensial Root Admin di Server</span>
               </span>
               <Badge variant="outline" className="font-mono text-[9px] py-0 px-1.5">

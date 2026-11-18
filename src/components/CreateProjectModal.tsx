@@ -66,7 +66,7 @@ export function CreateProjectModal() {
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
             <div className="p-2 rounded-lg bg-secondary text-foreground">
-              <FolderPlus className="w-5 h-5 text-indigo-500" />
+              <FolderPlus className="w-5 h-5 text-foreground" />
             </div>
             <div>
               <DialogTitle>Create Project</DialogTitle>

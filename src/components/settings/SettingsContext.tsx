@@ -370,7 +370,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       case "ADMIN":
         return "bg-rose-500/10 text-rose-500 border-rose-500/20";
       case "DEVELOPER":
-        return "bg-indigo-500/10 text-indigo-500 border-indigo-500/20";
+        return "bg-primary/10 text-primary border-primary/20";
       case "VIEWER":
         return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
       default:

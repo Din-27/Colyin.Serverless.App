@@ -39,7 +39,7 @@ export function ResourceAllocationSelector({
       mem: 256,
       badge: "0.5 vCPU • 256 MB",
       icon: Zap,
-      color: "text-emerald-400",
+      color: "text-foreground",
     },
     {
       id: "STANDARD",
@@ -49,7 +49,7 @@ export function ResourceAllocationSelector({
       mem: 512,
       badge: "1.0 vCPU • 512 MB",
       icon: Cpu,
-      color: "text-indigo-400",
+      color: "text-foreground",
     },
     {
       id: "HIGH",
@@ -59,7 +59,7 @@ export function ResourceAllocationSelector({
       mem: 2048,
       badge: "2.0 vCPU • 2 GB",
       icon: HardDrive,
-      color: "text-amber-400",
+      color: "text-foreground",
     },
     {
       id: "CUSTOM",
@@ -69,7 +69,7 @@ export function ResourceAllocationSelector({
       mem: customMem,
       badge: "Custom Limits",
       icon: Sliders,
-      color: "text-purple-400",
+      color: "text-foreground",
     },
   ];
 
@@ -111,8 +111,8 @@ export function ResourceAllocationSelector({
               onClick={() => handleSelectMode(preset.id as any)}
               className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-2 cursor-pointer ${
                 isSelected
-                  ? "bg-primary/10 border-primary text-foreground shadow-sm ring-1 ring-primary/40"
-                  : "bg-card border-border hover:border-border/80 hover:bg-accent/50 text-foreground"
+                  ? "bg-primary/5 border-primary text-foreground ring-1 ring-primary/30"
+                  : "bg-card border-border hover:border-border/80 hover:bg-muted/40 text-foreground"
               }`}
             >
               <div className="flex items-start justify-between w-full">

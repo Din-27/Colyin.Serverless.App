@@ -18,7 +18,7 @@ function AddonStudioContent() {
   if (loading) {
     return (
       <div className="p-12 text-center text-xs text-muted-foreground">
-        <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" />
+        <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-muted-foreground" />
         Loading addon configuration...
       </div>
     );
@@ -43,7 +43,7 @@ function AddonStudioContent() {
 
         {hasInteractiveStudio && (
           <TabsTrigger value="studio" className="gap-2 py-2 px-3.5">
-            <Terminal className="w-3.5 h-3.5 text-indigo-500" />
+            <Terminal className="w-3.5 h-3.5 text-foreground" />
             <span>Interactive Studio ({isPostgres ? "SQL" : "Redis"})</span>
           </TabsTrigger>
         )}

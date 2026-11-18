@@ -51,7 +51,7 @@ export function RuntimeSelector({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="block text-xs font-semibold text-foreground flex items-center gap-1.5">
-          <Cpu className="w-3.5 h-3.5 text-indigo-500" />
+          <Cpu className="w-3.5 h-3.5 text-muted-foreground" />
           <span>{label}</span>
         </label>
         {selectedOption === "AUTO" && (
@@ -98,11 +98,11 @@ export function RuntimeSelector({
 
       {selectedOption === "AUTO" ? (
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          {helperText} We automatically read configuration files like <code className="text-indigo-600 dark:text-indigo-400 font-semibold">.nvmrc</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">go.mod</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">pom.xml</code>, <code className="text-indigo-600 dark:text-indigo-400 font-semibold">runtime.txt</code>, and <code className="text-indigo-600 dark:text-indigo-400 font-semibold">Cargo.toml</code> from your repository.
+          {helperText} We automatically read configuration files like <code className="text-foreground font-semibold">.nvmrc</code>, <code className="text-foreground font-semibold">go.mod</code>, <code className="text-foreground font-semibold">pom.xml</code>, <code className="text-foreground font-semibold">runtime.txt</code>, and <code className="text-foreground font-semibold">Cargo.toml</code> from your repository.
         </p>
       ) : selectedOption !== "CUSTOM" ? (
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Override active: Build and runtime containers will explicitly use version <code className="text-indigo-600 dark:text-indigo-400 font-mono font-semibold">{selectedOption}</code>.
+          Override active: Build and runtime containers will explicitly use version <code className="text-foreground font-mono font-semibold">{selectedOption}</code>.
         </p>
       ) : null}
     </div>
