@@ -43,7 +43,7 @@ export function CopyButton({
         </>
       ) : (
         <>
-          <Copy className="w-3.5 h-3.5 text-zinc-400" />
+          <Copy className="w-3.5 h-3.5 text-muted-foreground" />
           <span>{label || "Copy"}</span>
         </>
       )}

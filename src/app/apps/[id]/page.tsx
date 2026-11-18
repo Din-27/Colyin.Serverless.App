@@ -5,11 +5,12 @@ import { getDockerDaemonStatus } from "@/lib/engine/docker";
 import { formatAccessUrl } from "@/lib/engine/domains";
 import { AppConsoleTabs } from "@/components/AppConsoleTabs";
 import Link from "next/link";
-import { ChevronRight, Server, Globe, ExternalLink, Lock } from "lucide-react";
+import { ChevronRight, Server, Globe, ExternalLink, Lock, GitBranch, GitCommit } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DeleteAppButton } from "@/components/DeleteAppButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 
 export const dynamic = "force-dynamic";
 
@@ -64,52 +65,114 @@ export default async function ApplicationDetailPage({
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center text-foreground">
+            <div className="w-10 h-10 rounded-xl bg-muted/60 border border-border flex items-center justify-center text-foreground shadow-2xs">
               <Server className="w-5 h-5 text-foreground" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">{app.name}</h1>
                 <StatusBadge status={activeDeployment?.status || "STOPPED"} />
-                <Badge variant="outline" className="font-mono text-xs font-semibold bg-muted text-foreground border-border">
-                  {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
-                </Badge>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Badge variant="outline" className="font-mono text-xs font-semibold bg-muted text-foreground border-border cursor-help shadow-2xs">
+                      {(app as any).version || (activeDeployment as any)?.version || "v1.0.0"}
+                    </Badge>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-56 text-xs space-y-1">
+                    <div className="font-semibold text-foreground">Current Active Release</div>
+                    <div className="text-[11px] text-muted-foreground">Version tracking tag for this container rollout.</div>
+                  </HoverCardContent>
+                </HoverCard>
               </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground font-mono">
-                <span className="truncate max-w-xs">{app.repositoryUrl}</span>
+
+              {/* Clean metadata labels with Info Hover Cards */}
+              <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground font-mono flex-wrap">
+                <span className="truncate max-w-xs text-foreground/80">{app.repositoryUrl}</span>
                 <span>&bull;</span>
-                <span>Branch: {app.branch}</span>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted text-foreground border border-border cursor-help transition-colors text-[11px] shadow-2xs">
+                      <GitBranch className="w-3 h-3 text-muted-foreground" />
+                      <span>{app.branch}</span>
+                    </span>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-60 text-xs space-y-1">
+                    <div className="font-semibold text-foreground flex items-center gap-1.5">
+                      <GitBranch className="w-3.5 h-3.5 text-primary" />
+                      <span>Deploy Branch</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      Deployments are automatically pulled and tracked against the <code className="font-mono text-foreground font-semibold">{app.branch}</code> branch.
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+
                 {activeDeployment?.commitHash && (
                   <>
                     <span>&bull;</span>
-                    <span className="text-[11px] bg-muted px-1.5 py-0.5 rounded border border-border">
-                      {activeDeployment.commitHash.slice(0, 7)}
-                    </span>
+                    <HoverCard>
+                      <HoverCardTrigger>
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted text-foreground border border-border cursor-help transition-colors text-[11px] shadow-2xs">
+                          <GitCommit className="w-3 h-3 text-muted-foreground" />
+                          <span>{activeDeployment.commitHash.slice(0, 7)}</span>
+                        </span>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-64 text-xs space-y-1">
+                        <div className="font-semibold text-foreground flex items-center gap-1.5">
+                          <GitCommit className="w-3.5 h-3.5 text-primary" />
+                          <span>Active Commit Hash</span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground font-mono break-all">
+                          {activeDeployment.commitHash}
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
                   </>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
-              <Link href={`/apps/${app.id}/preview`}>
-                <Globe className="w-3.5 h-3.5 text-foreground" />
-                <span>Simulator</span>
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2 font-mono text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 shadow-xs">
-              <a
-                href={accessUrl}
-                target="_blank"
-                rel="noreferrer"
-                title={`Open ${accessUrl} in new tab`}
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>{primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`}</span>
-                <ExternalLink className="w-3 h-3 opacity-60" />
-              </a>
-            </Button>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <HoverCard>
+              <HoverCardTrigger>
+                <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-xs">
+                  <Link href={`/apps/${app.id}/preview`}>
+                    <Globe className="w-3.5 h-3.5 text-foreground" />
+                    <span>Simulator</span>
+                  </Link>
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-60 text-xs space-y-1">
+                <div className="font-semibold text-foreground">Interactive Simulator</div>
+                <div className="text-[11px] text-muted-foreground">Preview routing topology, direct port proxy, and curl commands.</div>
+              </HoverCardContent>
+            </HoverCard>
+
+            <HoverCard>
+              <HoverCardTrigger>
+                <Button asChild variant="outline" size="sm" className="gap-2 font-mono text-xs border-border bg-card hover:bg-accent text-foreground shadow-xs">
+                  <a
+                    href={accessUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`Open ${accessUrl} in new tab`}
+                  >
+                    <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>{primaryDomain ? primaryDomain.host : `localhost:${app.internalPort}`}</span>
+                    <ExternalLink className="w-3 h-3 opacity-60" />
+                  </a>
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-64 text-xs space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-primary" />
+                  <span>Live Endpoint Access</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">Launch the active web application endpoint in a new browser tab.</div>
+              </HoverCardContent>
+            </HoverCard>
+
             <DeleteAppButton appId={app.id} appName={app.name} projectId={app.project.id} />
           </div>
         </div>

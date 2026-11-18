@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Globe, ExternalLink, RotateCcw } from "lucide-react";
+import { Globe, ExternalLink, RotateCcw, Radio, Network } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
+import { InfoHoverBadge } from "@/components/ui/hover-card";
 import { useAppConsole } from "./AppConsoleContext";
 
 export function TopAccessBanner() {
@@ -25,40 +26,43 @@ export function TopAccessBanner() {
   }
 
   return (
-    <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/20 backdrop-blur flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in">
+    <div className="p-4 rounded-xl border border-border bg-card shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in">
       <div className="flex items-start sm:items-center gap-3.5">
-        <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-          <Globe className="w-5 h-5" />
+        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+          <Globe className="w-4 h-4" />
         </div>
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-bold text-foreground">Application is Live &amp; Reachable</span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-600/80 shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               ONLINE
             </span>
             {isJustDeployed && (
-              <span className="text-[10px] text-emerald-800 dark:text-emerald-200 font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-500/50 shadow-xs">
+              <span className="text-[10px] text-muted-foreground font-semibold px-2 py-0.5 rounded-full bg-secondary border border-border shadow-xs">
                 Just Deployed!
               </span>
             )}
           </div>
 
-          {/* Endpoint URLs */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs">
+          {/* Clean Endpoint URLs with Info Hover Cards */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-xs">
             {primaryDomain && (
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-foreground bg-muted border border-border px-2 py-0.5 rounded shadow-xs">
-                  Domain:
-                </span>
+                <InfoHoverBadge
+                  icon={Globe}
+                  label="Public Ingress Route"
+                  badgeText={isHttps ? "HTTPS" : "HTTP"}
+                  description="Traefik v3 reverse proxy routing traffic from the public Internet with automatic SSL encryption."
+                />
                 <a
                   href={accessUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 hover:underline flex items-center gap-1"
+                  className="font-mono font-bold text-foreground hover:underline flex items-center gap-1"
                 >
                   <span>{accessUrl}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5 opacity-60" />
                 </a>
                 <CopyButton text={accessUrl} label="Copy Link" />
               </div>
@@ -67,7 +71,12 @@ export function TopAccessBanner() {
             {!isHttps && (
               <>
                 <div className="flex items-center gap-1.5 border-l border-border pl-3">
-                  <span className="text-[11px] text-muted-foreground font-medium">Local Port:</span>
+                  <InfoHoverBadge
+                    icon={Radio}
+                    label="Direct Container Port"
+                    badgeText="Host Port"
+                    description={`Direct host port :${app.internalPort} mapped to the internal application container listener.`}
+                  />
                   <a
                     href={localDirectUrl}
                     target="_blank"
@@ -80,9 +89,18 @@ export function TopAccessBanner() {
                   <CopyButton text={localDirectUrl} label="Copy" />
                 </div>
 
-                <span className="text-[11px] text-muted-foreground font-mono hidden xl:inline border-l border-border pl-3">
-                  Mesh: http://{app.slug}:{app.internalPort}
-                </span>
+                <div className="hidden xl:flex items-center gap-1.5 border-l border-border pl-3">
+                  <InfoHoverBadge
+                    icon={Network}
+                    label="Docker Mesh DNS"
+                    badgeText="Project Network"
+                    description={`Private Docker network hostname http://${app.slug}:${app.internalPort} accessible by other services in this project.`}
+                  />
+                  <span className="text-[11px] text-muted-foreground font-mono">
+                    http://{app.slug}:{app.internalPort}
+                  </span>
+                  <CopyButton text={`http://${app.slug}:${app.internalPort}`} label="Copy" />
+                </div>
               </>
             )}
           </div>
@@ -95,7 +113,7 @@ export function TopAccessBanner() {
           href={accessUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs transition cursor-pointer"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span>Open Application</span>
@@ -106,7 +124,7 @@ export function TopAccessBanner() {
             href={localDirectUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-medium transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
             title="Open direct local port"
           >
             <span>Port :{app.internalPort}</span>
@@ -119,10 +137,10 @@ export function TopAccessBanner() {
           type="button"
           onClick={() => handleAction("restart")}
           disabled={actionLoading !== null}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition cursor-pointer disabled:opacity-50"
           title="Restart service container"
         >
-          <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-emerald-500" : "text-muted-foreground"}`} />
+          <RotateCcw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-primary" : "text-muted-foreground"}`} />
           <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
         </button>
 
@@ -130,7 +148,7 @@ export function TopAccessBanner() {
           <button
             type="button"
             onClick={() => setActiveTab("settings")}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-foreground text-xs font-medium transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition cursor-pointer"
             title="Configure custom domain"
           >
             <span>Add Domain</span>

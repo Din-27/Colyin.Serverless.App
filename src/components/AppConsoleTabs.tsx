@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
 import {
   AppConsoleProvider,
@@ -42,12 +43,12 @@ function AppConsoleContent() {
     handleDeploy,
   } = useAppConsole();
 
-  const tabs: Array<{ id: TabKey; label: string; icon: any }> = [
-    { id: "overview", label: "Overview & Metrics", icon: Activity },
-    { id: "deployments", label: "Deployments", icon: GitCommit },
-    { id: "logs", label: "Docker Logs", icon: Terminal },
-    { id: "env", label: "Environment Variables", icon: Key },
-    { id: "settings", label: "Network & Domains", icon: Settings },
+  const tabs: Array<{ id: TabKey; label: string; icon: any; description: string }> = [
+    { id: "overview", label: "Overview", icon: Activity, description: "System telemetry, CPU & memory limits, and runtime access endpoints." },
+    { id: "deployments", label: "Deployments", icon: GitCommit, description: "Rollout history, Git commit hashes, and automated build pipelines." },
+    { id: "logs", label: "Docker Logs", icon: Terminal, description: "Live streaming container output, build events, and stderr diagnostics." },
+    { id: "env", label: "Environment", icon: Key, description: "Encrypted environment variables and application secrets injected at runtime." },
+    { id: "settings", label: "Network & Domains", icon: Settings, description: "Traefik ingress routes, SSL certificates, and cgroups resource limits." },
   ];
 
   return (
@@ -55,20 +56,20 @@ function AppConsoleContent() {
       {/* Top Application Access Banner */}
       <TopAccessBanner />
 
-      {/* Action Feedback Banner */}
+      {/* Action Feedback Banner with Theme Adaptive Colors */}
       {actionFeedback && (
         <div
-          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in ${
+          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in shadow-2xs ${
             actionFeedback.type === "success"
-              ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
-              : "border-rose-500/40 bg-rose-950/30 text-rose-300"
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+              : "border-destructive/20 bg-destructive/10 text-destructive"
           }`}
         >
           <div className="flex items-center gap-2">
             {actionFeedback.type === "success" ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
             )}
             <span className="font-medium">{actionFeedback.text}</span>
           </div>
@@ -88,69 +89,131 @@ function AppConsoleContent() {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="gap-2 py-1.5 px-3 text-xs"
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </TabsTrigger>
+                <HoverCard key={tab.id} openDelay={250}>
+                  <HoverCardTrigger asChild>
+                    <TabsTrigger
+                      value={tab.id}
+                      className="gap-2 py-1.5 px-3 text-xs"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="top" className="w-60 text-xs space-y-1">
+                    <div className="font-semibold text-foreground flex items-center gap-1.5">
+                      <Icon className="w-3.5 h-3.5 text-primary" />
+                      <span>{tab.label}</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground leading-relaxed">
+                      {tab.description}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               );
             })}
           </TabsList>
 
-          {/* Action Controls Group: Restart, Stop/Start, Redeploy */}
+          {/* Action Controls Group: Restart, Stop/Start, Redeploy with Info Hover Cards */}
           <div className="flex items-center gap-2 pb-1 sm:pb-0 shrink-0">
             {currentAppStatus === "ACTIVE" ? (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAction("restart")}
-                  disabled={actionLoading !== null}
-                  className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
-                  title="Restart service container"
-                >
-                  <RotateCcw className={cn("w-3.5 h-3.5", actionLoading === "restart" && "animate-spin")} />
-                  <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleAction("stop")}
-                  disabled={actionLoading !== null}
-                  className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
-                  title="Stop service container"
-                >
-                  <Square className="w-3.5 h-3.5" />
-                  <span>{actionLoading === "stop" ? "Stopping..." : "Stop"}</span>
-                </Button>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAction("restart")}
+                      disabled={actionLoading !== null}
+                      className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
+                    >
+                      <RotateCcw className={cn("w-3.5 h-3.5", actionLoading === "restart" && "animate-spin")} />
+                      <span>{actionLoading === "restart" ? "Restarting..." : "Restart"}</span>
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="top" className="w-56 text-xs space-y-1">
+                    <div className="font-semibold text-foreground flex items-center gap-1.5">
+                      <RotateCcw className="w-3.5 h-3.5 text-primary" />
+                      <span>Restart Container</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      Restarts the container service cleanly without removing stored data.
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleAction("stop")}
+                      disabled={actionLoading !== null}
+                      className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
+                    >
+                      <Square className="w-3.5 h-3.5" />
+                      <span>{actionLoading === "stop" ? "Stopping..." : "Stop"}</span>
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="top" className="w-56 text-xs space-y-1">
+                    <div className="font-semibold text-destructive flex items-center gap-1.5">
+                      <Square className="w-3.5 h-3.5" />
+                      <span>Stop Container</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      Stops the container process and releases allocated CPU &amp; RAM quotas.
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               </>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAction("start")}
-                disabled={actionLoading !== null}
-                className="gap-1.5 text-xs h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer shadow-xs"
-                title="Start service container"
-              >
-                <Play className="w-3.5 h-3.5" />
-                <span>{actionLoading === "start" ? "Starting..." : "Start"}</span>
-              </Button>
+              <HoverCard>
+                <HoverCardTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleAction("start")}
+                    disabled={actionLoading !== null}
+                    className="gap-1.5 text-xs h-8 border-border bg-card hover:bg-accent text-foreground cursor-pointer shadow-xs"
+                  >
+                    <Play className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>{actionLoading === "start" ? "Starting..." : "Start"}</span>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent side="top" className="w-56 text-xs space-y-1">
+                  <div className="font-semibold text-foreground flex items-center gap-1.5">
+                    <Play className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Start Container</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Boots up the existing application container image.
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
             )}
 
-            <Button
-              variant="brand"
-              size="sm"
-              onClick={handleDeploy}
-              disabled={isDeploying || actionLoading !== null}
-              className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
-            >
-              <RefreshCw className={cn("w-3.5 h-3.5", isDeploying && "animate-spin")} />
-              <span>Redeploy</span>
-            </Button>
+            <HoverCard>
+              <HoverCardTrigger>
+                <Button
+                  variant="brand"
+                  size="sm"
+                  onClick={handleDeploy}
+                  disabled={isDeploying || actionLoading !== null}
+                  className="gap-1.5 text-xs h-8 cursor-pointer shadow-xs"
+                >
+                  <RefreshCw className={cn("w-3.5 h-3.5", isDeploying && "animate-spin")} />
+                  <span>Redeploy</span>
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent side="top" align="end" className="w-64 text-xs space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5 text-primary" />
+                  <span>Trigger Redeployment</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Pulls the newest commit, builds image using Nixpacks or Dockerfile, and swaps container seamlessly.
+                </div>
+              </HoverCardContent>
+            </HoverCard>
           </div>
         </div>
 
